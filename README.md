@@ -15,7 +15,7 @@ rootAVD will backup your ramdisk.img and replace it when finished
 
 ### Links
 * [XDA [GUIDE] Build / Mod AVD Kernel Android10 x86_64-29](https://forum.xda-developers.com/t/guide-build-mod-avd-kernel-android10-x86_64-29-root-magisk-usb-passthrough-linux.4212719/)
-* [Inject Android Hardware USB HOST Permissions] (https://github.com/newbit1/usbhostpermissons)
+* [Inject Android Hardware USB HOST Permissions](https://github.com/newbit1/usbhostpermissons)
 
 ### Successfully tested with Stock Kernel on
 * [[Jan. 2021] - Android 11 (R) API 30 Google Apis Play Store x86_64 r10 Linux Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-linux.zip)
