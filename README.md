@@ -21,7 +21,7 @@ with Magisk v21.2 and Magisk Manager v8.0.5 within seconds
 
 ### Options
 * Install all APKs placed in the Apps folder
-* If you set PATCHFSTAB=true
+* If you set `PATCHFSTAB=true`
 	* fstab.ranchu will get patched to automount Block Devices like /dev/block/sda1
 	* !! a custom build Kernel is needed !!
 
