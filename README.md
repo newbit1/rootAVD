@@ -26,8 +26,9 @@ with Magisk v21.2 and Magisk Manager v8.0.5 within seconds
 	* !! a custom build Kernel is needed !!
 
 ### Links
-* [XDA [GUIDE] Build / Mod AVD Kernel Android10 x86_64-29](https://forum.xda-developers.com/t/guide-build-mod-avd-kernel-android10-x86_64-29-root-magisk-usb-passthrough-linux.4212719/)
+* [XDA [GUIDE] Build / Mod AVD Kernel Android10 x86_64-29](https://forum.xda-developers.com/t/guide-build-mod-avd-kernel-android10-x86_64-29-root-magisk-usb-passthrough-linux.4212719)
 * [Inject Android Hardware USB HOST Permissions](https://github.com/newbit1/usbhostpermissons)
+* [XDA [SCRIPT] rootAVD - root your Android Studio Virtual Device emulator with Magisk [Android 11][Linux][Darwin/MacOS][WIN][Google Play Store APIs]](https://forum.xda-developers.com/t/script-rootavd-root-your-android-studio-virtual-device-emulator-with-magisk-android-11-linux-darwin-macos-win-google-play-store-apis.4218123)
 
 ### Successfully tested with Stock Kernel on
 * [[Jan. 2021] - Android 11 (R) API 30 Google Apis Play Store x86_64 r10 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-darwin.zip)
