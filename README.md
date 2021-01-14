@@ -1,9 +1,7 @@
 # rootAVD
 ### [newbit @ xda-developers](https://forum.xda-developers.com/m/newbit.1350876/)
-A Script to root your Android Studio Virtual Device (AVD)
-With Magisk v21.2 and Magisk Manager v8.0.5 within seconds
-This line is also a separate paragraph, but...
-This line is only separated by a single newline, so it's a separate line in the *same paragraph*.
+A Script to root your Android Studio Virtual Device (AVD),
+with Magisk v21.2 and Magisk Manager v8.0.5 within seconds
 
 ### How To Use it
 * rootAVD needs a path with file to an AVD ramdisk
