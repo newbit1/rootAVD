@@ -3,12 +3,12 @@
 a Script to root your Android Studio Virtual Device (AVD) with Magisk v21.2 and Magisk Manager v8.0.5
 
 ### Usage MacOS / Linux
-rootAVD needs a path with file to an AVD ramdisk
-./rootAVD.sh ~/Android/Sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img
-rootAVD will backup your ramdisk.img and replace it when finished
+* rootAVD needs a path with file to an AVD ramdisk
+* ./rootAVD.sh ~/Android/Sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img
+* rootAVD will backup your ramdisk.img and replace it when finished
 
 ### Usage Windows 10
-rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img
+* rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img
 
 ### Options
 * Install all APKs placed in the Apps folder
