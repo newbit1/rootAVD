@@ -12,8 +12,8 @@ REM ############################################################################
 
 if "%1" == "" (
     echo "rootAVD needs a path with file to an AVD ramdisk"
+    echo "rootAVD will backup your ramdisk.img and replace it when finished"
 	echo "rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img"
-	echo "rootAVD will backup your ramdisk.img and replace it when finished"
 	exit /B 0
 )
 

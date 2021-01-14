@@ -61,8 +61,8 @@ CopyMagiskToAVD() {
 	# If there is no file to work with, abort the script
 	if (checkfile "$1" -eq 0); then
 	  echo "rootAVD needs a path with file to an AVD ramdisk"
-	  echo "./rootAVD.sh ~/Android/Sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img"
 	  echo "rootAVD will backup your ramdisk.img and replace it when finished"
+	  echo "./rootAVD.sh ~/Android/Sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img"
 	  exit 0
 	fi
 
