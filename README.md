@@ -1,14 +1,23 @@
 # rootAVD
 ### [newbit @ xda-developers](https://forum.xda-developers.com/m/newbit.1350876/)
-a Script to root your Android Studio Virtual Device (AVD) with Magisk v21.2 and Magisk Manager v8.0.5
+a Script to root your Android Studio Virtual Device (AVD)
+with Magisk v21.2 and Magisk Manager v8.0.5 within seconds
 
-### Usage MacOS / Linux
+### How To Use it
 * rootAVD needs a path with file to an AVD ramdisk
-* ./rootAVD.sh ~/Android/Sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img
-* rootAVD will backup your ramdisk.img and replace it when finished
+* rootAVD will backup your ramdisk.img and replace it when done patching
 
-### Usage Windows 10
-* rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img
+#### Linux
+`./rootAVD.sh ~/Android/Sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img`
+
+#### MacOS
+`./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img`
+
+#### Windows
+`rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img`
+
+### Notes
+* adb must be in your `$PATH`
 
 ### Options
 * Install all APKs placed in the Apps folder
@@ -21,6 +30,7 @@ a Script to root your Android Studio Virtual Device (AVD) with Magisk v21.2 and 
 * [Inject Android Hardware USB HOST Permissions](https://github.com/newbit1/usbhostpermissons)
 
 ### Successfully tested with Stock Kernel on
+* [[Jan. 2021] - Android 11 (R) API 30 Google Apis Play Store x86_64 r10 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-darwin.zip)
 * [[Jan. 2021] - Android 11 (R) API 30 Google Apis Play Store x86_64 r10 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-windows.zip)
 * [[Jan. 2021] - Android 11 (R) API 30 Google Apis Play Store x86_64 r10 Linux Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-linux.zip)
 * [[Jan. 2021] - Android 11 (R) API 30 Google Apis Play Store x86 r09 Linux Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-30_r09-linux.zip)
