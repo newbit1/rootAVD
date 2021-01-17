@@ -84,6 +84,8 @@ CopyMagiskToAVD() {
 	# The Folder where the script was called from
 	ROOTAVD="`getdir "${BASH_SOURCE:-$0}"`"
 	MAGISKZIP=$ROOTAVD/Magisk.zip
+	echo "[-] In any AVD via ADB, you can execute code without root in /data/data/com.android.shell "
+	ADBWORKDIR=/data/data/com.android.shell
 	
 	# change to ROOTAVD directory
 	cd $ROOTAVD
@@ -113,26 +115,23 @@ CopyMagiskToAVD() {
 	fi
 	echo "[*] Just in case, cleaning up the Magisk DIR"
 	rm -rf $ROOTAVD/Magisk
-
-	echo "[*] unpacking Magisk installer Zip"
-	unzip $MAGISKZIP -d Magisk > /dev/null 2>&1
 	
-	echo "[-] In any AVD via ADB, you can execute code without root in /data/data/com.android.shell "
-	ADBWORKDIR=/data/data/com.android.shell
+	echo "[*] Also, cleaning up the ADB working space"
+	adb shell rm -rf $ADBWORKDIR/Magisk
+	
+	echo "[-] unpacking Magisk installer Zip"
+	adb push $MAGISKZIP $ADBWORKDIR
+	adb shell "unzip -o -q $ADBWORKDIR/$MAGISKZIP -d $ADBWORKDIR/Magisk"
+	adb shell rm -rf $ADBWORKDIR/$MAGISKZIP
 	
 	echo "[*] Copy the original AVD ramdisk.img into Magisk DIR"
-	cp $PATHWITHFILE $ROOTAVD/Magisk
-
-	echo "[-] Copy Magisk Installer into Magisk DIR"
-	cp rootAVD.sh $ROOTAVD/Magisk
-
-	echo "[*] Just in case, cleaning up the ADB working space"
-	adb shell rm -rf $ADBWORKDIR/Magisk
-
-	echo "[-] Pushing all the stuff into the ADB working DIR"
-	ADBPUSHECHO=$(adb push $ROOTAVD/Magisk $ADBWORKDIR 2>/dev/null) 
+	ADBPUSHECHO=$(adb push $PATHWITHFILE $ADBWORKDIR/Magisk 2>/dev/null) 
 	echo "[*] $ADBPUSHECHO"
-
+	
+	echo "[-] Copy Magisk Installer into Magisk DIR"
+	ADBPUSHECHO=$(adb push rootAVD.sh $ADBWORKDIR//Magisk 2>/dev/null) 
+	echo "[*] $ADBPUSHECHO"
+	
 	echo "[-] run the actually Boot/Ramdisk/Kernel Image Patch Script"
 	echo "[*] from Magisk by topjohnwu and modded by NewBit XDA"
 	adb shell sh $ADBWORKDIR/Magisk/rootAVD.sh "ranchu"
