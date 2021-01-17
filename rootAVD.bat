@@ -20,7 +20,7 @@ if "%1" == "" (
 set RAMDISKFILE=%1
 set BACKUPFILE=%RAMDISKFILE%.bak
 set ROOTAVD="%cd%"
-
+set MAGISKZIP=%ROOTAVD%\Magisk.zip
 IF NOT EXIST %RAMDISKFILE% (
     echo "[!] %RAMDISKFILE% doesn't exist"
 	exit /B 0
@@ -45,32 +45,34 @@ IF "%ADBWORKS%" == "true" (
 	exit /B 0
 )
 
+echo "[-] In any AVD via ADB, you can execute code without root in /data/data/com.android.shell"
+SET ADBWORKDIR=/data/data/com.android.shell
+
 echo "[*] Just in case, cleaning up the Magisk DIR"
 rmdir /S /Q %ROOTAVD%\Magisk
 
+echo "[*] Also, cleaning up the ADB working space"
+adb shell rm -rf %ADBWORKDIR%/Magisk
+
 echo "[*] looking for Magisk installer Zip"
-IF EXIST %ROOTAVD%\magisk.zip (
+IF EXIST %MAGISKZIP% (
     echo "[*] unpacking Magisk installer Zip"
-	unzip magisk.zip -d Magisk
+	md %ROOTAVD%\Magisk
+	tar -xf %MAGISKZIP%  --directory %ROOTAVD%\Magisk
+	adb push %ROOTAVD%\Magisk %ADBWORKDIR%
 ) ELSE (
     echo "[-] Please download Magisk.zip file"
 	exit /B 0
 )
 
-echo "[-] In any AVD via ADB, you can execute code without root in /data/data/com.android.shell"
-SET ADBWORKDIR=/data/data/com.android.shell
-
 echo "[*] Copy the original AVD ramdisk.img into Magisk DIR"
-copy %RAMDISKFILE% %ROOTAVD%\Magisk
+adb push %RAMDISKFILE% %ADBWORKDIR%/Magisk
 
 echo "[-] Copy Magisk Installer into Magisk DIR"
-copy rootAVD.sh %ROOTAVD%\Magisk
+adb push rootAVD.sh %ADBWORKDIR%/Magisk
 
-echo "[*] Just in case, cleaning up the ADB working space"
-adb shell rm -rf %ADBWORKDIR%/Magisk
-
-echo "[-] Pushing all the stuff into the ADB working DIR"
-adb push %ROOTAVD%\Magisk %ADBWORKDIR%
+echo "[-] Convert Script to Unix Ending"
+adb -e shell "dos2unix %ADBWORKDIR%/Magisk/rootAVD.sh"
 
 echo "[-] run the actually Boot/Ramdisk/Kernel Image Patch Script"
 echo "[*] from Magisk by topjohnwu and modded by NewBit XDA"
