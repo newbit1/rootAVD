@@ -42,7 +42,7 @@ with Magisk v21.2 and Magisk Manager v8.0.5 within seconds
 
 ### Credits
 * [topjohnwu @ xda-developers](https://forum.xda-developers.com/m/topjohnwu.4470081)
-* [topjohnwu Magisk v21.2](https://github.com/topjohnwu/Magisk/releases/tag/v21.2)
-* [topjohnwu Magisk Manager v8.0.5](https://github.com/topjohnwu/Magisk/releases/tag/manager-v8.0.5)
+* [topjohnwu Magisk v21.4](https://github.com/topjohnwu/Magisk/releases/tag/v21.4)
+* [topjohnwu Magisk Manager v8.0.7](https://github.com/topjohnwu/Magisk/releases/tag/manager-v8.0.7)
 * [shakalaca @ xda-developers](https://forum.xda-developers.com/m/shakalaca.1813976)
 * [shakalaca MagiskOnEmulator](https://github.com/shakalaca/MagiskOnEmulator)
