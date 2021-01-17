@@ -104,8 +104,8 @@ CopyMagiskToAVD() {
 		echo "[-] Backup exists already"
 	fi
 
-	# Download the Magisk zip file -> Magisk-v21.2
-	MAGISKZIPDL=https://github.com/topjohnwu/Magisk/releases/download/v21.2/Magisk-v21.2.zip
+	# Download the Magisk zip file -> Magisk-v21.4
+	MAGISKZIPDL=https://github.com/topjohnwu/Magisk/releases/download/v21.4/Magisk-v21.4.zip
 	# If Magisk.zip file already exist, don't download it again
 	if (checkfile $MAGISKZIP -eq 0); then	
 		echo "[*] Downloading Magisk installer Zip"
@@ -121,16 +121,19 @@ CopyMagiskToAVD() {
 	
 	echo "[-] unpacking Magisk installer Zip"
 	adb push $MAGISKZIP $ADBWORKDIR
-	adb shell "unzip -o -q $ADBWORKDIR/$MAGISKZIP -d $ADBWORKDIR/Magisk"
-	adb shell rm -rf $ADBWORKDIR/$MAGISKZIP
+	adb shell "unzip -o -q $ADBWORKDIR/Magisk.zip -d $ADBWORKDIR/Magisk"
+	adb shell rm -rf $ADBWORKDIR/Magisk.zip
 	
 	echo "[*] Copy the original AVD ramdisk.img into Magisk DIR"
 	ADBPUSHECHO=$(adb push $PATHWITHFILE $ADBWORKDIR/Magisk 2>/dev/null) 
 	echo "[*] $ADBPUSHECHO"
 	
 	echo "[-] Copy Magisk Installer into Magisk DIR"
-	ADBPUSHECHO=$(adb push rootAVD.sh $ADBWORKDIR//Magisk 2>/dev/null) 
+	ADBPUSHECHO=$(adb push rootAVD.sh $ADBWORKDIR/Magisk 2>/dev/null) 
 	echo "[*] $ADBPUSHECHO"
+	
+	echo "[-] Convert Script to Unix Ending"
+	adb -e shell "dos2unix $ADBWORKDIR/Magisk/rootAVD.sh"
 	
 	echo "[-] run the actually Boot/Ramdisk/Kernel Image Patch Script"
 	echo "[*] from Magisk by topjohnwu and modded by NewBit XDA"
@@ -172,7 +175,7 @@ InstallMagiskToAVD() {
 	cd $BASEDIR
 
 	chmod -R 755 .
-
+	chmod -R 755 *
 	# prepare busybox
 	echo "[*] Extracting busybox ..."
 	sh $UB -x > /dev/null 2>&1
@@ -205,6 +208,7 @@ InstallMagiskToAVD() {
 	echo "[*] copy all files from BINDIR to BASEDIR"
 	cp $BINDIR/* $BASEDIR
 	chmod -R 755 .
+	chmod -R 755 *
 
 	# In that DIR with all the binaries is also the x64 version of it
 	# Rename it if it is a 64-Bit AVD version
@@ -358,7 +362,7 @@ InstallMagiskToAVD() {
 	# Set PATCHFSTAB=true if you want the RAMDISK merge your modded fstab.ranchu before Magisk Mirror gets mounted
 
 	PATCHFSTAB=false
-	PATCHFSTAB=true
+	#PATCHFSTAB=true
 
 	# cp the read-only fstab.ranchu from vendor partition and add usb:auto for SD devices
 	# kernel musst have Mass-Storage + SCSI Support enabled to create /dev/block/sd* nodes
