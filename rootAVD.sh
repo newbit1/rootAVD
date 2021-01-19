@@ -85,7 +85,7 @@ CopyMagiskToAVD() {
 	ROOTAVD="`getdir "${BASH_SOURCE:-$0}"`"
 	MAGISKZIP=$ROOTAVD/Magisk.zip
 	BUSYBOXINSTLR=$ROOTAVD/update-binary
-	echo "[-] In any AVD via ADB, you can execute code without root in /data/data/com.android.shell "
+	echo "[-] In any AVD via ADB, you can execute code without root in /data/data/com.android.shell"
 	ADBWORKDIR=/data/data/com.android.shell
 	ADBBASEDIR=$ADBWORKDIR/Magisk
 	
@@ -132,7 +132,7 @@ CopyMagiskToAVD() {
 	ADBPUSHECHO=$(adb push $PATHWITHFILE $ADBBASEDIR 2>/dev/null) 
 	echo "[*] $ADBPUSHECHO"
 	
-	echo "[-] Copy Magisk Installer into Magisk DIR"
+	echo "[-] Copy rootAVD Script into Magisk DIR"
 	ADBPUSHECHO=$(adb push rootAVD.sh $ADBBASEDIR 2>/dev/null) 
 	echo "[*] $ADBPUSHECHO"
 	
