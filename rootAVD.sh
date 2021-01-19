@@ -84,8 +84,10 @@ CopyMagiskToAVD() {
 	# The Folder where the script was called from
 	ROOTAVD="`getdir "${BASH_SOURCE:-$0}"`"
 	MAGISKZIP=$ROOTAVD/Magisk.zip
+	BUSYBOXINSTLR=$ROOTAVD/update-binary
 	echo "[-] In any AVD via ADB, you can execute code without root in /data/data/com.android.shell "
 	ADBWORKDIR=/data/data/com.android.shell
+	ADBBASEDIR=$ADBWORKDIR/Magisk
 	
 	# change to ROOTAVD directory
 	cd $ROOTAVD
@@ -113,42 +115,44 @@ CopyMagiskToAVD() {
 	else
 		echo "[-] Magisk installer Zip exists already"
 	fi
-	echo "[*] Just in case, cleaning up the Magisk DIR"
-	rm -rf $ROOTAVD/Magisk
 	
-	echo "[*] Also, cleaning up the ADB working space"
-	adb shell rm -rf $ADBWORKDIR/Magisk
+	echo "[*] Cleaning up the ADB working space"
+	adb shell rm -rf $ADBBASEDIR
 	
-	echo "[-] unpacking Magisk installer Zip"
-	adb push $MAGISKZIP $ADBWORKDIR
-	adb shell "unzip -o -q $ADBWORKDIR/Magisk.zip -d $ADBWORKDIR/Magisk"
-	adb shell rm -rf $ADBWORKDIR/Magisk.zip
+	echo "[*] Creating the ADB working space"
+	adb shell mkdir $ADBBASEDIR
+	
+	echo "[-] Copy Magisk installer Zip"
+	adb push $MAGISKZIP $ADBBASEDIR
+	
+	echo "[*] Copy Busybox installer"
+	adb push $BUSYBOXINSTLR $ADBBASEDIR
 	
 	echo "[*] Copy the original AVD ramdisk.img into Magisk DIR"
-	ADBPUSHECHO=$(adb push $PATHWITHFILE $ADBWORKDIR/Magisk 2>/dev/null) 
+	ADBPUSHECHO=$(adb push $PATHWITHFILE $ADBBASEDIR 2>/dev/null) 
 	echo "[*] $ADBPUSHECHO"
 	
 	echo "[-] Copy Magisk Installer into Magisk DIR"
-	ADBPUSHECHO=$(adb push rootAVD.sh $ADBWORKDIR/Magisk 2>/dev/null) 
+	ADBPUSHECHO=$(adb push rootAVD.sh $ADBBASEDIR 2>/dev/null) 
 	echo "[*] $ADBPUSHECHO"
 	
 	echo "[-] Convert Script to Unix Ending"
-	adb -e shell "dos2unix $ADBWORKDIR/Magisk/rootAVD.sh"
+	adb -e shell "dos2unix $ADBBASEDIR/rootAVD.sh"
 	
 	echo "[-] run the actually Boot/Ramdisk/Kernel Image Patch Script"
 	echo "[*] from Magisk by topjohnwu and modded by NewBit XDA"
-	adb shell sh $ADBWORKDIR/Magisk/rootAVD.sh "ranchu"
+	
+	adb shell sh $ADBBASEDIR/rootAVD.sh "ranchu"
 
 	# In Debug-Mode we can skip parts of the script
 	if (! "$DEBUG"); then
 
 		echo "[-] After the ramdisk.img file is patched and back gz'ed,"
 		echo "[*] pull it back in the Magisk DIR"
-		adb pull $ADBWORKDIR/Magisk/ramdiskpatched4AVD.img
+		adb pull $ADBBASEDIR/ramdiskpatched4AVD.img
 
 		echo "[-] Clean up the ADB working space"
-		adb shell rm -rf $ADBWORKDIR/Magisk
-		rm -rf $ROOTAVD/Magisk
+		adb shell rm -rf $ADBBASEDIR
 		
 		echo "[*] Move and rename the patched ramdisk.img to the original AVD DIR"
 		mv ramdiskpatched4AVD.img $PATHWITHFILE
@@ -167,18 +171,22 @@ InstallMagiskToAVD() {
 	echo "[-] Switch to the location of the script file"
 	BASEDIR="`getdir "${BASH_SOURCE:-$0}"`"
 	TMPDIR=$BASEDIR/tmp
-	UB=$BASEDIR/META-INF/com/google/android/update-binary
+	UB=$BASEDIR/update-binary
 	BB=$BASEDIR/busybox
 	RDF=$BASEDIR/ramdisk.img
 
 	# change to base directory
 	cd $BASEDIR
 
-	chmod -R 755 .
-	chmod -R 755 *
 	# prepare busybox
 	echo "[*] Extracting busybox ..."
 	sh $UB -x > /dev/null 2>&1
+
+	chmod -R 755 .
+	chmod -R 755 *
+
+	echo "[*] Extracting Magisk.zip ..."
+	$BB unzip Magisk.zip -oq
 
 	# rename ramdisk.img to ramdisk.img.gz
 	mv $RDF $RDF".gz"
