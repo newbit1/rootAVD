@@ -10,18 +10,23 @@ with Magisk and Magisk Manager within seconds
 ### How To Use it under Android S with Magisk v22
 * rootAVD needs to run twice
 * 1st - to patch the ramdisk.img
-* 2nd - after rebooting the AVD
-	* The "Additional Setup Required" will not be triggered in Android S by Magisk App in AVD,
-	* this must be done manually on the 2nd run
-	* Grant Shell Su Permissions will pop up a few times
-	* rootAVD will reboot the AVD automatically
-	* check Magisk App !!
+* 2nd - after Shut-Down & Reboot the AVD:
+	* Option 1 - re-run same script command
+	* Option 2 - run script with EnvFixTask Argument
+		* The "Additional Setup Required" will not be triggered in Android S by Magisk App in AVD,
+		* this must be done manually on the 2nd run
+		* Grant Shell Su Permissions will pop up a few times
+		* rootAVD will reboot the AVD automatically
+		* check Magisk App !!
 
 #### Linux
-`./rootAVD.sh ~/Android/Sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img`
+`./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img`
+`./rootAVD.sh EnvFixTask`
+
 
 #### MacOS
 `./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img`
+`./rootAVD.sh EnvFixTask`
 
 #### Windows
 `rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_playstore\x86_64\ramdisk.img`
@@ -61,12 +66,16 @@ with Magisk and Magisk Manager within seconds
 
 ### Change Logs
 #### [Mar. 2021]
-* [General] - Updated to Magisk App v22.0
-* [General] - Fixed some bugs and typos
-* [rootAVD.sh] - Added Compression Detection for LZ4 and GZ
-* [rootAVD.sh] - Updated shakalaca's Ramdisk Repack Routine
+
+* [rootAVD.sh] - Added EnvFixTask Argument to fix Requires Additional Setup in Android S
+* [General] - Changed to BusyBox (D)ASH Standalone
+* [General] - Re-Structured Script
 * [rootAVD.sh] - Added "Additional Setup Required" manually for Android S
+* [rootAVD.sh] - Updated shakalaca's Ramdisk Repack Routine
 * [rootAVD.bat] - Adjustments to run with the updated rootAVD.sh
+* [rootAVD.sh] - Added Compression Detection for LZ4 and GZ
+* [General] - Fixed some bugs and typos
+* [General] - Updated to Magisk App v22.0
 
 ### Credits
 * [topjohnwu @ xda-developers](https://forum.xda-developers.com/m/topjohnwu.4470081)

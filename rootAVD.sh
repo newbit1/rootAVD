@@ -6,20 +6,12 @@
 # Successfully tested on Android API:
 # [Dec. 2019] - 29 Google Apis Play Store x86_64 Production Build
 # [Jan. 2021] - 30 Google Apis Play Store x86_64 Production Build
+# [Mar. 2021] - 30 Google Apis Play Store x86_64 Production Build (S)
 #
 ##########################################################################################
 
 MAGISK_VER='22.0'
 MAGISK_VER_CODE=22000
-
-# While debugging and developing you can turn this flag on
-DEBUG=false
-#DEBUG=true
-# Shows whatever line get executed...
-if ("$DEBUG"); then
-	set -x
-	echo "Debug Mode"
-fi
 
 ###################
 # Helper Functions
@@ -34,29 +26,39 @@ getdir() {
 }
 
 get_flags() {
-  if [ -z $KEEPVERITY ]; then
-    if $SYSTEM_ROOT; then
-      KEEPVERITY=true
-      echo "[*] System-as-root, keep dm/avb-verity"
-    else
-      KEEPVERITY=false
-    fi
-  fi
-  ISENCRYPTED=false
-  grep ' /data ' /proc/mounts | grep -q 'dm-' && ISENCRYPTED=true
-  [ "$(getprop ro.crypto.state)" = "encrypted" ] && ISENCRYPTED=true
-  if [ -z $KEEPFORCEENCRYPT ]; then
-    # No data access means unable to decrypt in recovery
-    if $ISENCRYPTED || ! $DATA; then
-      KEEPFORCEENCRYPT=true
-      echo "[-] Encrypted data, keep forceencrypt"
-    else
-      KEEPFORCEENCRYPT=false
-    fi
-  fi
-	RECOVERYMODE=false
+	echo "[-] Get Flags"
 	
-	export RECOVERYMODE
+	if [ -f /system/init -o -L /system/init ]; then
+    	SYSTEM_ROOT=true
+  	else
+    	SYSTEM_ROOT=false
+    	grep ' / ' /proc/mounts | grep -qv 'rootfs' || grep -q ' /system_root ' /proc/mounts && SYSTEM_ROOT=true
+  	fi
+
+	if [ -z $KEEPVERITY ]; then		
+		if $SYSTEM_ROOT; then
+			KEEPVERITY=true
+			echo "[*] System-as-root, keep dm/avb-verity"
+		else
+			KEEPVERITY=false
+		fi
+	fi
+
+	ISENCRYPTED=false
+	grep ' /data ' /proc/mounts | grep -q 'dm-' && ISENCRYPTED=true
+	[ "$(getprop ro.crypto.state)" = "encrypted" ] && ISENCRYPTED=true
+	
+	if [ -z $KEEPFORCEENCRYPT ]; then
+		# No data access means unable to decrypt in recovery
+		if $ISENCRYPTED || ! $DATA; then
+			KEEPFORCEENCRYPT=true
+			echo "[-] Encrypted data, keep forceencrypt"
+		else
+			KEEPFORCEENCRYPT=false
+		fi
+	fi
+	
+	export RECOVERYMODE=false
 	export KEEPVERITY
 	export KEEPFORCEENCRYPT
 	echo "[*] RECOVERYMODE=$RECOVERYMODE"
@@ -65,6 +67,7 @@ get_flags() {
 }
 
 api_level_arch_detect() {
+	echo "[-] Api Level Arch Detect"
 	# Detect version and architecture
 	# To select the right files for the patching
 	API=$(getprop ro.build.version.sdk)
@@ -78,43 +81,73 @@ api_level_arch_detect() {
 	if [ "$ABI" = "x86" ]; then ARCH=x86; ARCH32=x86; fi;
 	if [ "$ABI2" = "x86" ]; then ARCH=x86; ARCH32=x86; fi;
 	if [ "$ABILONG" = "arm64-v8a" ]; then ARCH=arm64; ARCH32=arm; IS64BIT=true; fi;
-	if [ "$ABILONG" = "x86_64" ]; then ARCH=x64; ARCH32=x86; IS64BIT=true; fi;
+	if [ "$ABILONG" = "x86_64" ]; then ARCH=x64; ARCH32=x86; IS64BIT=true; fi;	
+
+	echo "[-] Device Platform: $ARCH"
+	echo "[-] Device SDK API: $API"
+	echo "[-] ARCH32 $ARCH32"
+	echo "[-] First API Level: $FIRSTAPI"
+	
+	# There is only a x86 or arm DIR with binaries
+	BINDIR=$BASEDIR/lib/$ARCH32
+
+	[ ! -d "$BINDIR" ] && BINDIR=$BASEDIR/lib/armeabi-v7a
+	cd $BINDIR
+	for file in lib*.so; do mv "$file" "${file:3:${#file}-6}"; done
+	cd $BASEDIR
+	
+	echo "[*] copy all files from $BINDIR to $BASEDIR"
+	cp $BINDIR/* $BASEDIR
+	
+	chmod -R 755 $BASEDIR
+
+	[ -d /system/lib64 ] && IS64BIT=true || IS64BIT=false
+}
+
+abort_script(){
+	echo "[!] aborting the script"
+	exit
 }
 
 detect_ramdisk_compression_method()
 {
+	echo "[*] Detecting ramdisk.img compression"
+	RDF=$BASEDIR/ramdisk.img
+	
 	local FIRSTFILEBYTES
 	local METHOD_LZ4="02214c18"
 	local METHOD_GZ="1f8b0800"
-	FIRSTFILEBYTES=$($BB xxd -p -c8 -l8 "$RDF")
-	
+	FIRSTFILEBYTES=$(xxd -p -c8 -l8 "$RDF")
+	FIRSTFILEBYTES="${FIRSTFILEBYTES:0:8}"
 	RAMDISK_LZ4=false
 	RAMDISK_GZ=false
 	ENDG=""
 	METHOD=""
 
-	if [ "${FIRSTFILEBYTES:0:8}" = "$METHOD_LZ4" ]; then
+	if [ "$FIRSTFILEBYTES" == "$METHOD_LZ4" ]; then
 		ENDG=".lz4"
 		METHOD="lz4_legacy"
-		RAMDISK_LZ4=true
-		return		
-	fi
-	
-	if [ "${FIRSTFILEBYTES:0:8}" = "$METHOD_GZ" ]; then
+		RAMDISK_LZ4=true	
+	elif [ "$FIRSTFILEBYTES" == "$METHOD_GZ" ]; then
 		ENDG=".gz"
 		METHOD="gzip"
-		RAMDISK_GZ=true
-		return		
+		RAMDISK_GZ=true		
 	fi
+	
+	if [ "$ENDG" == "" ]; then
+		echo "[!] Ramdisk.img uses UNKNOWN compression $FIRSTFILEBYTES"		
+		abort_script
+	fi
+	
+	echo "[!] Ramdisk.img uses $METHOD compression"	
+	mv $RDF $RDF"$ENDG"
 }
 
+# requires additional setup
+# EnvFixTask
 construct_environment() {	
-	echo "[-] Constructing environment"	
+	echo "[-] Constructing environment - PAY ATTENTION to AVDs Screen"	
 	ROOT=`su -c "id -u"` 2>/dev/null
-	if [[ $ROOT == "" ]]; then
-		echo "[-] not root yet"
-		return
-	fi
 	
 	if [[ $ROOT -eq 0 ]]; then
 		echo "[!] we are root"		
@@ -122,20 +155,22 @@ construct_environment() {
 		local COMMONDIR=$BASEDIR/assets	
 		local NVBASE=/data/adb
 		local MAGISKBIN=$NVBASE/magisk
-		#`su -c "rm -rf $MAGISKBIN/* 2>/dev/null"`
-		#`su -c "mkdir -p $MAGISKBIN 2>/dev/null"`
-		#`su -c "cp -af $BINDIR/. $COMMONDIR/. $BBBIN $MAGISKBIN"`
-		#`su -c "chown root.root -R $MAGISKBIN"`
-		#`su -c "chmod -R 755 $MAGISKBIN"`
-		#`su -c "reboot"`
+
 		`su -c "rm -rf $MAGISKBIN/* 2>/dev/null && \
 				mkdir -p $MAGISKBIN 2>/dev/null && \
 				cp -af $BINDIR/. $COMMONDIR/. $BBBIN $MAGISKBIN && \
 				chown root.root -R $MAGISKBIN && \
 				chmod -R 755 $MAGISKBIN && \
+				rm -rf $BASEDIR 2>/dev/null && \
 				reboot \
 				"`
 	fi
+
+	echo "[!] not root yet"
+	echo "[!] Couldn't construct environment"
+	echo "[!] Double Check Root Access"
+	echo "[!] Re-Run Script with clean ramdisk.img and try again"
+	abort_script
 }
 
 checkfile() {
@@ -171,29 +206,14 @@ installapps() {
 }
 
 CopyMagiskToAVD() {
-	# If there is no file to work with, abort the script
-	if (checkfile "$1" -eq 0); then
-	  echo "rootAVD needs a path with file to an AVD ramdisk"
-	  echo "rootAVD will backup your ramdisk.img and replace it when finished"
-	  echo "./rootAVD.sh ~/Android/Sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img"
-	  exit 0
-	fi
-
 	echo "[-] Test if ADB SHELL is working"
-	ADBWORKS=$(adb shell 'echo true' 2>/dev/null) 
-	if (! "$ADBWORKS"); then
-		echo "no ADB connectoin possible"
-		exit 0
+	ADBWORKS=$(adb shell 'echo true' 2>/dev/null)
+	echo "ADBWORKS=$ADBWORKS"
+	if [ -z "$ADBWORKS" ]; then
+		echo "no ADB connection possible"
+		exit
 	fi
-
-	# Set Folders and FileNames
-	echo "[*] Set Directorys"
-	PATHWITHFILE="$1"
-	PATHTOFILE=${PATHWITHFILE%/*}
-	FILE=${PATHWITHFILE##*/}
-	fileIsKernel=false
-	fileIsRamdisk=false
-	BACKUPFILE=$FILE".backup"
+	
 	# The Folder where the script was called from
 	ROOTAVD="`getdir "${BASH_SOURCE:-$0}"`"
 	MAGISKZIP=$ROOTAVD/Magisk.zip
@@ -205,24 +225,10 @@ CopyMagiskToAVD() {
 	# change to ROOTAVD directory
 	cd $ROOTAVD
 
-	# Is it a ramdisk named file?
-	if [ $FILE != "ramdisk.img" ]; then
-		echo "[!] please give a path to a ramdisk file"    
-		exit 0
-	fi
-
-	# If no backup file exist, create one
-	if (checkfile $PATHTOFILE/$BACKUPFILE -eq 0); then
-		echo "[*] create Backup File"
-		cp $PATHWITHFILE $PATHTOFILE/$BACKUPFILE
-	else
-		echo "[-] Backup exists already"
-	fi
-
 	# Download the Magisk apk/zip file -> Magisk-v22.0
 	MAGISKZIPDL=https://github.com/topjohnwu/Magisk/releases/download/v22.0/Magisk-v22.0.apk
 	# If Magisk.zip file already exist, don't download it again
-	if (checkfile $MAGISKZIP -eq 0); then	
+	if ( checkfile $MAGISKZIP -eq 0 ); then	
 		echo "[*] Downloading Magisk installer Zip"
 		wget $MAGISKZIPDL -O $MAGISKZIP > /dev/null 2>&1
 	else
@@ -238,10 +244,32 @@ CopyMagiskToAVD() {
 	echo "[-] Copy Magisk installer Zip"
 	ADBPUSHECHO=$(adb push $MAGISKZIP $ADBBASEDIR 2>/dev/null) 
 	echo "[*] $ADBPUSHECHO"
-	
-	echo "[-] Copy the original AVD ramdisk.img into Magisk DIR"
-	ADBPUSHECHO=$(adb push $PATHWITHFILE $ADBBASEDIR 2>/dev/null) 
-	echo "[*] $ADBPUSHECHO"
+	# Proceed with ramdisk
+	if "$RAMDISKIMG"; then
+		# Set Folders and FileNames		
+		echo "[*] Set Directorys"
+		PATHWITHFILE="$1"
+		PATHTOFILE=${PATHWITHFILE%/*}
+		FILE=${PATHWITHFILE##*/}
+		BACKUPFILE=$FILE".backup"
+		# Is it a ramdisk named file?
+		if [ $FILE != "ramdisk.img" ]; then
+			echo "[!] please give a path to a ramdisk file"    
+			exit 0
+		fi
+		
+		# If no backup file exist, create one
+		if ( checkfile $PATHTOFILE/$BACKUPFILE -eq 0 ); then
+			echo "[*] create Backup File"
+			cp $PATHWITHFILE $PATHTOFILE/$BACKUPFILE
+		else
+			echo "[-] Backup exists already"
+		fi
+
+		echo "[-] Copy the original AVD ramdisk.img into Magisk DIR"
+		ADBPUSHECHO=$(adb push $PATHWITHFILE $ADBBASEDIR 2>/dev/null) 
+		echo "[*] $ADBPUSHECHO"	
+	fi
 	
 	echo "[-] Copy rootAVD Script into Magisk DIR"
 	ADBPUSHECHO=$(adb push rootAVD.sh $ADBBASEDIR 2>/dev/null) 
@@ -253,10 +281,10 @@ CopyMagiskToAVD() {
 	echo "[-] run the actually Boot/Ramdisk/Kernel Image Patch Script"
 	echo "[*] from Magisk by topjohnwu and modded by NewBit XDA"
 	
-	adb shell sh $ADBBASEDIR/rootAVD.sh "ranchu"
+	adb shell sh $ADBBASEDIR/rootAVD.sh $@
 
 	# In Debug-Mode we can skip parts of the script
-	if (! "$DEBUG"); then
+	if ( ! "$DEBUG" && "$RAMDISKIMG" ); then
 
 		echo "[-] After the ramdisk.img file is patched and compressed,"
 		echo "[*] pull it back in the Magisk DIR"
@@ -275,15 +303,14 @@ CopyMagiskToAVD() {
 		
 		installapps
 
-		echo "[-] reboot the AVD and see if it worked"
+		echo "[-] Shut-Down & Reboot the AVD and see if it worked"
 		echo "[-] Root and Su with Magisk for Android Studio AVDs"
 		echo "[-] Modded by NewBit XDA - Jan. 2021"
 		echo "[!] Huge Credits and big Thanks to topjohnwu and shakalaca"
 	fi
 }
 
-InstallMagiskToAVD() {
-
+PrepBusyBoxAndMagisk() {
 	if echo $MAGISK_VER | grep -q '\.'; then
   		PRETTY_VER=$MAGISK_VER
 	else
@@ -294,69 +321,45 @@ InstallMagiskToAVD() {
 	BASEDIR="`getdir "${BASH_SOURCE:-$0}"`"
 	TMPDIR=$BASEDIR/tmp
 	BB=$BASEDIR/busybox
-	RDF=$BASEDIR/ramdisk.img
-
+	MZ=$BASEDIR/Magisk.zip
 	cd $BASEDIR
-
-	echo "[-] Get Flags"
-	get_flags
-	
 	echo "[*] Extracting busybox and Magisk.zip ..."
-	unzip Magisk.zip -oq
-	chmod -R 755 lib
-	mv -f lib/x86/libbusybox.so $BB
-	$BB >/dev/null 2>&1 || mv -f lib/armeabi-v7a/libbusybox.so $BB
+	unzip $MZ -oq
+	chmod -R 755 $BASEDIR/lib
+	mv -f $BASEDIR/lib/x86/libbusybox.so $BB
+	$BB >/dev/null 2>&1 || mv -f $BASEDIR/lib/armeabi-v7a/libbusybox.so $BB
 	chmod -R 755 $BASEDIR
 
-	# Detect version and architecture
-	# To select the right files for the patching
-	echo "[-] Api Level Arch Detect"
-	api_level_arch_detect
+	export BASEDIR
+	export TMPDIR
+	export BB
+}
 
-	echo "[-] Device Platform: $ARCH"
-	echo "[-] Device SDK API: $API"
-	echo "[-] ARCH32 $ARCH32"
-	echo "[-] First API Level: $FIRSTAPI"
-	
-	# There is only a x86 or arm DIR with binaries
-	BINDIR=$BASEDIR/lib/$ARCH32
+ExecBusyBoxAsh() {	
+	echo "[*] Re-Run rootAVD in Magisk Busybox STANDALONE (D)ASH"
+	export PREPBBMAGISK=1
+	export ASH_STANDALONE=1	
+	exec $BB sh $0 $@
+}
 
-	[ ! -d "$BINDIR" ] && BINDIR=$BASEDIR/lib/armeabi-v7a
-	cd $BINDIR
-	for file in lib*.so; do mv "$file" "${file:3:${#file}-6}"; done
-	cd $BASEDIR
-	
-	echo "[*] copy all files from $BINDIR to $BASEDIR"
-	cp $BINDIR/* $BASEDIR
-	
-	chmod -R 755 $BASEDIR
-
-	[ -d /system/lib64 ] && IS64BIT=true || IS64BIT=false
-	
-	echo "[*] Detecting ramdisk.img compression"
-	detect_ramdisk_compression_method
-	
-	echo "[!] Ramdisk.img uses $METHOD compression"
-	
-	mv $RDF $RDF"$ENDG"
-	
+decompress_ramdisk(){
 	echo "[-] taken from shakalaca's MagiskOnEmulator/process.sh"
 	echo "[*] executing ramdisk splitting / extraction / repacking"
 	# extract and check ramdisk
 	
-	if [[ $API -ge 30 ]]; then
-		$RAMDISK_GZ && $BB gzip -fdk ${RDF}$ENDG
+	if [ $API -ge 30 ]; then
+		$RAMDISK_GZ && gzip -fdk ${RDF}$ENDG
 		$RAMDISK_LZ4 && RDF=$RDF"$ENDG"
 		echo "[-] API level greater then 30"
 		echo "[*] Check if we need to repack ramdisk before patching .."
-		COUNT=`$BB strings -t d $RDF | $BB grep TRAILER\!\!\! | $BB wc -l`
+		COUNT=`strings -t d $RDF | grep TRAILER\!\!\! | wc -l`
 	  if [[ $COUNT -gt 1 ]]; then
 		echo "[-] Multiple cpio archives detected"
 		REPACKRAMDISK=1
 	  fi
 	fi
 
-	if [[ -n $REPACKRAMDISK ]]; then
+	if [[ -n "$REPACKRAMDISK" ]]; then
 		$RAMDISK_GZ && rm ${RDF}$ENDG
 	  	echo "[*] Unpacking ramdisk .."
 	  	mkdir -p $TMPDIR/ramdisk
@@ -364,22 +367,27 @@ InstallMagiskToAVD() {
 	  	IBS=1
 	  	OBS=4096
 	  	OF=$TMPDIR/temp$ENDG
-
-	  	RAMDISKS=`$BB strings -t d $RDF | $BB grep TRAILER\!\!\!`
+		
+	  	RAMDISKS=`strings -t d $RDF | grep TRAILER`
 
 	  	for OFFSET in $RAMDISKS
 	  	do
-			# calculate offset to next archive
-			if [[ $OFFSET == *"TRAILER"* ]]; then
+			# calculate offset to next archive			
+			if [ `echo "$OFFSET" | grep TRAILER` ]; then
 				# find position of end of TRAILER!!! string in image
+
 				if $RAMDISK_GZ; then
 					LEN=${#OFFSET}
 					START=$((LASTINDEX+LEN))			
 					# find first occurance of string in image, that will be start of cpio archive
 					dd if=$RDF skip=$START count=$OBS ibs=$IBS obs=$OBS of=$OF > /dev/null 2>&1
-					HEAD=(`$BB strings -t d $OF | $BB head -1`)
+					HEAD=`strings -t d $OF | head -1`
 					# vola
-					LASTINDEX=$((START+HEAD[0]))		  	
+					for i in $HEAD;do
+						HEAD=$i
+						break
+					done					
+					LASTINDEX=$((START+HEAD))	  	
 				fi
 				if $RAMDISK_LZ4; then
 					START=$LASTINDEX	
@@ -390,7 +398,7 @@ InstallMagiskToAVD() {
 			# number of blocks we'll extract
 			$RAMDISK_GZ && BLOCKS=$(((OFFSET+128)/IBS))
 			$RAMDISK_LZ4 && BLOCKS=$(((OFFSET+19)/IBS))
-		
+
 			# extract and dump
 			echo "[-] Dumping from $LASTINDEX to $BLOCKS .."
 			dd if=$RDF skip=$LASTINDEX count=$BLOCKS ibs=$IBS obs=$OBS of=$OF > /dev/null 2>&1
@@ -404,19 +412,19 @@ InstallMagiskToAVD() {
 			$RAMDISK_GZ && LASTINDEX=$OFFSET
 			$RAMDISK_LZ4 && LASTINDEX=$BLOCKS
 	  	done
-
 		echo "[*] Repacking ramdisk .."
 		cd $TMPDIR/ramdisk > /dev/null
-		$BB find . | $BB cpio -H newc -o > $RDF
+		`find . | cpio -H newc -o > $RDF`
 		cd - > /dev/null
-		#rm $OF*
 	else
 		echo "[*] After decompressing ramdisk.img, magiskboot will work"
 		./magiskboot decompress $RDF$ENDG
 	fi
-		
+	
 	mv $RDF "ramdisk.cpio"
+}
 
+test_ramdisk_patch_status(){
 	echo "[-] Test patch status and do restore"
 	echo "[-] Checking ramdisk status"
 
@@ -438,13 +446,12 @@ InstallMagiskToAVD() {
 
 	  1 )  # Magisk patched
 		echo "[-] Magisk patched boot image detected"
-			construct_environment
-			echo "[!] aborting the script"
-			exit 0
+		construct_environment
 		;;
 	  2 )  # Unsupported
 		echo "[!] Boot image patched by unsupported programs"
 		echo "[!] Please restore back to stock boot image"
+		abort_script
 		;;
 	esac
 
@@ -452,7 +459,9 @@ InstallMagiskToAVD() {
 	  echo "[!] TWOSTAGE INIT image detected - Possibly using 2SI, export env var"
 	  export TWOSTAGEINIT=true
 	fi
+}
 
+patching_ramdisk(){
 	##########################################################################################
 	# Ramdisk patches
 	##########################################################################################
@@ -515,31 +524,100 @@ InstallMagiskToAVD() {
 	"backup ramdisk.cpio.orig" \
 	"mkdir 000 .backup" \
 	"add 000 .backup/.magisk config"
-	
+}
+
+repacking_ramdisk(){
 	if [ $((STATUS & 4)) -ne 0 ]; then
-		echo "[!] Compressing ramdisk before zipping it"
+		echo "[!] Compressing ramdisk before repacking it"
 	  ./magiskboot cpio ramdisk.cpio compress
 	fi
 
-	echo "[*] zipping ramdisk"
+	echo "[*] repacking back to ramdisk.img format"
 	# Rename and compress ramdisk.cpio back to ramdiskpatched4AVD.img
 	./magiskboot compress=$METHOD "ramdisk.cpio" "ramdiskpatched4AVD.img"
 	
-	echo "[!] Rename Magisk.zip back to Magisk.apk"
+	echo "[!] Rename Magisk.zip to Magisk.apk"
 	mv Magisk.zip Magisk.apk
+}
+
+InstallMagiskToAVD() {
+	if [ -z $PREPBBMAGISK ]; then
+		PrepBusyBoxAndMagisk
+		ExecBusyBoxAsh $@
+	fi
+	
+	echo "[-] We are now in Magisk Busybox STANDALONE (D)ASH"
+	# Don't use $BB from now on
+
+	get_flags
+	api_level_arch_detect
+
+	if [[ $1 == "EnvFixTask" ]]; then
+		construct_environment
+	fi
+
+	if $RANCHU; then
+		detect_ramdisk_compression_method
+		decompress_ramdisk
+		test_ramdisk_patch_status
+		patching_ramdisk
+		repacking_ramdisk
+	fi
 	return 0
 }
 
 # Script Entry Point
 # Checking in which shell we are
+RANCHU=false
 SHELL=$(getprop ro.kernel.androidboot.hardware 2>/dev/null)
 if [[ $SHELL == "ranchu" ]]; then
-	if [[ $SHELL == $1 ]]; then
-		echo "[!] We are in an emulator shell"
-		InstallMagiskToAVD
-	fi		
-else
-	echo "[!] We are in a bash shell"
-	CopyMagiskToAVD $1
+	echo "[!] We are in an emulator shell"
+	RANCHU=true
 fi
+export RANCHU
+
+if $RANCHU; then
+	InstallMagiskToAVD $@
+	exit 0
+fi
+
+# While debugging and developing you can turn this flag on
+DEBUG=false
+#DEBUG=true
+
+# Shows whatever line get executed...
+if ("$DEBUG"); then
+	set -x
+	echo "[!] We are in Debug Mode"
+fi
+
+ENVFIXTASK=false
+RAMDISKIMG=false
+
+case $1 in
+  "EnvFixTask" )  # AVD requires additional setup
+		ENVFIXTASK=true
+	;;
+
+  * )  # If there is no file to work with, abort the script	
+		if (checkfile "$1" -eq 0); then
+			echo "[!] rootAVD needs either a path with file to an AVD ramdisk"
+			echo "[!] or the EnvFixTask argument for Android 12 (S)"			
+  			echo "[!] rootAVD will backup your ramdisk.img and replace it when finished"
+  			echo "[*][*] possible commands are... [L]inux / [M]ac/Darwin"
+  			echo "[L][M] ./rootAVD.sh EnvFixTask (fix Requires Additional Setup / construct environment)"
+  			echo "[|][M] ./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img"
+  			echo "[L][|] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img"
+			exit 0
+		fi
+		RAMDISKIMG=true
+	;;
+esac
+
+echo "[!] and we are NOT in an emulator shell"
+export ENVFIXTASK
+export RAMDISKIMG
+
+CopyMagiskToAVD $1
+
 exit 0
