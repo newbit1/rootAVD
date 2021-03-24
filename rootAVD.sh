@@ -103,7 +103,7 @@ api_level_arch_detect() {
 
 abort_script(){
 	echo "[!] aborting the script"
-	exit 0
+	exit
 }
 
 detect_ramdisk_compression_method()
@@ -355,6 +355,11 @@ GetPrettyVer() {
 CheckAvailableMagisks() {
 	if [ -z $MAGISKVERCHOOSEN ]; then
 		
+		UFSH=$BASEDIR/assets/util_functions.sh
+		MAGISK_LOCL_VER=$($BB grep $UFSH -e "MAGISK_VER" -w | sed 's/^.*=//')
+		MAGISK_LOCL_VER_CODE=$($BB grep $UFSH -e "MAGISK_VER_CODE" -w | sed 's/^.*=//')
+		MAGISK_LOCL_VER=$(GetPrettyVer $MAGISK_LOCL_VER $MAGISK_LOCL_VER_CODE)
+		
 		CheckAVDIsOnline
 		if ("$AVDIsOnline"); then
 			echo "[!] Checking available Magisk Versions"		
@@ -377,45 +382,45 @@ CheckAvailableMagisks() {
 			MAGISK_STABL_DL=$(json_value "link" 1 < $STABLJSON)
 			
 			MAGISK_STABL_VER=$(GetPrettyVer $MAGISK_STABL_VER $MAGISK_STABL_VER_CODE)
+		
+
+			MAGISK_V1="1) Local $MAGISK_LOCL_VER (ENTER)"
+			MAGISK_V2="2) Canary $MAGISK_CAN_VER"
+			MAGISK_V3="3) Stable $MAGISK_STABL_VER"
+
+			while :
+			do
+				echo "[?] Choose a Magisk Version to install and make it local"
+				echo $MAGISK_V1
+				echo $MAGISK_V2
+				echo $MAGISK_V3
+				read choice
+				case $choice in
+					"1"|"")
+						MAGISK_VER=$MAGISK_LOCL_VER
+						echo "[1] You choose Magisk Local Version $MAGISK_VER"
+						MAGISKVERCHOOSEN=false
+						break
+						;;
+					"2")
+						MAGISK_VER=$MAGISK_CAN_VER
+						MAGISK_DL=$MAGISK_CAN_DL
+						echo "[$choice] You choose Magisk Canary Version $MAGISK_CAN_VER"
+						break
+						;;
+					"3")
+						MAGISK_VER=$MAGISK_STABL_VER
+						MAGISK_DL=$MAGISK_STABL_DL
+						echo "[$choice] You choose Magisk Stable Version $MAGISK_STABL_VER"
+						break
+						;;		
+					*) echo "invalid option $choice";;
+				esac
+			done
+		else
+			MAGISK_VER=$MAGISK_LOCL_VER
+			MAGISKVERCHOOSEN=false
 		fi
-
-		UFSH=$BASEDIR/assets/util_functions.sh
-		MAGISK_LOCL_VER=$($BB grep $UFSH -e "MAGISK_VER" -w | sed 's/^.*=//')
-		MAGISK_LOCL_VER_CODE=$($BB grep $UFSH -e "MAGISK_VER_CODE" -w | sed 's/^.*=//')
-		MAGISK_LOCL_VER=$(GetPrettyVer $MAGISK_LOCL_VER $MAGISK_LOCL_VER_CODE)
-		MAGISK_V1="1) Local $MAGISK_LOCL_VER (ENTER)"
-		MAGISK_V2="2) Canary $MAGISK_CAN_VER"
-		MAGISK_V3="3) Stable $MAGISK_STABL_VER"
-
-		while :
-		do
-    		echo "[?] Choose a Magisk Version to install and make it local"
-			echo $MAGISK_V1
-			echo $MAGISK_V2
-			echo $MAGISK_V3
-    		read choice
-			case $choice in
-				"1"|"")
-					MAGISK_VER=$MAGISK_LOCL_VER
-					echo "[1] You choose Magisk Local Version $MAGISK_VER"
-					MAGISKVERCHOOSEN=false
-					break
-					;;
-				"2")
-					MAGISK_VER=$MAGISK_CAN_VER
-					MAGISK_DL=$MAGISK_CAN_DL
-					echo "[$choice] You choose Magisk Canary Version $MAGISK_CAN_VER"
-					break
-					;;
-				"3")
-					MAGISK_VER=$MAGISK_STABL_VER
-					MAGISK_DL=$MAGISK_STABL_DL
-					echo "[$choice] You choose Magisk Stable Version $MAGISK_STABL_VER"
-					break
-					;;		
-				*) echo "invalid option $choice";;
-    		esac
-		done
 		
 		if [ -z $MAGISKVERCHOOSEN ]; then
 			echo "[*] Deleting local Magisk $MAGISK_LOCL_VER"
@@ -426,6 +431,7 @@ CheckAvailableMagisks() {
 			PrepBusyBoxAndMagisk
 		fi
 	fi
+	export MAGISK_VER
 	export MAGISKVERCHOOSEN
 }
 
@@ -671,8 +677,8 @@ InstallMagiskToAVD() {
 	
 	echo "[-] We are now in Magisk Busybox STANDALONE (D)ASH"
 	# Don't use $BB from now on
-	
-	echo "[*] rootAVD with Magisk $PRETTY_VER Installer"
+
+	echo "[*] rootAVD with Magisk $MAGISK_VER Installer"
 	
 	get_flags
 	api_level_arch_detect
@@ -746,4 +752,4 @@ export RAMDISKIMG
 
 CopyMagiskToAVD $1
 
-exit 0
+exit
