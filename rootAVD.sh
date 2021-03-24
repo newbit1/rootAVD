@@ -10,9 +10,6 @@
 #
 ##########################################################################################
 
-MAGISK_VER='22.0'
-MAGISK_VER_CODE=22000
-
 ###################
 # Helper Functions
 ###################
@@ -106,13 +103,14 @@ api_level_arch_detect() {
 
 abort_script(){
 	echo "[!] aborting the script"
-	exit
+	exit 0
 }
 
 detect_ramdisk_compression_method()
 {
 	echo "[*] Detecting ramdisk.img compression"
 	RDF=$BASEDIR/ramdisk.img
+	CPIO=$BASEDIR/ramdisk.cpio
 	
 	local FIRSTFILEBYTES
 	local METHOD_LZ4="02214c18"
@@ -128,10 +126,13 @@ detect_ramdisk_compression_method()
 		ENDG=".lz4"
 		METHOD="lz4_legacy"
 		RAMDISK_LZ4=true	
+		mv $RDF $RDF$ENDG
+		RDF=$RDF$ENDG
 	elif [ "$FIRSTFILEBYTES" == "$METHOD_GZ" ]; then
 		ENDG=".gz"
 		METHOD="gzip"
-		RAMDISK_GZ=true		
+		RAMDISK_GZ=true
+		mv $RDF $RDF$ENDG	
 	fi
 	
 	if [ "$ENDG" == "" ]; then
@@ -140,13 +141,12 @@ detect_ramdisk_compression_method()
 	fi
 	
 	echo "[!] Ramdisk.img uses $METHOD compression"	
-	mv $RDF $RDF"$ENDG"
 }
 
 # requires additional setup
 # EnvFixTask
-construct_environment() {	
-	echo "[-] Constructing environment - PAY ATTENTION to AVDs Screen"	
+construct_environment() {
+	echo "[-] Constructing environment - PAY ATTENTION to AVDs Screen"
 	ROOT=`su -c "id -u"` 2>/dev/null
 	
 	if [[ $ROOT -eq 0 ]]; then
@@ -201,14 +201,14 @@ installapps() {
 	for f in $FILES
 	do
 		echo "[*] Trying to install $f"
-		adb install -r "$f"
+		adb install -r -d "$f"
 	done
 }
 
 CopyMagiskToAVD() {
 	echo "[-] Test if ADB SHELL is working"
 	ADBWORKS=$(adb shell 'echo true' 2>/dev/null)
-	echo "ADBWORKS=$ADBWORKS"
+
 	if [ -z "$ADBWORKS" ]; then
 		echo "no ADB connection possible"
 		exit
@@ -255,7 +255,7 @@ CopyMagiskToAVD() {
 		# Is it a ramdisk named file?
 		if [ $FILE != "ramdisk.img" ]; then
 			echo "[!] please give a path to a ramdisk file"    
-			exit 0
+			exit
 		fi
 		
 		# If no backup file exist, create one
@@ -283,40 +283,154 @@ CopyMagiskToAVD() {
 	
 	adb shell sh $ADBBASEDIR/rootAVD.sh $@
 
-	# In Debug-Mode we can skip parts of the script
-	if ( ! "$DEBUG" && "$RAMDISKIMG" ); then
+	if [ "$?" == "1" ]; then	
+		# In Debug-Mode we can skip parts of the script
+		if ( ! "$DEBUG" && "$RAMDISKIMG" ); then
 
-		echo "[-] After the ramdisk.img file is patched and compressed,"
-		echo "[*] pull it back in the Magisk DIR"
-		ADBPUSHECHO=$(adb pull $ADBBASEDIR/ramdiskpatched4AVD.img 2>/dev/null) 
-		echo "[*] $ADBPUSHECHO"
+			echo "[-] After the ramdisk.img file is patched and compressed,"
+			echo "[*] pull it back in the Magisk DIR"
+			ADBPUSHECHO=$(adb pull $ADBBASEDIR/ramdiskpatched4AVD.img 2>/dev/null) 
+			echo "[*] $ADBPUSHECHO"
 		
-		echo "[-] pull Magisk.apk to Apps/"
-		ADBPUSHECHO=$(adb pull $ADBBASEDIR/Magisk.apk Apps/ 2>/dev/null) 
-		echo "[*] $ADBPUSHECHO"
-			
-		echo "[-] Clean up the ADB working space"
-		adb shell rm -rf $ADBBASEDIR
+			echo "[-] pull Magisk.apk to Apps/"
+			ADBPUSHECHO=$(adb pull $ADBBASEDIR/Magisk.apk Apps/ 2>/dev/null) 
+			echo "[*] $ADBPUSHECHO"
 		
-		echo "[*] Move and rename the patched ramdisk.img to the original AVD DIR"
-		mv ramdiskpatched4AVD.img $PATHWITHFILE
+			echo "[-] pull Magisk.zip to Apps/"
+			ADBPUSHECHO=$(adb pull $ADBBASEDIR/Magisk.zip 2>/dev/null)
+			echo "[*] $ADBPUSHECHO"
 		
-		installapps
+			echo "[-] Clean up the ADB working space"
+			adb shell rm -rf $ADBBASEDIR
+		
+			echo "[*] Move and rename the patched ramdisk.img to the original AVD DIR"
+			mv ramdiskpatched4AVD.img $PATHWITHFILE
+		
+			installapps
 
-		echo "[-] Shut-Down & Reboot the AVD and see if it worked"
-		echo "[-] Root and Su with Magisk for Android Studio AVDs"
-		echo "[-] Modded by NewBit XDA - Jan. 2021"
-		echo "[!] Huge Credits and big Thanks to topjohnwu and shakalaca"
+			echo "[-] Shut-Down & Reboot the AVD and see if it worked"
+			echo "[-] Root and Su with Magisk for Android Studio AVDs"
+			echo "[-] Modded by NewBit XDA - Jan. 2021"
+			echo "[!] Huge Credits and big Thanks to topjohnwu and shakalaca"
+		fi
 	fi
 }
 
-PrepBusyBoxAndMagisk() {
-	if echo $MAGISK_VER | grep -q '\.'; then
-  		PRETTY_VER=$MAGISK_VER
-	else
-  		PRETTY_VER="$MAGISK_VER($MAGISK_VER_CODE)"
+###################################################
+# Method to extract specified field data from json
+# Globals: None
+# Arguments: 2
+#   ${1} - value of field to fetch from json
+#   ${2} - Optional, nth number of value from extracted values, by default shows all.
+# Input: file | here string | pipe
+#   _json_value "Arguments" < file
+#   _json_value "Arguments <<< "${varibale}"
+#   echo something | _json_value "Arguments"
+# Result: print extracted value
+###################################################
+json_value() {
+    $BB grep -o "\"""${1}""\"\:.*" | $BB sed -e "s/.*\"""${1}""\": //" -e 's/[",]*$//' -e 's/["]*$//' -e 's/[,]*$//' -e "s/\"//" -n -e "${2}"p
+}
+
+CheckAVDIsOnline() {
+	echo "[-] Checking AVDs Internet connection..."
+	AVDIsOnline=false
+	$BB timeout 3 $BB wget -q --spider --no-check-certificate http://github.com > /dev/null 2>&1
+	if [ $? -eq 0 ]; then
+    		AVDIsOnline=true
 	fi
-	echo "[*] rootAVD with Magisk $PRETTY_VER Installer"
+	$AVDIsOnline && echo "[!] AVD is online" || echo "[!] AVD is offline"
+	export AVDIsOnline
+}
+
+GetPrettyVer() {
+		if echo $1 | $BB grep -q '\.'; then
+			PRETTY_VER=$1
+		else
+			PRETTY_VER="$1($2)"
+		fi
+		echo "$PRETTY_VER"
+}
+
+CheckAvailableMagisks() {
+	if [ -z $MAGISKVERCHOOSEN ]; then
+		
+		CheckAVDIsOnline
+		if ("$AVDIsOnline"); then
+			echo "[!] Checking available Magisk Versions"		
+			URL="https://raw.githubusercontent.com/topjohnwu/magisk-files/master/"
+			CANJSON="canary.json"
+			STABLJSON="stable.json"
+			rm $CANJSON $STABLJSON > /dev/null 2>&1
+			
+			$BB wget -q --no-check-certificate $URL$CANJSON
+			$BB wget -q --no-check-certificate $URL$STABLJSON
+			
+			MAGISK_CAN_VER=$(json_value "version" < $CANJSON)
+			MAGISK_CAN_VER_CODE=$(json_value "versionCode" 1 < $CANJSON)
+			MAGISK_CAN_DL=$(json_value "link" 1 < $CANJSON)
+			
+			MAGISK_CAN_VER=$(GetPrettyVer $MAGISK_CAN_VER $MAGISK_CAN_VER_CODE)
+			
+			MAGISK_STABL_VER=$(json_value "version" < $STABLJSON)
+			MAGISK_STABL_VER_CODE=$(json_value "versionCode" 1 < $STABLJSON)
+			MAGISK_STABL_DL=$(json_value "link" 1 < $STABLJSON)
+			
+			MAGISK_STABL_VER=$(GetPrettyVer $MAGISK_STABL_VER $MAGISK_STABL_VER_CODE)
+		fi
+
+		UFSH=$BASEDIR/assets/util_functions.sh
+		MAGISK_LOCL_VER=$($BB grep $UFSH -e "MAGISK_VER" -w | sed 's/^.*=//')
+		MAGISK_LOCL_VER_CODE=$($BB grep $UFSH -e "MAGISK_VER_CODE" -w | sed 's/^.*=//')
+		MAGISK_LOCL_VER=$(GetPrettyVer $MAGISK_LOCL_VER $MAGISK_LOCL_VER_CODE)
+		MAGISK_V1="1) Local $MAGISK_LOCL_VER (ENTER)"
+		MAGISK_V2="2) Canary $MAGISK_CAN_VER"
+		MAGISK_V3="3) Stable $MAGISK_STABL_VER"
+
+		while :
+		do
+    		echo "[?] Choose a Magisk Version to install and make it local"
+			echo $MAGISK_V1
+			echo $MAGISK_V2
+			echo $MAGISK_V3
+    		read choice
+			case $choice in
+				"1"|"")
+					MAGISK_VER=$MAGISK_LOCL_VER
+					echo "[1] You choose Magisk Local Version $MAGISK_VER"
+					MAGISKVERCHOOSEN=false
+					break
+					;;
+				"2")
+					MAGISK_VER=$MAGISK_CAN_VER
+					MAGISK_DL=$MAGISK_CAN_DL
+					echo "[$choice] You choose Magisk Canary Version $MAGISK_CAN_VER"
+					break
+					;;
+				"3")
+					MAGISK_VER=$MAGISK_STABL_VER
+					MAGISK_DL=$MAGISK_STABL_DL
+					echo "[$choice] You choose Magisk Stable Version $MAGISK_STABL_VER"
+					break
+					;;		
+				*) echo "invalid option $choice";;
+    		esac
+		done
+		
+		if [ -z $MAGISKVERCHOOSEN ]; then
+			echo "[*] Deleting local Magisk $MAGISK_LOCL_VER"
+			rm -rf $MZ
+			echo "[*] Downloading Magisk $MAGISK_VER"
+			$BB wget -q -O $MZ --no-check-certificate $MAGISK_DL
+			MAGISKVERCHOOSEN=true
+			PrepBusyBoxAndMagisk
+		fi
+	fi
+	export MAGISKVERCHOOSEN
+}
+
+PrepBusyBoxAndMagisk() {
+
 	echo "[-] Switch to the location of the script file"
 	BASEDIR="`getdir "${BASH_SOURCE:-$0}"`"
 	TMPDIR=$BASEDIR/tmp
@@ -329,16 +443,19 @@ PrepBusyBoxAndMagisk() {
 	mv -f $BASEDIR/lib/x86/libbusybox.so $BB
 	$BB >/dev/null 2>&1 || mv -f $BASEDIR/lib/armeabi-v7a/libbusybox.so $BB
 	chmod -R 755 $BASEDIR
-
+		
 	export BASEDIR
 	export TMPDIR
 	export BB
+	export MZ
+
+	CheckAvailableMagisks
 }
 
 ExecBusyBoxAsh() {	
 	echo "[*] Re-Run rootAVD in Magisk Busybox STANDALONE (D)ASH"
 	export PREPBBMAGISK=1
-	export ASH_STANDALONE=1	
+	export ASH_STANDALONE=1
 	exec $BB sh $0 $@
 }
 
@@ -346,10 +463,8 @@ decompress_ramdisk(){
 	echo "[-] taken from shakalaca's MagiskOnEmulator/process.sh"
 	echo "[*] executing ramdisk splitting / extraction / repacking"
 	# extract and check ramdisk
-	
 	if [ $API -ge 30 ]; then
-		$RAMDISK_GZ && gzip -fdk ${RDF}$ENDG
-		$RAMDISK_LZ4 && RDF=$RDF"$ENDG"
+		$RAMDISK_GZ && gzip -fdk $RDF$ENDG
 		echo "[-] API level greater then 30"
 		echo "[*] Check if we need to repack ramdisk before patching .."
 		COUNT=`strings -t d $RDF | grep TRAILER\!\!\! | wc -l`
@@ -360,7 +475,7 @@ decompress_ramdisk(){
 	fi
 
 	if [[ -n "$REPACKRAMDISK" ]]; then
-		$RAMDISK_GZ && rm ${RDF}$ENDG
+		$RAMDISK_GZ && rm $RDF$ENDG
 	  	echo "[*] Unpacking ramdisk .."
 	  	mkdir -p $TMPDIR/ramdisk
 	  	LASTINDEX=0
@@ -414,14 +529,13 @@ decompress_ramdisk(){
 	  	done
 		echo "[*] Repacking ramdisk .."
 		cd $TMPDIR/ramdisk > /dev/null
-		`find . | cpio -H newc -o > $RDF`
+		`find . | cpio -H newc -o > $CPIO`
 		cd - > /dev/null
 	else
 		echo "[*] After decompressing ramdisk.img, magiskboot will work"
-		./magiskboot decompress $RDF$ENDG
+		$RAMDISK_GZ && RDF=$RDF$ENDG
+		./magiskboot decompress $RDF $CPIO
 	fi
-	
-	mv $RDF "ramdisk.cpio"
 }
 
 test_ramdisk_patch_status(){
@@ -447,6 +561,7 @@ test_ramdisk_patch_status(){
 	  1 )  # Magisk patched
 		echo "[-] Magisk patched boot image detected"
 		construct_environment
+		abort_script
 		;;
 	  2 )  # Unsupported
 		echo "[!] Boot image patched by unsupported programs"
@@ -496,8 +611,11 @@ patching_ramdisk(){
 		echo "[-] pulling fstab.ranchu from AVD"
 		cp /system/vendor/etc/fstab.ranchu $(pwd)
 		echo "[-] adding usb:auto to fstab.ranchu"
-		echo "/devices/*/block/sd* auto auto defaults voldmanaged=usb:auto" >> fstab.ranchu
+		#echo "/devices/*/block/sd* auto auto defaults voldmanaged=usb:auto" >> fstab.ranchu
+		#echo "/devices/*/block/loop7 auto auto defaults voldmanaged=sdcard:auto" >> fstab.ranchu
+		echo "/devices/1-* auto auto defaults voldmanaged=usb:auto" >> fstab.ranchu
 		# cat fstab.ranchu
+		#/system/vendor/etc/fstab.f2fs.hi3650
 		echo "[-] adding overlay.d folder to ramdisk"
 		./magiskboot cpio ramdisk.cpio \
 		"mkdir 750 overlay.d" \
@@ -536,9 +654,14 @@ repacking_ramdisk(){
 	# Rename and compress ramdisk.cpio back to ramdiskpatched4AVD.img
 	./magiskboot compress=$METHOD "ramdisk.cpio" "ramdiskpatched4AVD.img"
 	
-	echo "[!] Rename Magisk.zip to Magisk.apk"
-	mv Magisk.zip Magisk.apk
-}
+	if ("$MAGISKVERCHOOSEN"); then
+		echo "[!] Copy Magisk.zip to Magisk.apk"
+		cp Magisk.zip Magisk.apk
+	else
+		echo "[!] Rename Magisk.zip to Magisk.apk"
+		mv Magisk.zip Magisk.apk
+	fi	
+}	
 
 InstallMagiskToAVD() {
 	if [ -z $PREPBBMAGISK ]; then
@@ -548,7 +671,9 @@ InstallMagiskToAVD() {
 	
 	echo "[-] We are now in Magisk Busybox STANDALONE (D)ASH"
 	# Don't use $BB from now on
-
+	
+	echo "[*] rootAVD with Magisk $PRETTY_VER Installer"
+	
 	get_flags
 	api_level_arch_detect
 
@@ -563,7 +688,6 @@ InstallMagiskToAVD() {
 		patching_ramdisk
 		repacking_ramdisk
 	fi
-	return 0
 }
 
 # Script Entry Point
@@ -578,7 +702,7 @@ export RANCHU
 
 if $RANCHU; then
 	InstallMagiskToAVD $@
-	exit 0
+	return 1
 fi
 
 # While debugging and developing you can turn this flag on
@@ -587,7 +711,7 @@ DEBUG=false
 
 # Shows whatever line get executed...
 if ("$DEBUG"); then
-	set -x
+	#set -x
 	echo "[!] We are in Debug Mode"
 fi
 
@@ -606,9 +730,11 @@ case $1 in
   			echo "[!] rootAVD will backup your ramdisk.img and replace it when finished"
   			echo "[*][*] possible commands are... [L]inux / [M]ac/Darwin"
   			echo "[L][M] ./rootAVD.sh EnvFixTask (fix Requires Additional Setup / construct environment)"
-  			echo "[|][M] ./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img"
-  			echo "[L][|] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img"
-			exit 0
+  			echo "[L][|] ./rootAVD.sh ~/Android/Sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img"
+  			echo "[L][|] ./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img"
+  			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img"
+			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img"
+			exit
 		fi
 		RAMDISKIMG=true
 	;;

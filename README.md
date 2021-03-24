@@ -33,6 +33,7 @@ with Magisk and Magisk Manager within seconds
 
 ### Notes
 * adb must be in your `$PATH`
+* Android 12 (S) rev.2 needs Magisk Canary
 
 ### Options
 * Install all APKs placed in the Apps folder
@@ -47,6 +48,7 @@ with Magisk and Magisk Manager within seconds
 * [XDA [SCRIPT] rootAVD - root your Android Studio Virtual Device emulator with Magisk [Android 11][Linux][Darwin/MacOS][WIN][Google Play Store APIs]](https://forum.xda-developers.com/t/script-rootavd-root-your-android-studio-virtual-device-emulator-with-magisk-android-11-linux-darwin-macos-win-google-play-store-apis.4218123)
 
 ### Magisk v22 Successfully tested with Stock Kernel on
+* [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r02 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r02-darwin.zip)
 * [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r01 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r01-darwin.zip)
 * [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r01 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r01-windows.zip)
 * [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r01 Darwin/MacOS User Debug Build](https://dl.google.com/android/repository/sys-img/google_apis/x86_64-S_r01.zip)
@@ -66,7 +68,7 @@ with Magisk and Magisk Manager within seconds
 
 ### Change Logs
 #### [Mar. 2021]
-
+* [General] - Add a Menu to choose the Magisk Version to install
 * [rootAVD.sh] - Added EnvFixTask Argument to fix Requires Additional Setup in Android S
 * [General] - Changed to BusyBox (D)ASH Standalone
 * [General] - Re-Structured Script
@@ -84,3 +86,4 @@ with Magisk and Magisk Manager within seconds
 * [topjohnwu Magisk Manager v8.0.7](https://github.com/topjohnwu/Magisk/releases/tag/manager-v8.0.7)
 * [shakalaca @ xda-developers](https://forum.xda-developers.com/m/shakalaca.1813976)
 * [shakalaca MagiskOnEmulator](https://github.com/shakalaca/MagiskOnEmulator)
+* [Akianonymus _json_value](https://gist.github.com/cjus/1047794#gistcomment-3313785)
