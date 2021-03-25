@@ -383,16 +383,9 @@ CheckAvailableMagisks() {
 			
 			MAGISK_STABL_VER=$(GetPrettyVer $MAGISK_STABL_VER $MAGISK_STABL_VER_CODE)
 		
-<<<<<<< HEAD
 			MAGISK_V1="[1] Local $MAGISK_LOCL_VER (ENTER)"
 			MAGISK_V2="[2] Canary $MAGISK_CAN_VER"
 			MAGISK_V3="[3] Stable $MAGISK_STABL_VER"
-=======
-
-			MAGISK_V1="1) Local $MAGISK_LOCL_VER (ENTER)"
-			MAGISK_V2="2) Canary $MAGISK_CAN_VER"
-			MAGISK_V3="3) Stable $MAGISK_STABL_VER"
->>>>>>> 2b12795aa4a07b5e69cdd717f9d00da0c86ca4cb
 
 			while :
 			do
