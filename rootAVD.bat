@@ -7,7 +7,8 @@ REM # modded by NewBit XDA for Android Studio AVD
 REM # Successfully tested on Android API:
 REM # [Dec. 2019] - 29 Google Apis Play Store x86_64 Production Build
 REM # [Jan. 2021] - 30 Google Apis Play Store x86_64 Production Build
-REM # [Mar. 2021] - 30 Android (S) Google Apis Play Store x86_64 Production Build
+REM # [Mar. 2021] - 30 Android (S) Google Apis Play Store x86_64 Production Build rev 1
+REM # [Mar. 2021] - 30 Android (S) Google Apis Play Store x86_64 Production Build rev 2
 REM #
 REM ##########################################################################################
 REM rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_playstore\x86_64\ramdisk.img
@@ -18,6 +19,7 @@ if "%1" == "" (
     echo "rootAVD needs a path with file to an AVD ramdisk"
     echo "rootAVD will backup your ramdisk.img and replace it when finished"
 	echo "rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img"
+	echo "rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_playstore\x86_64\ramdisk.img"
 	exit /B 0
 )
 
@@ -91,6 +93,9 @@ adb pull %ADBBASEDIR%/ramdiskpatched4AVD.img
 echo "[-] pull Magisk.apk to Apps\"
 adb pull %ADBBASEDIR%/Magisk.apk Apps\
 
+echo "[-] pull Magisk.zip to Apps\"
+adb pull %ADBBASEDIR%/Magisk.zip
+
 echo "[-] Clean up the ADB working space"
 adb shell rm -rf %ADBBASEDIR%
 
@@ -110,6 +115,6 @@ EXIT /B %ERRORLEVEL%
 ECHO "[-] Install all APKs placed in the Apps folder"
 FOR %%i IN (APPS\*.apk) DO (
 echo "[*] Trying to install %%i"
-adb install -r %%i
+adb install -r -d %%i
 )
 EXIT /B 0
