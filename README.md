@@ -50,6 +50,7 @@ with Magisk and Magisk Manager within seconds
 ### Magisk v22 Successfully tested with Stock Kernel on
 * [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r02 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r02-darwin.zip)
 * [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r01 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r01-darwin.zip)
+* [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r02 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r02-windows.zip)
 * [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r01 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r01-windows.zip)
 * [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r01 Darwin/MacOS User Debug Build](https://dl.google.com/android/repository/sys-img/google_apis/x86_64-S_r01.zip)
 * [[Mar. 2021] - Android 11 (R) API 30 Google Apis Play Store x86_64 r10 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-darwin.zip)
@@ -68,13 +69,14 @@ with Magisk and Magisk Manager within seconds
 
 ### Change Logs
 #### [Mar. 2021]
+* [General] - Add a Download Manager Function for bad TLS record using wget
+* [rootAVD.bat] - Adjustments to run with the updated rootAVD.sh
 * [General] - Add a Menu to choose the Magisk Version to install
 * [rootAVD.sh] - Added EnvFixTask Argument to fix Requires Additional Setup in Android S
 * [General] - Changed to BusyBox (D)ASH Standalone
 * [General] - Re-Structured Script
 * [rootAVD.sh] - Added "Additional Setup Required" manually for Android S
 * [rootAVD.sh] - Updated shakalaca's Ramdisk Repack Routine
-* [rootAVD.bat] - Adjustments to run with the updated rootAVD.sh
 * [rootAVD.sh] - Added Compression Detection for LZ4 and GZ
 * [General] - Fixed some bugs and typos
 * [General] - Updated to Magisk App v22.0
