@@ -356,6 +356,10 @@ CheckAvailableMagisks() {
 	if [ -z $MAGISKVERCHOOSEN ]; then
 		
 		UFSH=$BASEDIR/assets/util_functions.sh
+		OF=$BASEDIR/download.tmp
+		BS=1024
+		CUTOFF=100
+		
 		MAGISK_LOCL_VER=$($BB grep $UFSH -e "MAGISK_VER" -w | sed 's/^.*=//')
 		MAGISK_LOCL_VER_CODE=$($BB grep $UFSH -e "MAGISK_VER_CODE" -w | sed 's/^.*=//')
 		MAGISK_LOCL_VER=$(GetPrettyVer $MAGISK_LOCL_VER $MAGISK_LOCL_VER_CODE)
@@ -424,8 +428,26 @@ CheckAvailableMagisks() {
 		if [ -z $MAGISKVERCHOOSEN ]; then
 			echo "[*] Deleting local Magisk $MAGISK_LOCL_VER"
 			rm -rf $MZ
-			echo "[*] Downloading Magisk $MAGISK_VER"
+			echo "[*] Downloading Magisk $MAGISK_VER"	
 			$BB wget -q -O $MZ --no-check-certificate $MAGISK_DL
+			RESULT="$?"
+			while [ $RESULT != "0" ]
+			do				
+				echo "[!] Error while downloading Magisk $MAGISK_VER"
+				echo "[-] patching it together"
+				FSIZE=$(./busybox stat $MZ -c %s)
+				if [ $FSIZE -gt $BS ]; then
+					COUNT=$(( FSIZE/BS ))
+					if [ $COUNT -gt $CUTOFF ]; then
+						COUNT=$(( COUNT - $CUTOFF ))
+					fi
+				fi
+				$BB dd if=$MZ count=$COUNT bs=$BS of=$OF > /dev/null 2>&1
+				mv -f $OF $MZ
+				$BB wget -q -O $MZ --no-check-certificate $MAGISK_DL -c
+				RESULT="$?"
+			done
+			echo "[!] Downloading Magisk $MAGISK_VER complete!"
 			MAGISKVERCHOOSEN=true
 			PrepBusyBoxAndMagisk
 		fi
