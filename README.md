@@ -19,17 +19,28 @@ with Magisk and Magisk Manager within seconds
 		* rootAVD will reboot the AVD automatically
 		* check Magisk App !!
 
-#### Linux
-`./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img`
-`./rootAVD.sh EnvFixTask`
+#### Preconditions
+* the AVD is running
+* a command prompt / terminal is opened
+* `adb shell` will connect to the running AVD
 
+#### Linux
+```
+./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
+./rootAVD.sh EnvFixTask
+```
 
 #### MacOS
-`./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img`
-`./rootAVD.sh EnvFixTask`
+```
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
+./rootAVD.sh EnvFixTask
+```
 
 #### Windows
-`rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_playstore\x86_64\ramdisk.img`
+```
+set PATH=%LOCALAPPDATA%\Android\Sdk\platform-tools;%PATH%
+rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_playstore\x86_64\ramdisk.img
+```
 
 ### Notes
 * adb must be in your `$PATH`
