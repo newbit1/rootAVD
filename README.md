@@ -1,11 +1,15 @@
 # rootAVD
 ### [newbit @ xda-developers](https://forum.xda-developers.com/m/newbit.1350876/)
-A Script to root your Android Studio Virtual Device (AVD),
-with Magisk and Magisk Manager within seconds
+A Script to root your Android Studio Virtual Device (AVD), with Magisk within seconds.
+
+### Preconditions
+* the AVD is running
+* a command prompt / terminal is opened
+* `adb shell` will connect to the running AVD
 
 ### How To Use it
-* rootAVD needs a path with file to an AVD ramdisk
-* rootAVD will backup your ramdisk.img and replace it when done patching
+* run rootAVD with a path to an AVDs ramdisk.img file
+* rootAVD will backup that ramdisk.img and replace it when done patching
 
 ### How To Use it under Android S with Magisk v22
 * rootAVD needs to run twice
@@ -18,11 +22,6 @@ with Magisk and Magisk Manager within seconds
 		* Grant Shell Su Permissions will pop up a few times
 		* rootAVD will reboot the AVD automatically
 		* check Magisk App !!
-
-#### Preconditions
-* the AVD is running
-* a command prompt / terminal is opened
-* `adb shell` will connect to the running AVD
 
 #### Linux
 ```
@@ -43,8 +42,9 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 ```
 
 ### Notes
-* adb must be in your `$PATH`
 * Android 12 (S) rev.2 needs Magisk Canary
+* With the new Menu, you can choose between the newest Magisk, Canary and Stable, Version.
+* Once choosen, the script will make that Version to your local one.
 
 ### Options
 * Install all APKs placed in the Apps folder
@@ -94,6 +94,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 
 ### Credits
 * [topjohnwu @ xda-developers](https://forum.xda-developers.com/m/topjohnwu.4470081)
+* [topjohnwu Magisk File Host](https://github.com/topjohnwu/magisk-files)
 * [topjohnwu Magisk App v22.0](https://github.com/topjohnwu/Magisk/releases/tag/v22.0)
 * [topjohnwu Magisk v21.4](https://github.com/topjohnwu/Magisk/releases/tag/v21.4)
 * [topjohnwu Magisk Manager v8.0.7](https://github.com/topjohnwu/Magisk/releases/tag/manager-v8.0.7)
