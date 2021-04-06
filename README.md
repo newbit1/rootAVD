@@ -4,6 +4,7 @@ A Script to root your Android Studio Virtual Device (AVD), with Magisk within se
 
 ### Preconditions
 * the AVD is running
+* a working Internet connection for the Menu
 * a command prompt / terminal is opened
 * `adb shell` will connect to the running AVD
 
@@ -51,6 +52,8 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 * If you set `PATCHFSTAB=true`
 	* fstab.ranchu will get patched to automount Block Devices like /dev/block/sda1
 	* !! a custom build Kernel is needed !!
+* If you set `GetUSBHPmodZ=true`
+	* The USB HOST Permissions Module Zip will be downloaded into `/sdcard/Download`
 
 ### Links
 * [XDA [GUIDE] Build / Mod [Kernel 5.4][GKI][Android 11 (R)][kernel-ranchu][goldfish][AVD][Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-kernel-5-4-gki-android-11-r-kernel-ranchu-goldfish-avd-google-play-store-api.4220697)
@@ -79,6 +82,8 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 * [[Jan. 2021] - Android  7 (Nougat) API 24 Google Apis Play Store x86 r19 Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-24_r19.zip)
 
 ### Change Logs
+#### [Apr. 2021]
+* [rootAVD.sh] - Added Option to Download the USB HOST Permissions Module
 #### [Mar. 2021]
 * [General] - Add a Download Manager Function for bad TLS record using wget
 * [rootAVD.bat] - Adjustments to run with the updated rootAVD.sh

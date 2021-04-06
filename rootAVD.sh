@@ -352,6 +352,15 @@ GetPrettyVer() {
 		echo "$PRETTY_VER"
 }
 
+GetUSBHPmod() {
+	USBHPZSDDL="/sdcard/Download/usbhostpermissons.zip"
+	USBHPZ="https://github.com/newbit1/usbhostpermissons/releases/download/v1.0/usbhostpermissons.zip"
+	if [ ! -e $USBHPZSDDL ]; then
+		echo "[*] Downloading usbhostpermissons Module"
+		$BB wget -q -O $USBHPZSDDL --no-check-certificate $USBHPZ
+	fi
+}
+
 CheckAvailableMagisks() {
 	if [ -z $MAGISKVERCHOOSEN ]; then
 		
@@ -450,6 +459,13 @@ CheckAvailableMagisks() {
 			echo "[!] Downloading Magisk $MAGISK_VER complete!"
 			MAGISKVERCHOOSEN=true
 			PrepBusyBoxAndMagisk
+		fi
+		
+		# Set GetUSBHPmodZ=true to download the usbhostpermissons module
+		GetUSBHPmodZ=false
+		#GetUSBHPmodZ=true
+		if ("$GetUSBHPmodZ"); then
+			$AVDIsOnline && GetUSBHPmod
 		fi
 	fi
 	export MAGISK_VER
