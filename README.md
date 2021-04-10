@@ -32,6 +32,7 @@ A Script to root your Android Studio Virtual Device (AVD), with Magisk within se
 
 #### MacOS
 ```
+export PATH=$PATH:~/Library/Android/sdk/platform-tools
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
 ./rootAVD.sh EnvFixTask
 ```
@@ -83,6 +84,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 
 ### Change Logs
 #### [Apr. 2021]
+* [General] - Updated local Magisk App v22.1
 * [rootAVD.sh] - Added Option to Download the USB HOST Permissions Module
 #### [Mar. 2021]
 * [General] - Add a Download Manager Function for bad TLS record using wget
