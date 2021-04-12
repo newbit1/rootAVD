@@ -12,7 +12,7 @@ A Script to root your Android Studio Virtual Device (AVD), with Magisk within se
 * run rootAVD with a path to an AVDs ramdisk.img file
 * rootAVD will backup that ramdisk.img and replace it when done patching
 
-### How To Use it under Android S with Magisk v22
+### How To Use it under Android S with Magisk v22.x
 * rootAVD needs to run twice
 * 1st - to patch the ramdisk.img
 * 2nd - after Shut-Down & Reboot the AVD:
@@ -44,7 +44,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 ```
 
 ### Notes
-* Android 12 (S) rev.2 needs Magisk Canary
+* Android 12 (S) rev.2 needs Magisk v22.1+ or Canary
 * With the new Menu, you can choose between the newest Magisk, Canary and Stable, Version.
 * Once choosen, the script will make that Version to your local one.
 
@@ -102,7 +102,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 ### Credits
 * [topjohnwu @ xda-developers](https://forum.xda-developers.com/m/topjohnwu.4470081)
 * [topjohnwu Magisk File Host](https://github.com/topjohnwu/magisk-files)
-* [topjohnwu Magisk App v22.0](https://github.com/topjohnwu/Magisk/releases/tag/v22.0)
+* [topjohnwu Magisk App](https://github.com/topjohnwu/Magisk/releases)
 * [topjohnwu Magisk v21.4](https://github.com/topjohnwu/Magisk/releases/tag/v21.4)
 * [topjohnwu Magisk Manager v8.0.7](https://github.com/topjohnwu/Magisk/releases/tag/manager-v8.0.7)
 * [shakalaca @ xda-developers](https://forum.xda-developers.com/m/shakalaca.1813976)
