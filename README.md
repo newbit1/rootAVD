@@ -2,6 +2,7 @@
 ### [newbit @ xda-developers](https://forum.xda-developers.com/m/newbit.1350876/)
 A Script to root your Android Studio Virtual Device (AVD), with Magisk within seconds.
 
+## Install Magisk
 ### Preconditions
 * the AVD is running
 * a working Internet connection for the Menu
@@ -10,7 +11,7 @@ A Script to root your Android Studio Virtual Device (AVD), with Magisk within se
 
 ### How To Use it
 * run rootAVD with a path to an AVDs ramdisk.img file
-* rootAVD will backup that ramdisk.img and replace it when done patching
+* ramdisk.img gets a backup and will be replaced when done patching
 
 ### How To Use it under Android S with Magisk v22.x
 * rootAVD needs to run twice
@@ -24,10 +25,32 @@ A Script to root your Android Studio Virtual Device (AVD), with Magisk within se
 		* rootAVD will reboot the AVD automatically
 		* check Magisk App !!
 
+## Install / Update a custom build kernel and its modules
+### Preconditions
+* Install Magisk Preconditions
+* build a kernel (bzImage) and its modules (initramfs.img)
+* both files are placed inside the rootAVD directory
+* ramdisk.img must be untouched (stock)
+
+### How To Use it 
+* run rootAVD with the additional InstallKernelModules parameter
+* the modules inside ramdisk.img will be replaced by the modules inside initramfs.img
+* kernel-ranchu gets a backup and will be placed with bzImage when done patching
+* bzImage and initramfs.img will be deleted after installation
+
+## Restore Backups of Ramdisk and kernel
+### Preconditions
+* none
+
+### How To Use it
+* run rootAVD with the additional restore parameter
+
 #### Linux
 ```
 ./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
 ./rootAVD.sh EnvFixTask
+./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore
+./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
 ```
 
 #### MacOS
@@ -35,6 +58,8 @@ A Script to root your Android Studio Virtual Device (AVD), with Magisk within se
 export PATH=$PATH:~/Library/Android/sdk/platform-tools
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
 ./rootAVD.sh EnvFixTask
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
 ```
 
 #### Windows
@@ -47,6 +72,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 * Android 12 (S) rev.2 needs Magisk v22.1+ or Canary
 * With the new Menu, you can choose between the newest Magisk, Canary and Stable, Version.
 * Once choosen, the script will make that Version to your local one.
+
 
 ### Options
 * Install all APKs placed in the Apps folder
@@ -84,8 +110,12 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 
 ### Change Logs
 #### [Apr. 2021]
+* [General] - Added "InstallKernelModules" update/install custom build kernel and modules
+* [rootAVD.sh] - Added update_lib_modules function
+* [General] - Added "restore" to put back your backup files
 * [General] - Updated local Magisk App v22.1
 * [rootAVD.sh] - Added Option to Download the USB HOST Permissions Module
+
 #### [Mar. 2021]
 * [General] - Add a Download Manager Function for bad TLS record using wget
 * [rootAVD.bat] - Adjustments to run with the updated rootAVD.sh

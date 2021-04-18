@@ -7,7 +7,7 @@
 # [Dec. 2019] - 29 Google Apis Play Store x86_64 Production Build
 # [Jan. 2021] - 30 Google Apis Play Store x86_64 Production Build
 # [Mar. 2021] - 30 Google Apis Play Store x86_64 Production Build (S)
-#
+# [Apr. 2021] - 30 Google Apis Play Store x86_64 Production Build (S) rev. 2
 ##########################################################################################
 
 ###################
@@ -106,8 +106,24 @@ abort_script(){
 	exit
 }
 
-detect_ramdisk_compression_method()
-{
+compression_method(){
+	local FILE="$1"
+	local FIRSTFILEBYTES
+	local METHOD_LZ4="02214c18"
+	local METHOD_GZ="1f8b0800"
+	local ENDG=""
+	FIRSTFILEBYTES=$(xxd -p -c8 -l8 "$FILE")
+	FIRSTFILEBYTES="${FIRSTFILEBYTES:0:8}"
+	
+	if [ "$FIRSTFILEBYTES" == "$METHOD_LZ4" ]; then
+		ENDG=".lz4"
+	elif [ "$FIRSTFILEBYTES" == "$METHOD_GZ" ]; then
+		ENDG=".gz"
+	fi
+	echo "$ENDG"
+}
+
+detect_ramdisk_compression_method(){
 	echo "[*] Detecting ramdisk.img compression"
 	RDF=$BASEDIR/ramdisk.img
 	CPIO=$BASEDIR/ramdisk.cpio
@@ -174,6 +190,7 @@ construct_environment() {
 }
 
 checkfile() {
+	#echo "checkfile $1"
 	if [ -r "$1" ]; then 
 		#echo "File exists and is readable"
 		if [ -s "$1" ]; then 
@@ -205,7 +222,64 @@ installapps() {
 	done
 }
 
+create_backup() {
+	local BACKUPFILE=""
+	local FILE=""
+	FILE="$1"
+	BACKUPFILE="$FILE.backup"
+	# If no backup file exist, create one
+	if ( checkfile $AVDPATH/$BACKUPFILE -eq 0 ); then
+		echo "[*] create Backup File of $FILE"
+		cp $AVDPATH/$FILE $AVDPATH/$BACKUPFILE
+	else
+		echo "[-] $FILE Backup exists already"
+	fi
+}
+
+pushtoAVD() {
+	local SRC=""
+	local ADBPUSHECHO=""
+	SRC=${1##*/}
+	echo "[*] Push $SRC into $ADBBASEDIR"
+	ADBPUSHECHO=$(adb push $1 $ADBBASEDIR 2>/dev/null)
+	echo "[-] $ADBPUSHECHO"
+}
+
+pullfromAVD() {
+	local SRC=""
+	local DST=""
+	local ADBPULLECHO=""	
+	SRC=${1##*/}
+	DST=${2##*/}
+	echo "[*] Pull $SRC into $DST"
+	ADBPULLECHO=$(adb pull $ADBBASEDIR/$SRC $2 2>/dev/null) 
+	echo "[-] $ADBPULLECHO"	
+}
+
+restore_backups() {
+	local BACKUPFILE=""
+	local RESTOREFILE=""
+	for f in $1/*.backup; do
+    	BACKUPFILE="$f"
+    	RESTOREFILE="${BACKUPFILE%.backup}"
+    	echo "[!] Restoring ${BACKUPFILE##*/} to ${RESTOREFILE##*/}"
+    	cp $BACKUPFILE $RESTOREFILE
+	done
+	echo "[*] Backups still remain in place"
+	exit 0
+}
+
 CopyMagiskToAVD() {
+	# Set Folders and FileNames		
+	echo "[*] Set Directorys"
+	AVDPATHWITHRDFFILE="$1"
+	AVDPATH=${AVDPATHWITHRDFFILE%/*}
+	RDFFILE=${AVDPATHWITHRDFFILE##*/}
+	
+	if [[ $2 == "restore" ]]; then
+		restore_backups $AVDPATH
+	fi
+	
 	echo "[-] Test if ADB SHELL is working"
 	ADBWORKS=$(adb shell 'echo true' 2>/dev/null)
 
@@ -218,9 +292,9 @@ CopyMagiskToAVD() {
 	ROOTAVD="`getdir "${BASH_SOURCE:-$0}"`"
 	MAGISKZIP=$ROOTAVD/Magisk.zip
 
-	echo "[-] In any AVD via ADB, you can execute code without root in /data/data/com.android.shell"
 	ADBWORKDIR=/data/data/com.android.shell
 	ADBBASEDIR=$ADBWORKDIR/Magisk
+	echo "[-] In any AVD via ADB, you can execute code without root in $ADBWORKDIR"
 	
 	# change to ROOTAVD directory
 	cd $ROOTAVD
@@ -240,73 +314,61 @@ CopyMagiskToAVD() {
 	
 	echo "[*] Creating the ADB working space"
 	adb shell mkdir $ADBBASEDIR
-	
-	echo "[-] Copy Magisk installer Zip"
-	ADBPUSHECHO=$(adb push $MAGISKZIP $ADBBASEDIR 2>/dev/null) 
-	echo "[*] $ADBPUSHECHO"
+
+	pushtoAVD $MAGISKZIP
 	# Proceed with ramdisk
 	if "$RAMDISKIMG"; then
-		# Set Folders and FileNames		
-		echo "[*] Set Directorys"
-		PATHWITHFILE="$1"
-		PATHTOFILE=${PATHWITHFILE%/*}
-		FILE=${PATHWITHFILE##*/}
-		BACKUPFILE=$FILE".backup"
 		# Is it a ramdisk named file?
-		if [ $FILE != "ramdisk.img" ]; then
+		if [ $RDFFILE != "ramdisk.img" ]; then
 			echo "[!] please give a path to a ramdisk file"    
 			exit
 		fi
 		
-		# If no backup file exist, create one
-		if ( checkfile $PATHTOFILE/$BACKUPFILE -eq 0 ); then
-			echo "[*] create Backup File"
-			cp $PATHWITHFILE $PATHTOFILE/$BACKUPFILE
-		else
-			echo "[-] Backup exists already"
+		create_backup $RDFFILE
+		pushtoAVD $AVDPATHWITHRDFFILE	
+		
+		if [[ $2 == "InstallKernelModules" ]]; then
+			INITRAMFS=$ROOTAVD/initramfs.img
+			if ( ! checkfile $INITRAMFS -eq 0 ); then
+				pushtoAVD $INITRAMFS
+			fi		
 		fi
-
-		echo "[-] Copy the original AVD ramdisk.img into Magisk DIR"
-		ADBPUSHECHO=$(adb push $PATHWITHFILE $ADBBASEDIR 2>/dev/null) 
-		echo "[*] $ADBPUSHECHO"	
 	fi
 	
-	echo "[-] Copy rootAVD Script into Magisk DIR"
-	ADBPUSHECHO=$(adb push rootAVD.sh $ADBBASEDIR 2>/dev/null) 
-	echo "[*] $ADBPUSHECHO"
+	pushtoAVD "rootAVD.sh"
 
 	echo "[-] Convert Script to Unix Ending"
 	adb -e shell "dos2unix $ADBBASEDIR/rootAVD.sh"
 	
 	echo "[-] run the actually Boot/Ramdisk/Kernel Image Patch Script"
 	echo "[*] from Magisk by topjohnwu and modded by NewBit XDA"
-	
 	adb shell sh $ADBBASEDIR/rootAVD.sh $@
-
-	if [ "$?" == "1" ]; then	
+	
+	if [ "$?" == "1" ]; then
 		# In Debug-Mode we can skip parts of the script
 		if ( ! "$DEBUG" && "$RAMDISKIMG" ); then
 
-			echo "[-] After the ramdisk.img file is patched and compressed,"
-			echo "[*] pull it back in the Magisk DIR"
-			ADBPUSHECHO=$(adb pull $ADBBASEDIR/ramdiskpatched4AVD.img 2>/dev/null) 
-			echo "[*] $ADBPUSHECHO"
-		
-			echo "[-] pull Magisk.apk to Apps/"
-			ADBPUSHECHO=$(adb pull $ADBBASEDIR/Magisk.apk Apps/ 2>/dev/null) 
-			echo "[*] $ADBPUSHECHO"
-		
-			echo "[-] pull Magisk.zip to Apps/"
-			ADBPUSHECHO=$(adb pull $ADBBASEDIR/Magisk.zip 2>/dev/null)
-			echo "[*] $ADBPUSHECHO"
+			pullfromAVD "ramdiskpatched4AVD.img" $AVDPATHWITHRDFFILE
+			pullfromAVD "Magisk.apk" "Apps/"
+			pullfromAVD "Magisk.zip" $ROOTAVD
 		
 			echo "[-] Clean up the ADB working space"
 			adb shell rm -rf $ADBBASEDIR
 		
-			echo "[*] Move and rename the patched ramdisk.img to the original AVD DIR"
-			mv ramdiskpatched4AVD.img $PATHWITHFILE
-		
 			installapps
+			
+			if [[ $2 == "InstallKernelModules" ]]; then
+				BZFILE=$ROOTAVD/bzImage
+				KRFILE=kernel-ranchu				
+				if ( ! checkfile $BZFILE -eq 0 ); then
+					create_backup $KRFILE
+					echo "[*] Copy custom Kernel into kernel-ranchu"
+					cp $BZFILE $AVDPATH/$KRFILE
+					if [ "$?" == "0" ]; then
+						rm -f $BZFILE $INITRAMFS						
+					fi
+				fi		
+			fi
 
 			echo "[-] Shut-Down & Reboot the AVD and see if it worked"
 			echo "[-] Root and Su with Magisk for Android Studio AVDs"
@@ -350,6 +412,45 @@ GetPrettyVer() {
 			PRETTY_VER="$1($2)"
 		fi
 		echo "$PRETTY_VER"
+}
+
+DownLoadFile() {
+	if ("$AVDIsOnline"); then
+		URL="$1"
+		SRC="$2"
+		DST="$3"
+		
+		OF=$BASEDIR/download.tmp
+		rm -f $OF
+		BS=1024
+		CUTOFF=100		
+
+		if [ "$DST" == "" ]; then
+			DST=$BASEDIR/$SRC
+		else
+			DST=$BASEDIR/$DST
+		fi
+		echo "[*] Downloading File $SRC"
+		$BB wget -q -O $DST --no-check-certificate $URL$SRC
+		RESULT="$?"
+		while [ $RESULT != "0" ]
+		do				
+			echo "[!] Error while downloading File $SRC"
+			echo "[-] patching it together"
+			FSIZE=$(./busybox stat $DST -c %s)
+			if [ $FSIZE -gt $BS ]; then
+				COUNT=$(( FSIZE/BS ))
+				if [ $COUNT -gt $CUTOFF ]; then
+					COUNT=$(( COUNT - $CUTOFF ))
+				fi
+			fi
+			$BB dd if=$DST count=$COUNT bs=$BS of=$OF > /dev/null 2>&1
+			mv -f $OF $DST
+			$BB wget -q $DST --no-check-certificate $URL$SRC -c
+			RESULT="$?"
+		done
+		echo "[!] Downloading File $SRC complete!"
+	fi
 }
 
 GetUSBHPmod() {
@@ -570,6 +671,7 @@ decompress_ramdisk(){
 			$RAMDISK_GZ && LASTINDEX=$OFFSET
 			$RAMDISK_LZ4 && LASTINDEX=$BLOCKS
 	  	done
+	  	update_lib_modules
 		echo "[*] Repacking ramdisk .."
 		cd $TMPDIR/ramdisk > /dev/null
 		`find . | cpio -H newc -o > $CPIO`
@@ -697,14 +799,67 @@ repacking_ramdisk(){
 	# Rename and compress ramdisk.cpio back to ramdiskpatched4AVD.img
 	./magiskboot compress=$METHOD "ramdisk.cpio" "ramdiskpatched4AVD.img"
 	
-	if ("$MAGISKVERCHOOSEN"); then
+	if ( "$MAGISKVERCHOOSEN" ); then
 		echo "[!] Copy Magisk.zip to Magisk.apk"
 		cp Magisk.zip Magisk.apk
 	else
 		echo "[!] Rename Magisk.zip to Magisk.apk"
 		mv Magisk.zip Magisk.apk
 	fi	
-}	
+}
+
+update_lib_modules() {
+	if ( "$InstallKernelModules" ); then
+		local INITRAMFS=initramfs.img
+		if [ -e "$INITRAMFS" ]; then
+			echo "[!] Installing new Kernel Modules"
+			echo "[*] Copy initramfs.img $TMPDIR/initramfs"					
+			mkdir -p $TMPDIR/initramfs
+			CMPRMTH=$(compression_method $INITRAMFS)
+			cp $INITRAMFS $TMPDIR/initramfs/initramfs.cpio$CMPRMTH
+		else
+			return 0
+		fi
+		
+		echo "[-] Extracting Modules from $INITRAMFS"	
+		cd $TMPDIR/initramfs > /dev/null
+			$BASEDIR/magiskboot decompress initramfs.cpio$CMPRMTH
+			$BASEDIR/busybox cpio -F initramfs.cpio -i lib* > /dev/null 2>&1
+		cd - > /dev/null
+		
+		if [ ! -d "$TMPDIR/initramfs/lib/modules" ]; then
+			echo "[!] $INITRAMFS has no lib/modules, aborting"
+			return 0
+		fi
+		
+		OLDVERMAGIC=$(cat $(find $TMPDIR/ramdisk/. -name '*.ko' | head -n 1 2> /dev/null) | strings | grep vermagic= | sed 's/vermagic=//;s/ .*$//' 2> /dev/null)
+		OLDANDROID=$(cat $(find $TMPDIR/ramdisk/. -name '*.ko' | head -n 1 2> /dev/null) | strings | grep 'Android (' | sed 's/ c.*$//' 2> /dev/null)
+		echo "[*] Removing Stock Modules from ramdisk.img"
+		rm -f $TMPDIR/ramdisk/lib/modules/*
+		echo "[!] $OLDVERMAGIC"		
+		echo "[!] $OLDANDROID"
+		
+		echo "[-] Installing new Modules into ramdisk.img"		
+		cd $TMPDIR/initramfs > /dev/null		
+			find ./lib/modules -type f -name '*' -exec cp {} . \;
+			find . -name '*.ko' -exec cp {} $TMPDIR/ramdisk/lib/modules/ \;	
+			NEWVERMAGIC=$(cat $(find . -name '*.ko' | head -n 1 2> /dev/null) | strings | grep vermagic= | sed 's/vermagic=//;s/ .*$//' 2> /dev/null)
+			NEWANDROID=$(cat $(find . -name '*.ko' | head -n 1 2> /dev/null) | strings | grep 'Android (' | sed 's/ c.*$//' 2> /dev/null)
+			cp modules.alias modules.dep modules.load modules.softdep $TMPDIR/ramdisk/lib/modules/
+		cd - > /dev/null
+		
+		echo "[!] $NEWVERMAGIC"
+		echo "[!] $NEWANDROID"
+		
+		echo "[*] Adjusting modules.load and modules.dep"
+		cd $TMPDIR/ramdisk/lib/modules > /dev/null
+			sed -i -E 's~[^[:blank:]]+/~/lib/modules/~g' modules.load
+			sort -s -o modules.load modules.load
+			sed -i -E 's~[^[:blank:]]+/~/lib/modules/~g' modules.dep
+			sort -s -o modules.dep modules.dep
+		cd - > /dev/null
+	fi
+}
 
 InstallMagiskToAVD() {
 	if [ -z $PREPBBMAGISK ]; then
@@ -723,12 +878,18 @@ InstallMagiskToAVD() {
 	if [[ $1 == "EnvFixTask" ]]; then
 		construct_environment
 	fi
+	
+	InstallKernelModules=false
+	if [[ $2 == "InstallKernelModules" ]]; then
+		InstallKernelModules=true
+	fi
+	export InstallKernelModules	
 
 	if $RANCHU; then
 		detect_ramdisk_compression_method
 		decompress_ramdisk
 		test_ramdisk_patch_status
-		patching_ramdisk
+		patching_ramdisk		
 		repacking_ramdisk
 	fi
 }
@@ -773,10 +934,16 @@ case $1 in
   			echo "[!] rootAVD will backup your ramdisk.img and replace it when finished"
   			echo "[*][*] possible commands are... [L]inux / [M]ac/Darwin"
   			echo "[L][M] ./rootAVD.sh EnvFixTask (fix Requires Additional Setup / construct environment)"
+  			echo "[L][M] add InstallKernelModules to install custom build kernel and its modules into ramdisk.img"
+  			echo "[L][M] add restore to restore all backups"
   			echo "[L][|] ./rootAVD.sh ~/Android/Sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img"
   			echo "[L][|] ./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img"
   			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img"
 			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img"
+  			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img restore"
+			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore"
+ 			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules"
+			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules"
 			exit
 		fi
 		RAMDISKIMG=true
@@ -787,6 +954,6 @@ echo "[!] and we are NOT in an emulator shell"
 export ENVFIXTASK
 export RAMDISKIMG
 
-CopyMagiskToAVD $1
+CopyMagiskToAVD $@
 
 exit
