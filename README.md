@@ -91,7 +91,8 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 * [Inject Android Hardware USB HOST Permissions](https://github.com/newbit1/usbhostpermissons)
 * [XDA [SCRIPT] rootAVD - root your Android Studio Virtual Device emulator with Magisk [Android 11][Linux][Darwin/MacOS][WIN][Google Play Store APIs]](https://forum.xda-developers.com/t/script-rootavd-root-your-android-studio-virtual-device-emulator-with-magisk-android-11-linux-darwin-macos-win-google-play-store-apis.4218123)
 
-### Magisk v22 Successfully tested with Stock Kernel on
+### Magisk v22.1+ Successfully tested with Stock Kernel on
+* [[Apr. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r03 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r03-darwin.zip)
 * [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r02 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r02-darwin.zip)
 * [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r01 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r01-darwin.zip)
 * [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r02 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r02-windows.zip)
@@ -113,6 +114,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 
 ### Change Logs
 #### [Apr. 2021]
+* [rootAVD.sh] - Added Android S rev 3 support
 * [General] - Added "InstallKernelModules" update/install custom build kernel and modules
 * [rootAVD.sh] - Added update_lib_modules function
 * [General] - Added "restore" to put back your backup files

@@ -339,7 +339,7 @@ CopyMagiskToAVD() {
 
 	echo "[-] Convert Script to Unix Ending"
 	adb -e shell "dos2unix $ADBBASEDIR/rootAVD.sh"
-	
+
 	echo "[-] run the actually Boot/Ramdisk/Kernel Image Patch Script"
 	echo "[*] from Magisk by topjohnwu and modded by NewBit XDA"
 	adb shell sh $ADBBASEDIR/rootAVD.sh $@
@@ -897,7 +897,7 @@ InstallMagiskToAVD() {
 # Script Entry Point
 # Checking in which shell we are
 RANCHU=false
-SHELL=$(getprop ro.kernel.androidboot.hardware 2>/dev/null)
+SHELL=$(getprop ro.boot.hardware 2>/dev/null)
 if [[ $SHELL == "ranchu" ]]; then
 	echo "[!] We are in an emulator shell"
 	RANCHU=true
