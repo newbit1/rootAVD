@@ -85,6 +85,16 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 * If you set `GetUSBHPmodZ=true`
 	* The USB HOST Permissions Module Zip will be downloaded into `/sdcard/Download`
 
+### 2 Ways to boot the AVD into Safe Mode
+* 1st Way - If the AVD still boots normal:
+	* Tap and Hold the Power Button until the 3 Options appear
+	* Tap and Hold the Power Off Button until Reboot to safe mode appears
+* 2nd Way - If the AVD stuck while booting:
+	* Tap and Hold the Volume Down Button
+	* The Time Window is between the Launching Emulator Bar is approx half way and the Google Screen appearance
+* Confirmation
+	* On the Bottom Left Corner reads: Safe mode
+
 ### Links
 * [XDA [GUIDE] Build / Mod AVD Kernel Android 10 / 11 rootAVD [Magisk] [USB passthrough Linux] [Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-avd-kernel-android10-x86_64-29-root-magisk-usb-passthrough-linux.4212719)
 * [Inject Android Hardware USB HOST Permissions](https://github.com/newbit1/usbhostpermissons)
