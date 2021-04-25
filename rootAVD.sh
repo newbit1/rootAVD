@@ -24,7 +24,7 @@ getdir() {
 
 get_flags() {
 	echo "[-] Get Flags"
-	
+
 	if [ -f /system/init -o -L /system/init ]; then
     	SYSTEM_ROOT=true
   	else
@@ -32,7 +32,7 @@ get_flags() {
     	grep ' / ' /proc/mounts | grep -qv 'rootfs' || grep -q ' /system_root ' /proc/mounts && SYSTEM_ROOT=true
   	fi
 
-	if [ -z $KEEPVERITY ]; then		
+	if [ -z $KEEPVERITY ]; then
 		if $SYSTEM_ROOT; then
 			KEEPVERITY=true
 			echo "[*] System-as-root, keep dm/avb-verity"
@@ -44,7 +44,7 @@ get_flags() {
 	ISENCRYPTED=false
 	grep ' /data ' /proc/mounts | grep -q 'dm-' && ISENCRYPTED=true
 	[ "$(getprop ro.crypto.state)" = "encrypted" ] && ISENCRYPTED=true
-	
+
 	if [ -z $KEEPFORCEENCRYPT ]; then
 		# No data access means unable to decrypt in recovery
 		if $ISENCRYPTED || ! $DATA; then
@@ -54,7 +54,7 @@ get_flags() {
 			KEEPFORCEENCRYPT=false
 		fi
 	fi
-	
+
 	export RECOVERYMODE=false
 	export KEEPVERITY
 	export KEEPFORCEENCRYPT
@@ -78,13 +78,13 @@ api_level_arch_detect() {
 	if [ "$ABI" = "x86" ]; then ARCH=x86; ARCH32=x86; fi;
 	if [ "$ABI2" = "x86" ]; then ARCH=x86; ARCH32=x86; fi;
 	if [ "$ABILONG" = "arm64-v8a" ]; then ARCH=arm64; ARCH32=arm; IS64BIT=true; fi;
-	if [ "$ABILONG" = "x86_64" ]; then ARCH=x64; ARCH32=x86; IS64BIT=true; fi;	
+	if [ "$ABILONG" = "x86_64" ]; then ARCH=x64; ARCH32=x86; IS64BIT=true; fi;
 
 	echo "[-] Device Platform: $ARCH"
 	echo "[-] Device SDK API: $API"
 	echo "[-] ARCH32 $ARCH32"
 	echo "[-] First API Level: $FIRSTAPI"
-	
+
 	# There is only a x86 or arm DIR with binaries
 	BINDIR=$BASEDIR/lib/$ARCH32
 
@@ -92,10 +92,10 @@ api_level_arch_detect() {
 	cd $BINDIR
 	for file in lib*.so; do mv "$file" "${file:3:${#file}-6}"; done
 	cd $BASEDIR
-	
+
 	echo "[*] copy all files from $BINDIR to $BASEDIR"
 	cp $BINDIR/* $BASEDIR
-	
+
 	chmod -R 755 $BASEDIR
 
 	[ -d /system/lib64 ] && IS64BIT=true || IS64BIT=false
@@ -114,7 +114,7 @@ compression_method(){
 	local ENDG=""
 	FIRSTFILEBYTES=$(xxd -p -c8 -l8 "$FILE")
 	FIRSTFILEBYTES="${FIRSTFILEBYTES:0:8}"
-	
+
 	if [ "$FIRSTFILEBYTES" == "$METHOD_LZ4" ]; then
 		ENDG=".lz4"
 	elif [ "$FIRSTFILEBYTES" == "$METHOD_GZ" ]; then
@@ -127,7 +127,7 @@ detect_ramdisk_compression_method(){
 	echo "[*] Detecting ramdisk.img compression"
 	RDF=$BASEDIR/ramdisk.img
 	CPIO=$BASEDIR/ramdisk.cpio
-	
+
 	local FIRSTFILEBYTES
 	local METHOD_LZ4="02214c18"
 	local METHOD_GZ="1f8b0800"
@@ -141,22 +141,22 @@ detect_ramdisk_compression_method(){
 	if [ "$FIRSTFILEBYTES" == "$METHOD_LZ4" ]; then
 		ENDG=".lz4"
 		METHOD="lz4_legacy"
-		RAMDISK_LZ4=true	
+		RAMDISK_LZ4=true
 		mv $RDF $RDF$ENDG
 		RDF=$RDF$ENDG
 	elif [ "$FIRSTFILEBYTES" == "$METHOD_GZ" ]; then
 		ENDG=".gz"
 		METHOD="gzip"
 		RAMDISK_GZ=true
-		mv $RDF $RDF$ENDG	
+		mv $RDF $RDF$ENDG
 	fi
-	
+
 	if [ "$ENDG" == "" ]; then
-		echo "[!] Ramdisk.img uses UNKNOWN compression $FIRSTFILEBYTES"		
+		echo "[!] Ramdisk.img uses UNKNOWN compression $FIRSTFILEBYTES"
 		abort_script
 	fi
-	
-	echo "[!] Ramdisk.img uses $METHOD compression"	
+
+	echo "[!] Ramdisk.img uses $METHOD compression"
 }
 
 # requires additional setup
@@ -164,11 +164,11 @@ detect_ramdisk_compression_method(){
 construct_environment() {
 	echo "[-] Constructing environment - PAY ATTENTION to AVDs Screen"
 	ROOT=`su -c "id -u"` 2>/dev/null
-	
+
 	if [[ $ROOT -eq 0 ]]; then
-		echo "[!] we are root"		
+		echo "[!] we are root"
 		local BBBIN=$BB
-		local COMMONDIR=$BASEDIR/assets	
+		local COMMONDIR=$BASEDIR/assets
 		local NVBASE=/data/adb
 		local MAGISKBIN=$NVBASE/magisk
 
@@ -191,15 +191,15 @@ construct_environment() {
 
 checkfile() {
 	#echo "checkfile $1"
-	if [ -r "$1" ]; then 
+	if [ -r "$1" ]; then
 		#echo "File exists and is readable"
-		if [ -s "$1" ]; then 
+		if [ -s "$1" ]; then
 			#echo "and has a size greater than zero"
-			if [ -w "$1" ]; then 
+			if [ -w "$1" ]; then
 				#echo "and is writable"
-				if [ -f "$1" ]; then 
+				if [ -f "$1" ]; then
 					#echo "and is a regular file."
-					return 1			
+					return 1
 				fi
 			fi
 		fi
@@ -248,12 +248,14 @@ pushtoAVD() {
 pullfromAVD() {
 	local SRC=""
 	local DST=""
-	local ADBPULLECHO=""	
+	local ADBPULLECHO=""
 	SRC=${1##*/}
 	DST=${2##*/}
-	echo "[*] Pull $SRC into $DST"
-	ADBPULLECHO=$(adb pull $ADBBASEDIR/$SRC $2 2>/dev/null) 
-	echo "[-] $ADBPULLECHO"	
+	ADBPULLECHO=$(adb pull $ADBBASEDIR/$SRC $2 2>/dev/null)
+	if [[ ! "$ADBPULLECHO" == *"error"* ]]; then
+		echo "[*] Pull $SRC into $DST"
+  		echo "[-] $ADBPULLECHO"
+	fi	
 }
 
 restore_backups() {
@@ -270,16 +272,16 @@ restore_backups() {
 }
 
 CopyMagiskToAVD() {
-	# Set Folders and FileNames		
+	# Set Folders and FileNames
 	echo "[*] Set Directorys"
 	AVDPATHWITHRDFFILE="$1"
 	AVDPATH=${AVDPATHWITHRDFFILE%/*}
 	RDFFILE=${AVDPATHWITHRDFFILE##*/}
-	
+
 	if [[ $2 == "restore" ]]; then
 		restore_backups $AVDPATH
 	fi
-	
+
 	echo "[-] Test if ADB SHELL is working"
 	ADBWORKS=$(adb shell 'echo true' 2>/dev/null)
 
@@ -287,31 +289,35 @@ CopyMagiskToAVD() {
 		echo "no ADB connection possible"
 		exit
 	fi
-	
+
 	# The Folder where the script was called from
 	ROOTAVD="`getdir "${BASH_SOURCE:-$0}"`"
 	MAGISKZIP=$ROOTAVD/Magisk.zip
+	
+	# Kernel Names
+	BZFILE=$ROOTAVD/bzImage
+	KRFILE=kernel-ranchu
 
 	ADBWORKDIR=/data/data/com.android.shell
 	ADBBASEDIR=$ADBWORKDIR/Magisk
 	echo "[-] In any AVD via ADB, you can execute code without root in $ADBWORKDIR"
-	
+
 	# change to ROOTAVD directory
 	cd $ROOTAVD
 
 	# Download the Magisk apk/zip file -> Magisk-v22.0
 	MAGISKZIPDL=https://github.com/topjohnwu/Magisk/releases/download/v22.0/Magisk-v22.0.apk
 	# If Magisk.zip file already exist, don't download it again
-	if ( checkfile $MAGISKZIP -eq 0 ); then	
+	if ( checkfile $MAGISKZIP -eq 0 ); then
 		echo "[*] Downloading Magisk installer Zip"
 		wget $MAGISKZIPDL -O $MAGISKZIP > /dev/null 2>&1
 	else
 		echo "[-] Magisk installer Zip exists already"
 	fi
-	
+
 	echo "[*] Cleaning up the ADB working space"
 	adb shell rm -rf $ADBBASEDIR
-	
+
 	echo "[*] Creating the ADB working space"
 	adb shell mkdir $ADBBASEDIR
 
@@ -320,21 +326,21 @@ CopyMagiskToAVD() {
 	if "$RAMDISKIMG"; then
 		# Is it a ramdisk named file?
 		if [ $RDFFILE != "ramdisk.img" ]; then
-			echo "[!] please give a path to a ramdisk file"    
+			echo "[!] please give a path to a ramdisk file"
 			exit
 		fi
-		
+
 		create_backup $RDFFILE
-		pushtoAVD $AVDPATHWITHRDFFILE	
-		
+		pushtoAVD $AVDPATHWITHRDFFILE
+
 		if [[ $2 == "InstallKernelModules" ]]; then
 			INITRAMFS=$ROOTAVD/initramfs.img
 			if ( ! checkfile $INITRAMFS -eq 0 ); then
 				pushtoAVD $INITRAMFS
-			fi		
+			fi
 		fi
 	fi
-	
+
 	pushtoAVD "rootAVD.sh"
 
 	echo "[-] Convert Script to Unix Ending"
@@ -343,7 +349,7 @@ CopyMagiskToAVD() {
 	echo "[-] run the actually Boot/Ramdisk/Kernel Image Patch Script"
 	echo "[*] from Magisk by topjohnwu and modded by NewBit XDA"
 	adb shell sh $ADBBASEDIR/rootAVD.sh $@
-	
+
 	if [ "$?" == "1" ]; then
 		# In Debug-Mode we can skip parts of the script
 		if ( ! "$DEBUG" && "$RAMDISKIMG" ); then
@@ -351,25 +357,33 @@ CopyMagiskToAVD() {
 			pullfromAVD "ramdiskpatched4AVD.img" $AVDPATHWITHRDFFILE
 			pullfromAVD "Magisk.apk" "Apps/"
 			pullfromAVD "Magisk.zip" $ROOTAVD
-		
-			echo "[-] Clean up the ADB working space"
-			adb shell rm -rf $ADBBASEDIR
-		
-			installapps
+			
+			InstallKernelModules=false
+			if [[ $2 == "InstallPrebuiltKernelModules" ]]; then
+				pullfromAVD $BZFILE $ROOTAVD
+				InstallKernelModules=true
+			fi
 			
 			if [[ $2 == "InstallKernelModules" ]]; then
-				BZFILE=$ROOTAVD/bzImage
-				KRFILE=kernel-ranchu				
+				InstallKernelModules=true
+			fi
+
+			if ( "$InstallKernelModules" ); then
 				if ( ! checkfile $BZFILE -eq 0 ); then
 					create_backup $KRFILE
 					echo "[*] Copy custom Kernel into kernel-ranchu"
 					cp $BZFILE $AVDPATH/$KRFILE
 					if [ "$?" == "0" ]; then
-						rm -f $BZFILE $INITRAMFS						
+						rm -f $BZFILE $INITRAMFS
 					fi
-				fi		
+				fi
 			fi
+			
+			echo "[-] Clean up the ADB working space"
+			adb shell rm -rf $ADBBASEDIR
 
+			installapps
+			
 			echo "[-] Shut-Down & Reboot the AVD and see if it worked"
 			echo "[-] Root and Su with Magisk for Android Studio AVDs"
 			echo "[-] Modded by NewBit XDA - Jan. 2021"
@@ -416,25 +430,25 @@ GetPrettyVer() {
 
 DownLoadFile() {
 	if ("$AVDIsOnline"); then
-		URL="$1"
-		SRC="$2"
-		DST="$3"
-		
+		local URL="$1"
+		local SRC="$2"
+		local DST="$3"
+
 		OF=$BASEDIR/download.tmp
 		rm -f $OF
 		BS=1024
-		CUTOFF=100		
+		CUTOFF=100
 
 		if [ "$DST" == "" ]; then
 			DST=$BASEDIR/$SRC
 		else
 			DST=$BASEDIR/$DST
 		fi
-		echo "[*] Downloading File $SRC"
+		#echo "[*] Downloading File $SRC"
 		$BB wget -q -O $DST --no-check-certificate $URL$SRC
 		RESULT="$?"
 		while [ $RESULT != "0" ]
-		do				
+		do
 			echo "[!] Error while downloading File $SRC"
 			echo "[-] patching it together"
 			FSIZE=$(./busybox stat $DST -c %s)
@@ -464,39 +478,39 @@ GetUSBHPmod() {
 
 CheckAvailableMagisks() {
 	if [ -z $MAGISKVERCHOOSEN ]; then
-		
+
 		UFSH=$BASEDIR/assets/util_functions.sh
 		OF=$BASEDIR/download.tmp
 		BS=1024
 		CUTOFF=100
-		
+
 		MAGISK_LOCL_VER=$($BB grep $UFSH -e "MAGISK_VER" -w | sed 's/^.*=//')
 		MAGISK_LOCL_VER_CODE=$($BB grep $UFSH -e "MAGISK_VER_CODE" -w | sed 's/^.*=//')
 		MAGISK_LOCL_VER=$(GetPrettyVer $MAGISK_LOCL_VER $MAGISK_LOCL_VER_CODE)
-		
+
 		CheckAVDIsOnline
 		if ("$AVDIsOnline"); then
-			echo "[!] Checking available Magisk Versions"		
+			echo "[!] Checking available Magisk Versions"
 			URL="https://raw.githubusercontent.com/topjohnwu/magisk-files/master/"
 			CANJSON="canary.json"
 			STABLJSON="stable.json"
 			rm $CANJSON $STABLJSON > /dev/null 2>&1
-			
+
 			$BB wget -q --no-check-certificate $URL$CANJSON
 			$BB wget -q --no-check-certificate $URL$STABLJSON
-			
+
 			MAGISK_CAN_VER=$(json_value "version" < $CANJSON)
 			MAGISK_CAN_VER_CODE=$(json_value "versionCode" 1 < $CANJSON)
 			MAGISK_CAN_DL=$(json_value "link" 1 < $CANJSON)
-			
+
 			MAGISK_CAN_VER=$(GetPrettyVer $MAGISK_CAN_VER $MAGISK_CAN_VER_CODE)
-			
+
 			MAGISK_STABL_VER=$(json_value "version" < $STABLJSON)
 			MAGISK_STABL_VER_CODE=$(json_value "versionCode" 1 < $STABLJSON)
 			MAGISK_STABL_DL=$(json_value "link" 1 < $STABLJSON)
-			
+
 			MAGISK_STABL_VER=$(GetPrettyVer $MAGISK_STABL_VER $MAGISK_STABL_VER_CODE)
-		
+
 			MAGISK_V1="[1] Local $MAGISK_LOCL_VER (ENTER)"
 			MAGISK_V2="[2] Canary $MAGISK_CAN_VER"
 			MAGISK_V3="[3] Stable $MAGISK_STABL_VER"
@@ -526,7 +540,7 @@ CheckAvailableMagisks() {
 						MAGISK_DL=$MAGISK_STABL_DL
 						echo "[$choice] You choose Magisk Stable Version $MAGISK_STABL_VER"
 						break
-						;;		
+						;;
 					*) echo "invalid option $choice";;
 				esac
 			done
@@ -534,15 +548,15 @@ CheckAvailableMagisks() {
 			MAGISK_VER=$MAGISK_LOCL_VER
 			MAGISKVERCHOOSEN=false
 		fi
-		
+
 		if [ -z $MAGISKVERCHOOSEN ]; then
 			echo "[*] Deleting local Magisk $MAGISK_LOCL_VER"
 			rm -rf $MZ
-			echo "[*] Downloading Magisk $MAGISK_VER"	
+			echo "[*] Downloading Magisk $MAGISK_VER"
 			$BB wget -q -O $MZ --no-check-certificate $MAGISK_DL
 			RESULT="$?"
 			while [ $RESULT != "0" ]
-			do				
+			do
 				echo "[!] Error while downloading Magisk $MAGISK_VER"
 				echo "[-] patching it together"
 				FSIZE=$(./busybox stat $MZ -c %s)
@@ -561,7 +575,7 @@ CheckAvailableMagisks() {
 			MAGISKVERCHOOSEN=true
 			PrepBusyBoxAndMagisk
 		fi
-		
+
 		# Set GetUSBHPmodZ=true to download the usbhostpermissons module
 		GetUSBHPmodZ=false
 		#GetUSBHPmodZ=true
@@ -587,7 +601,7 @@ PrepBusyBoxAndMagisk() {
 	mv -f $BASEDIR/lib/x86/libbusybox.so $BB
 	$BB >/dev/null 2>&1 || mv -f $BASEDIR/lib/armeabi-v7a/libbusybox.so $BB
 	chmod -R 755 $BASEDIR
-		
+
 	export BASEDIR
 	export TMPDIR
 	export BB
@@ -596,7 +610,7 @@ PrepBusyBoxAndMagisk() {
 	CheckAvailableMagisks
 }
 
-ExecBusyBoxAsh() {	
+ExecBusyBoxAsh() {
 	echo "[*] Re-Run rootAVD in Magisk Busybox STANDALONE (D)ASH"
 	export PREPBBMAGISK=1
 	export ASH_STANDALONE=1
@@ -626,18 +640,18 @@ decompress_ramdisk(){
 	  	IBS=1
 	  	OBS=4096
 	  	OF=$TMPDIR/temp$ENDG
-		
+
 	  	RAMDISKS=`strings -t d $RDF | grep TRAILER`
 
 	  	for OFFSET in $RAMDISKS
 	  	do
-			# calculate offset to next archive			
+			# calculate offset to next archive
 			if [ `echo "$OFFSET" | grep TRAILER` ]; then
 				# find position of end of TRAILER!!! string in image
 
 				if $RAMDISK_GZ; then
 					LEN=${#OFFSET}
-					START=$((LASTINDEX+LEN))			
+					START=$((LASTINDEX+LEN))
 					# find first occurance of string in image, that will be start of cpio archive
 					dd if=$RDF skip=$START count=$OBS ibs=$IBS obs=$OBS of=$OF > /dev/null 2>&1
 					HEAD=`strings -t d $OF | head -1`
@@ -645,11 +659,11 @@ decompress_ramdisk(){
 					for i in $HEAD;do
 						HEAD=$i
 						break
-					done					
-					LASTINDEX=$((START+HEAD))	  	
+					done
+					LASTINDEX=$((START+HEAD))
 				fi
 				if $RAMDISK_LZ4; then
-					START=$LASTINDEX	
+					START=$LASTINDEX
 				fi
 		  		continue
 			fi
@@ -740,14 +754,14 @@ patching_ramdisk(){
 	./magiskboot compress=xz magisk32 magisk32.xz
 	./magiskboot compress=xz magisk64 magisk64.xz
 	$IS64BIT && SKIP64="" || SKIP64="#"
-	
+
 	# Here gets the ramdisk.img patched with the magisk su files and stuff
 
 	# Set PATCHFSTAB=true if you want the RAMDISK merge your modded fstab.ranchu before Magisk Mirror gets mounted
 
 	PATCHFSTAB=false
 	#PATCHFSTAB=true
-	
+
 	# cp the read-only fstab.ranchu from vendor partition and add usb:auto for SD devices
 	# kernel musst have Mass-Storage + SCSI Support enabled to create /dev/block/sd* nodes
 
@@ -798,59 +812,173 @@ repacking_ramdisk(){
 	echo "[*] repacking back to ramdisk.img format"
 	# Rename and compress ramdisk.cpio back to ramdiskpatched4AVD.img
 	./magiskboot compress=$METHOD "ramdisk.cpio" "ramdiskpatched4AVD.img"
-	
+
 	if ( "$MAGISKVERCHOOSEN" ); then
 		echo "[!] Copy Magisk.zip to Magisk.apk"
 		cp Magisk.zip Magisk.apk
 	else
 		echo "[!] Rename Magisk.zip to Magisk.apk"
 		mv Magisk.zip Magisk.apk
-	fi	
+	fi
+}
+
+strip_html_links() {
+		sed -i -e 's/<a href=/\n<a href=/g;s/<\/a>/<\/a>\n/g' "$1"
+		sed -i -n '/>Update kernel to builds/p' "$1"
 }
 
 update_lib_modules() {
-	if ( "$InstallKernelModules" ); then
-		local INITRAMFS=initramfs.img
+	local INITRAMFS=initramfs.img
+	if ("$AVDIsOnline"); then
+		if ( "$InstallPrebuiltKernelModules" ); then
+			local unameR=$(uname -r)
+			local majmin=${unameR%.*}
+			local installedbuild=${unameR##*ab}			
+			local URL="https://android.googlesource.com"
+			local KERSRC="/kernel/prebuilts/$majmin/x86-64/+log/refs/heads/master"
+			local MODSRC="/kernel/prebuilts/common-modules/virtual-device/$majmin/x86-64/+log/refs/heads/master"
+			local KERPREMASHTML="kernelprebuiltsmaster.html"
+			local KERDST="prebuiltkernel.tar.gz"
+			local MODDST="prebuiltmodules.tar.gz"
+			local MODPREMASHTML="moduleprebuiltsmaster.html"
+			local TMPSTRIPFILE="tmpstripfile"
+			local TMPREADFILE="tmpreadfile"
+			local FILETOREAD=""
+			local FILETOSTRIP=""
+
+			local BUILDVERCHOOSEN=""
+			local CHOOSENLINE=""
+			local KERCOMMITID=""
+			local MODCOMMITID=""
+
+			local ker_line_cnt=""
+			local mod_line_cnt=""
+			local i=""
+
+			DownLoadFile $URL $KERSRC $KERPREMASHTML
+			DownLoadFile $URL $MODSRC $MODPREMASHTML
+
+			strip_html_links $KERPREMASHTML
+			strip_html_links $MODPREMASHTML
+
+			ker_line_cnt=$(sed -n '$=' $KERPREMASHTML)
+			mod_line_cnt=$(sed -n '$=' $MODPREMASHTML)
+
+			if [ "$ker_line_cnt" -gt "$mod_line_cnt" ];then
+				FILETOREAD="$KERPREMASHTML"
+				FILETOSTRIP="$MODPREMASHTML"
+			else
+				FILETOREAD="$MODPREMASHTML"
+				FILETOSTRIP="$KERPREMASHTML"
+			fi
+
+			touch $TMPSTRIPFILE
+			touch $TMPREADFILE
+
+			echo "[*] Find common Build Versions"
+			while read line; do
+					BUILDVER=$(echo $line | sed -e 's/<[^>]*>//g')
+					grep -e ">$BUILDVER<" -F $FILETOSTRIP >> $TMPSTRIPFILE
+					if [[ "$?" == "0" ]]; then
+						echo $line >> $TMPREADFILE
+					fi
+			done < $FILETOREAD
+
+			mv -f $TMPREADFILE $FILETOREAD
+			mv -f $TMPSTRIPFILE $FILETOSTRIP
+
+			while :
+			do
+				i=0
+				echo "[!] Installed Kernel builds $installedbuild"
+				echo "[?] Choose a Prebuild Kernel/Module Version"				
+				while read line; do
+					i=$(( i + 1 ))
+					BUILDVER=$(echo $line | sed -e 's/<[^>]*>//g')
+					echo "[$i] $BUILDVER"
+				done < $KERPREMASHTML
+
+				read choice
+				case $choice in
+					*)
+						if [[ "$choice" == "" ]]; then
+							choice=1
+						fi
+						if [ "$choice" -le "$i" ];then
+							BUILDVERCHOOSEN=$choice
+							CHOOSENLINE=$(sed -n "$BUILDVERCHOOSEN"'p' $KERPREMASHTML)
+							BUILDVER=$(echo $CHOOSENLINE| sed -e 's/<[^>]*>//g')
+							KERCOMMITID=$(echo $CHOOSENLINE | sed -e 's/^[^"]*"\([^"]*\)".*/\1/')
+							KERCOMMITID=${KERCOMMITID##*/}".tar.gz"
+
+							CHOOSENLINE=$(sed -n "$BUILDVERCHOOSEN"'p' $MODPREMASHTML)
+							MODCOMMITID=$(echo $CHOOSENLINE | sed -e 's/^[^"]*"\([^"]*\)".*/\1/')
+							MODCOMMITID=${MODCOMMITID##*/}".tar.gz"
+
+							echo "[$BUILDVERCHOOSEN] You choose: $BUILDVER"
+							break
+						fi
+						echo "Choice is out of range";;
+				esac
+			done
+		
+			echo "[-] Downloading Kernel and its Modules..."
+			# Download Kernel
+			DownLoadFile "$URL/kernel/prebuilts/$majmin/x86-64/+archive/" $KERCOMMITID $KERDST
+			# Download Modules
+			DownLoadFile "$URL/kernel/prebuilts/common-modules/virtual-device/$majmin/x86-64/+archive/" $MODCOMMITID $MODDST
+		
+			echo "[*] Extracting kernel-$majmin to bzImage"
+			tar -xf $KERDST kernel-$majmin -O > bzImage
+			echo "[-] Extracting $INITRAMFS"
+			tar -xf $MODDST $INITRAMFS
+		
+			InstallKernelModules=true
+		fi
+	fi
+	
+	if ( "$InstallKernelModules" ); then		
 		if [ -e "$INITRAMFS" ]; then
 			echo "[!] Installing new Kernel Modules"
-			echo "[*] Copy initramfs.img $TMPDIR/initramfs"					
+			echo "[*] Copy initramfs.img $TMPDIR/initramfs"
 			mkdir -p $TMPDIR/initramfs
 			CMPRMTH=$(compression_method $INITRAMFS)
 			cp $INITRAMFS $TMPDIR/initramfs/initramfs.cpio$CMPRMTH
 		else
 			return 0
 		fi
-		
-		echo "[-] Extracting Modules from $INITRAMFS"	
+
+		echo "[-] Extracting Modules from $INITRAMFS"
 		cd $TMPDIR/initramfs > /dev/null
 			$BASEDIR/magiskboot decompress initramfs.cpio$CMPRMTH
-			$BASEDIR/busybox cpio -F initramfs.cpio -i lib* > /dev/null 2>&1
+			$BASEDIR/busybox cpio -F initramfs.cpio -i *lib* > /dev/null 2>&1
 		cd - > /dev/null
-		
+
 		if [ ! -d "$TMPDIR/initramfs/lib/modules" ]; then
 			echo "[!] $INITRAMFS has no lib/modules, aborting"
+			rm -rf bzImage 2>/dev/null
 			return 0
 		fi
-		
+
 		OLDVERMAGIC=$(cat $(find $TMPDIR/ramdisk/. -name '*.ko' | head -n 1 2> /dev/null) | strings | grep vermagic= | sed 's/vermagic=//;s/ .*$//' 2> /dev/null)
 		OLDANDROID=$(cat $(find $TMPDIR/ramdisk/. -name '*.ko' | head -n 1 2> /dev/null) | strings | grep 'Android (' | sed 's/ c.*$//' 2> /dev/null)
 		echo "[*] Removing Stock Modules from ramdisk.img"
 		rm -f $TMPDIR/ramdisk/lib/modules/*
-		echo "[!] $OLDVERMAGIC"		
+		echo "[!] $OLDVERMAGIC"
 		echo "[!] $OLDANDROID"
-		
-		echo "[-] Installing new Modules into ramdisk.img"		
-		cd $TMPDIR/initramfs > /dev/null		
+
+		echo "[-] Installing new Modules into ramdisk.img"
+		cd $TMPDIR/initramfs > /dev/null
 			find ./lib/modules -type f -name '*' -exec cp {} . \;
-			find . -name '*.ko' -exec cp {} $TMPDIR/ramdisk/lib/modules/ \;	
+			find . -name '*.ko' -exec cp {} $TMPDIR/ramdisk/lib/modules/ \;
 			NEWVERMAGIC=$(cat $(find . -name '*.ko' | head -n 1 2> /dev/null) | strings | grep vermagic= | sed 's/vermagic=//;s/ .*$//' 2> /dev/null)
 			NEWANDROID=$(cat $(find . -name '*.ko' | head -n 1 2> /dev/null) | strings | grep 'Android (' | sed 's/ c.*$//' 2> /dev/null)
 			cp modules.alias modules.dep modules.load modules.softdep $TMPDIR/ramdisk/lib/modules/
 		cd - > /dev/null
-		
+
 		echo "[!] $NEWVERMAGIC"
 		echo "[!] $NEWANDROID"
-		
+
 		echo "[*] Adjusting modules.load and modules.dep"
 		cd $TMPDIR/ramdisk/lib/modules > /dev/null
 			sed -i -E 's~[^[:blank:]]+/~/lib/modules/~g' modules.load
@@ -866,30 +994,36 @@ InstallMagiskToAVD() {
 		PrepBusyBoxAndMagisk
 		ExecBusyBoxAsh $@
 	fi
-	
+
 	echo "[-] We are now in Magisk Busybox STANDALONE (D)ASH"
 	# Don't use $BB from now on
 
 	echo "[*] rootAVD with Magisk $MAGISK_VER Installer"
-	
+
 	get_flags
 	api_level_arch_detect
 
 	if [[ $1 == "EnvFixTask" ]]; then
 		construct_environment
 	fi
-	
+
 	InstallKernelModules=false
-	if [[ $2 == "InstallKernelModules" ]]; then
+	if [[ "$2" == "InstallKernelModules" ]]; then
 		InstallKernelModules=true
 	fi
-	export InstallKernelModules	
+	export InstallKernelModules
+
+	InstallPrebuiltKernelModules=false
+	if [[ "$2" == "InstallPrebuiltKernelModules" ]]; then
+		InstallPrebuiltKernelModules=true
+	fi
+	export InstallPrebuiltKernelModules
 
 	if $RANCHU; then
 		detect_ramdisk_compression_method
 		decompress_ramdisk
 		test_ramdisk_patch_status
-		patching_ramdisk		
+		patching_ramdisk
 		repacking_ramdisk
 	fi
 }
@@ -927,10 +1061,10 @@ case $1 in
 		ENVFIXTASK=true
 	;;
 
-  * )  # If there is no file to work with, abort the script	
+  * )  # If there is no file to work with, abort the script
 		if (checkfile "$1" -eq 0); then
 			echo "[!] rootAVD needs either a path with file to an AVD ramdisk"
-			echo "[!] or the EnvFixTask argument for Android 12 (S)"			
+			echo "[!] or the EnvFixTask argument for Android 12 (S)"
   			echo "[!] rootAVD will backup your ramdisk.img and replace it when finished"
   			echo "[*][*] possible commands are... [L]inux / [M]ac/Darwin"
   			echo "[L][M] ./rootAVD.sh EnvFixTask (fix Requires Additional Setup / construct environment)"
@@ -944,6 +1078,8 @@ case $1 in
 			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore"
  			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules"
 			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules"
+ 			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules"
+			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules"
 			exit
 		fi
 		RAMDISKIMG=true

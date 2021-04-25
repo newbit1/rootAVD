@@ -1,6 +1,12 @@
 # rootAVD
 ### [newbit @ xda-developers](https://forum.xda-developers.com/m/newbit.1350876)
-A Script to root your Android Studio Virtual Device (AVD), with Magisk within seconds.
+A Script to...
+* root your Android Studio Virtual Device (AVD), with Magisk (Stable or Canary)
+* patch its fstab
+* download and install the USB HOST Permissions Module for Magisk
+* install custom build Kernel and its Modules
+* download and install AOSP prebuilt Kernel and its Modules
+...within seconds.
 
 ## Install Magisk
 ### Preconditions
@@ -25,20 +31,23 @@ A Script to root your Android Studio Virtual Device (AVD), with Magisk within se
 		* rootAVD will reboot the AVD automatically
 		* check Magisk App !!
 
-## Install / Update a custom build kernel and its modules
+## Download / Install / Update a custom (pre)build Kernel and its modules
 ### Preconditions
 * Install Magisk Preconditions
 * build a kernel (bzImage) and its modules (initramfs.img)
 * both files are placed inside the rootAVD directory
 * ramdisk.img must be untouched (stock)
 
-### How To Use it 
-* run rootAVD with the additional InstallKernelModules parameter
+### How To Use it
+* run rootAVD with the additional **InstallKernelModules** | **InstallPrebuiltKernelModule** parameter
 * the modules inside ramdisk.img will be replaced by the modules inside initramfs.img
 * kernel-ranchu gets a backup and will be placed with bzImage when done patching
 * bzImage and initramfs.img will be deleted after installation
 
-## Restore Backups of Ramdisk and kernel
+### Notes
+* Prebuilt Kernel and Modules will be pulled from [AOSP](https://android.googlesource.com/kernel/prebuilts)
+
+## Restore Backups of Ramdisk and Kernel
 ### Preconditions
 * none
 
@@ -55,6 +64,7 @@ A Script to root your Android Studio Virtual Device (AVD), with Magisk within se
 ./rootAVD.sh EnvFixTask
 ./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore
 ./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
+./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModule
 ```
 
 #### MacOS
@@ -64,6 +74,7 @@ export PATH=$PATH:~/Library/Android/sdk/platform-tools
 ./rootAVD.sh EnvFixTask
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModule
 ```
 
 #### Windows
@@ -115,6 +126,9 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 
 ### Change Logs
 #### [Apr. 2021]
+* [rootAVD.sh] - Add a Menu to choose the prebuilt Kernel and Modules Version to install
+* [General] - Added "InstallPrebuiltKernelModule" download/update/install prebuilt kernel and modules
+* [General] - Added 2 Ways to boot the AVD into Safe Mode
 * [rootAVD.sh] - Added Android S rev 3 support
 * [General] - Added "InstallKernelModules" update/install custom build kernel and modules
 * [rootAVD.sh] - Added update_lib_modules function
@@ -124,7 +138,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 
 <details>
 <summary>Archive</summary>
-	
+
 ### Change Logs
 #### [Mar. 2021]
 * [General] - Add a Download Manager Function for bad TLS record using wget
@@ -158,3 +172,4 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 * [shakalaca @ xda-developers](https://forum.xda-developers.com/m/shakalaca.1813976)
 * [shakalaca MagiskOnEmulator](https://github.com/shakalaca/MagiskOnEmulator)
 * [Akianonymus _json_value](https://gist.github.com/cjus/1047794#gistcomment-3313785)
+* [Tad Fisher Android Nixpkgs](https://github.com/tadfisher/android-nixpkgs)
