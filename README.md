@@ -6,6 +6,7 @@ A Script to...
 * download and install the USB HOST Permissions Module for Magisk
 * install custom build Kernel and its Modules
 * download and install AOSP prebuilt Kernel and its Modules
+
 ...within seconds.
 
 ## Install Magisk
@@ -31,7 +32,7 @@ A Script to...
 		* rootAVD will reboot the AVD automatically
 		* check Magisk App !!
 
-## Download / Install / Update a custom (pre)build Kernel and its modules
+## Download / Install / Update a custom (pre)build Kernel and its Modules
 ### Preconditions
 * Install Magisk Preconditions
 * build a kernel (bzImage) and its modules (initramfs.img)
