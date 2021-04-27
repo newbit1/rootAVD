@@ -162,10 +162,14 @@ detect_ramdisk_compression_method(){
 # requires additional setup
 # EnvFixTask
 construct_environment() {
-	echo "[-] Constructing environment - PAY ATTENTION to AVDs Screen"
 	ROOT=`su -c "id -u"` 2>/dev/null
 
+	if [[ "$ROOT" == "" ]]; then
+		ROOT=$(id -u)
+	fi
+
 	if [[ $ROOT -eq 0 ]]; then
+		echo "[-] Constructing environment - PAY ATTENTION to the AVDs Screen"
 		echo "[!] we are root"
 		local BBBIN=$BB
 		local COMMONDIR=$BASEDIR/assets
@@ -255,7 +259,7 @@ pullfromAVD() {
 	if [[ ! "$ADBPULLECHO" == *"error"* ]]; then
 		echo "[*] Pull $SRC into $DST"
   		echo "[-] $ADBPULLECHO"
-	fi	
+	fi
 }
 
 restore_backups() {
@@ -271,6 +275,49 @@ restore_backups() {
 	exit 0
 }
 
+TestADB() {
+	local HOME=~/
+	local ADB_DIR_M=Library/Android/sdk/platform-tools
+	local ADB_DIR_L=Android/Sdk/platform-tools
+	local ADB_DIR=""
+	local ADB_EX=""
+
+	echo "[-] Test if ADB SHELL is working"
+	
+	if [ -d "$HOME$ADB_DIR_M" ]; then
+		ADB_DIR=$ADB_DIR_M
+	elif [ -d "$HOME$ADB_DIR_L" ]; then
+		ADB_DIR=$ADB_DIR_L
+	else
+		echo "[!] ADB not found, please install and add it to your \$PATH"
+		exit
+	fi
+	cd $HOME > /dev/null
+		for adb in $(find $ADB_DIR -type f -name adb); do
+			ADB_EX="~/$adb"
+		done
+	cd - > /dev/null
+
+	if [[ $ADB_EX == "" ]]; then
+		echo "[!] ADB binary not found in ~/$ADB_DIR"
+		exit
+	fi
+
+	ADBWORKS=$(which adb)
+	if [ "$ADBWORKS" == *"not found"* ] || [ "$ADBWORKS" == "" ]; then
+  		echo "[!] ADB is not in your Path, try to"
+  		echo "export PATH=~/$ADB_DIR:\$PATH"
+  		echo ""
+  		exit
+	fi
+
+	ADBWORKS=$(adb shell 'echo true' 2>/dev/null)
+	if [ -z "$ADBWORKS" ]; then
+		echo "no ADB connection possible"
+		exit
+	fi
+}
+
 CopyMagiskToAVD() {
 	# Set Folders and FileNames
 	echo "[*] Set Directorys"
@@ -278,22 +325,16 @@ CopyMagiskToAVD() {
 	AVDPATH=${AVDPATHWITHRDFFILE%/*}
 	RDFFILE=${AVDPATHWITHRDFFILE##*/}
 
-	if [[ $2 == "restore" ]]; then
+	if ( "$restore" ); then
 		restore_backups $AVDPATH
 	fi
 
-	echo "[-] Test if ADB SHELL is working"
-	ADBWORKS=$(adb shell 'echo true' 2>/dev/null)
-
-	if [ -z "$ADBWORKS" ]; then
-		echo "no ADB connection possible"
-		exit
-	fi
+	TestADB
 
 	# The Folder where the script was called from
 	ROOTAVD="`getdir "${BASH_SOURCE:-$0}"`"
 	MAGISKZIP=$ROOTAVD/Magisk.zip
-	
+
 	# Kernel Names
 	BZFILE=$ROOTAVD/bzImage
 	KRFILE=kernel-ranchu
@@ -333,7 +374,7 @@ CopyMagiskToAVD() {
 		create_backup $RDFFILE
 		pushtoAVD $AVDPATHWITHRDFFILE
 
-		if [[ $2 == "InstallKernelModules" ]]; then
+		if ( "$InstallKernelModules" ); then
 			INITRAMFS=$ROOTAVD/initramfs.img
 			if ( ! checkfile $INITRAMFS -eq 0 ); then
 				pushtoAVD $INITRAMFS
@@ -357,33 +398,28 @@ CopyMagiskToAVD() {
 			pullfromAVD "ramdiskpatched4AVD.img" $AVDPATHWITHRDFFILE
 			pullfromAVD "Magisk.apk" "Apps/"
 			pullfromAVD "Magisk.zip" $ROOTAVD
-			
-			InstallKernelModules=false
-			if [[ $2 == "InstallPrebuiltKernelModules" ]]; then
+
+			if ( "$InstallPrebuiltKernelModules" ); then
 				pullfromAVD $BZFILE $ROOTAVD
-				InstallKernelModules=true
-			fi
-			
-			if [[ $2 == "InstallKernelModules" ]]; then
 				InstallKernelModules=true
 			fi
 
 			if ( "$InstallKernelModules" ); then
 				if ( ! checkfile $BZFILE -eq 0 ); then
 					create_backup $KRFILE
-					echo "[*] Copy custom Kernel into kernel-ranchu"
+					echo "[*] Copy $BZFILE (Kernel) into kernel-ranchu"
 					cp $BZFILE $AVDPATH/$KRFILE
 					if [ "$?" == "0" ]; then
 						rm -f $BZFILE $INITRAMFS
 					fi
 				fi
 			fi
-			
+
 			echo "[-] Clean up the ADB working space"
 			adb shell rm -rf $ADBBASEDIR
 
 			installapps
-			
+
 			echo "[-] Shut-Down & Reboot the AVD and see if it worked"
 			echo "[-] Root and Su with Magisk for Android Studio AVDs"
 			echo "[-] Modded by NewBit XDA - Jan. 2021"
@@ -471,8 +507,10 @@ GetUSBHPmod() {
 	USBHPZSDDL="/sdcard/Download/usbhostpermissons.zip"
 	USBHPZ="https://github.com/newbit1/usbhostpermissons/releases/download/v1.0/usbhostpermissons.zip"
 	if [ ! -e $USBHPZSDDL ]; then
-		echo "[*] Downloading usbhostpermissons Module"
+		echo "[*] Downloading USB HOST Permissions Module Zip"
 		$BB wget -q -O $USBHPZSDDL --no-check-certificate $USBHPZ
+	else
+		echo "[*] USB HOST Permissions Module Zip is already present"
 	fi
 }
 
@@ -576,12 +614,8 @@ CheckAvailableMagisks() {
 			PrepBusyBoxAndMagisk
 		fi
 
-		# Set GetUSBHPmodZ=true to download the usbhostpermissons module
-		GetUSBHPmodZ=false
-		#GetUSBHPmodZ=true
-		if ("$GetUSBHPmodZ"); then
-			$AVDIsOnline && GetUSBHPmod
-		fi
+		# Call rootAVD with GetUSBHPmodZ to download the usbhostpermissons module
+		$GetUSBHPmodZ && $AVDIsOnline && GetUSBHPmod
 	fi
 	export MAGISK_VER
 	export MAGISKVERCHOOSEN
@@ -757,10 +791,7 @@ patching_ramdisk(){
 
 	# Here gets the ramdisk.img patched with the magisk su files and stuff
 
-	# Set PATCHFSTAB=true if you want the RAMDISK merge your modded fstab.ranchu before Magisk Mirror gets mounted
-
-	PATCHFSTAB=false
-	#PATCHFSTAB=true
+	# Call rootAVD with PATCHFSTAB if you want the RAMDISK merge your modded fstab.ranchu before Magisk Mirror gets mounted
 
 	# cp the read-only fstab.ranchu from vendor partition and add usb:auto for SD devices
 	# kernel musst have Mass-Storage + SCSI Support enabled to create /dev/block/sd* nodes
@@ -785,7 +816,7 @@ patching_ramdisk(){
 		echo "[-] jumping back to patching ramdisk for magisk init"
 	else
 		echo "[!] Skipping fstab.ranchu patch with /dev/block/sda"
-		echo "[?] If you want fstab.ranchu patched, set PATCHFSTAB=true"
+		echo "[?] If you want fstab.ranchu patched, Call rootAVD with PATCHFSTAB"
 	fi
 
 	$PATCHFSTAB && SKIPOVERLAYD="#" || SKIPOVERLAYD=""
@@ -833,7 +864,7 @@ update_lib_modules() {
 		if ( "$InstallPrebuiltKernelModules" ); then
 			local unameR=$(uname -r)
 			local majmin=${unameR%.*}
-			local installedbuild=${unameR##*ab}			
+			local installedbuild=${unameR##*ab}
 			local URL="https://android.googlesource.com"
 			local KERSRC="/kernel/prebuilts/$majmin/x86-64/+log/refs/heads/master"
 			local MODSRC="/kernel/prebuilts/common-modules/virtual-device/$majmin/x86-64/+log/refs/heads/master"
@@ -891,7 +922,7 @@ update_lib_modules() {
 			do
 				i=0
 				echo "[!] Installed Kernel builds $installedbuild"
-				echo "[?] Choose a Prebuild Kernel/Module Version"				
+				echo "[?] Choose a Prebuild Kernel/Module Version"
 				while read line; do
 					i=$(( i + 1 ))
 					BUILDVER=$(echo $line | sed -e 's/<[^>]*>//g')
@@ -921,23 +952,23 @@ update_lib_modules() {
 						echo "Choice is out of range";;
 				esac
 			done
-		
+
 			echo "[-] Downloading Kernel and its Modules..."
 			# Download Kernel
 			DownLoadFile "$URL/kernel/prebuilts/$majmin/x86-64/+archive/" $KERCOMMITID $KERDST
 			# Download Modules
 			DownLoadFile "$URL/kernel/prebuilts/common-modules/virtual-device/$majmin/x86-64/+archive/" $MODCOMMITID $MODDST
-		
+
 			echo "[*] Extracting kernel-$majmin to bzImage"
 			tar -xf $KERDST kernel-$majmin -O > bzImage
 			echo "[-] Extracting $INITRAMFS"
 			tar -xf $MODDST $INITRAMFS
-		
+
 			InstallKernelModules=true
 		fi
 	fi
-	
-	if ( "$InstallKernelModules" ); then		
+
+	if ( "$InstallKernelModules" ); then
 		if [ -e "$INITRAMFS" ]; then
 			echo "[!] Installing new Kernel Modules"
 			echo "[*] Copy initramfs.img $TMPDIR/initramfs"
@@ -990,7 +1021,9 @@ update_lib_modules() {
 }
 
 InstallMagiskToAVD() {
+
 	if [ -z $PREPBBMAGISK ]; then
+		ProcessArguments $@
 		PrepBusyBoxAndMagisk
 		ExecBusyBoxAsh $@
 	fi
@@ -1003,21 +1036,9 @@ InstallMagiskToAVD() {
 	get_flags
 	api_level_arch_detect
 
-	if [[ $1 == "EnvFixTask" ]]; then
-		construct_environment
-	fi
 
-	InstallKernelModules=false
-	if [[ "$2" == "InstallKernelModules" ]]; then
-		InstallKernelModules=true
-	fi
-	export InstallKernelModules
 
-	InstallPrebuiltKernelModules=false
-	if [[ "$2" == "InstallPrebuiltKernelModules" ]]; then
-		InstallPrebuiltKernelModules=true
-	fi
-	export InstallPrebuiltKernelModules
+	$ENVFIXTASK && construct_environment
 
 	if $RANCHU; then
 		detect_ramdisk_compression_method
@@ -1026,6 +1047,170 @@ InstallMagiskToAVD() {
 		patching_ramdisk
 		repacking_ramdisk
 	fi
+}
+
+FindSystemImages() {
+	local HOME=~/
+	local SYSIM_DIR_M=Library/Android/sdk/system-images
+	local SYSIM_DIR_L=Android/Sdk/system-images
+	local SYSIM_DIR=""
+	local SYSIM_EX=""
+
+	if [ -d "$HOME$SYSIM_DIR_M" ]; then
+		SYSIM_DIR=$SYSIM_DIR_M
+	elif [ -d "$HOME$SYSIM_DIR_L" ]; then
+		SYSIM_DIR=$SYSIM_DIR_L
+	else
+		return 1
+	fi
+	cd $HOME > /dev/null
+		for SI in $(find $SYSIM_DIR -type f -iname ramdisk.img); do
+			SYSIM_EX="~/$SI"
+		done
+	cd - > /dev/null
+
+	echo "${bold}./rootAVD.sh $SYSIM_EX${normal}"
+	if [[ ! $SYSIM_EX == "" ]]; then
+		echo "${bold}./rootAVD.sh $SYSIM_EX GetUSBHPmodZ PATCHFSTAB DEBUG${normal}"
+		echo "${bold}./rootAVD.sh EnvFixTask${normal}"
+		echo "${bold}./rootAVD.sh $SYSIM_EX restore${normal}"
+		echo "${bold}./rootAVD.sh $SYSIM_EX InstallKernelModules${normal}"
+		echo "${bold}./rootAVD.sh $SYSIM_EX InstallPrebuiltKernelModules${normal}"
+		echo "${bold}./rootAVD.sh $SYSIM_EX InstallPrebuiltKernelModules DEBUG PATCHFSTAB GetUSBHPmodZ${normal}"
+	fi
+}
+
+ShowHelpText() {
+bold=$(tput bold)
+normal=$(tput sgr0)
+echo "${bold}rootAVD A Script to root AVD by NewBit XDA${normal}"
+echo ""
+echo "Usage:	${bold}rootAVD [DIR/ramdisk.img] [OPTIONS] | [EXTRA_CMDS]${normal}"
+echo "or:	${bold}rootAVD EnvFixTask${normal}"
+echo ""
+echo "Requires Additional Setup fix:"
+echo "	${bold}EnvFixTask${normal}			construct Magisk Environment manual"
+echo "					- only works with an already Magisk patched ramdisk.img"
+echo "					- without [DIR/ramdisk.img] [OPTIONS] [PATCHFSTAB]"
+echo "					- needed since Android 12 (S) rev.1"
+echo "					- Grant Shell Su Permissions will pop up a few times"
+echo "					- the AVD will reboot automatically"
+echo "	"
+echo "Main operation mode:"
+echo "	${bold}DIR${normal}				a path to an AVD system-image"
+echo "					- must always be the ${bold}1st${normal} Argument after rootAVD"
+echo "	"
+echo "ADB Path | Ramdisk DIR:"
+echo "	${bold}[M]ac/Darwin:${normal}			export PATH=~/Library/Android/sdk/platform-tools:\$PATH"
+echo "					~/Library/Android/sdk/system-images/android-\$API/google_apis_playstore/x86_64/"
+echo "	"
+echo "	${bold}[L]inux:${normal}			export PATH=~/Android/Sdk/platform-tools:\$PATH"
+echo "					~/Android/Sdk/system-images/android-\$API/google_apis_playstore/x86_64/"
+echo "	"
+echo "	${bold}[W]indows:${normal}			set PATH=%LOCALAPPDATA%\Android\Sdk\platform-tools;%PATH%"
+echo "					%LOCALAPPDATA%\Android\Sdk\system-images\android-\$API\google_apis_playstore\x86_64\\"
+echo "	"
+echo "	${bold}\$API:${normal}				25,29,30,S,etc."
+echo "	"
+echo "Except for ${bold}EnvFixTask${normal}, ramdisk.img must be ${bold}untouched (stock).${normal}"
+echo "	"
+echo "Options:"
+echo "	${bold}restore${normal}				restore all existing ${bold}.backup${normal} files, but doesn't delete them"
+echo "					- the AVD doesn't need to be running"
+echo "					- no other Argument after will be processed"
+echo "	"
+echo "	${bold}InstallKernelModules${normal}		install ${bold}custom build kernel and its modules${normal} into ramdisk.img"
+echo "					- kernel (bzImage) and its modules (initramfs.img) are inside rootAVD"
+echo "					- both files will be deleted after installation"
+echo "	"
+echo "	${bold}InstallPrebuiltKernelModules${normal}	download and install an ${bold}AOSP prebuilt kernel and its modules${normal} into ramdisk.img"
+echo "					- similar to ${bold}InstallKernelModules${normal}, but the AVD needs to be online"
+echo "	"
+echo "Options are ${bold}exclusive${normal}, only one at the time will be processed."
+echo "	"
+echo "Extra Commands:"
+echo "	${bold}DEBUG${normal}				${bold}Debugging Mode${normal}, prevents rootAVD to pull back any patched file"
+echo "	"
+echo "	${bold}PATCHFSTAB${normal}			${bold}fstab.ranchu${normal} will get patched to automount Block Devices like ${bold}/dev/block/sda1${normal}"
+echo "					- other entries can be added in the script as well"
+echo "					- a custom build Kernel might be necessary"
+echo "	"
+echo "	${bold}GetUSBHPmodZ${normal}			The ${bold}USB HOST Permissions Module Zip${normal} will be downloaded into ${bold}/sdcard/Download${normal}"
+echo "	"
+echo "Extra Commands can be ${bold}combined${normal}, there is no particular order."
+echo "	"
+echo "${bold}Notes: rootAVD will${normal}"
+echo "- always create ${bold}.backup${normal} files of ${bold}ramdisk.img${normal} and ${bold}kernel-ranchu${normal}"
+echo "- ${bold}replace${normal} both when done patching"
+echo "- show a ${bold}Menu${normal}, to choose the Magisk Version ${bold}(Stable || Canary)${normal}, if the AVD is ${bold}online${normal}"
+echo "- make the ${bold}choosen${normal} Magisk Version to its ${bold}local${normal}"
+echo "- install all APKs placed in the Apps folder"
+echo "	"
+echo "${bold}Command Examples:${normal}"
+FindSystemImages
+echo "	"
+exit
+}
+
+ProcessArguments() {
+	DEBUG=false
+	PATCHFSTAB=false
+	GetUSBHPmodZ=false
+	ENVFIXTASK=false
+	RAMDISKIMG=false
+	restore=false
+	InstallKernelModules=false
+	InstallPrebuiltKernelModules=false
+
+	# While debugging and developing you can turn this flag on
+	if [[ "$@" == *"DEBUG"* ]]; then
+		DEBUG=true
+		# Shows whatever line get executed...
+		#set -x
+	fi
+
+	# Call rootAVD with PATCHFSTAB if you want the RAMDISK merge your modded fstab.ranchu before Magisk Mirror gets mounted
+	if [[ "$@" == *"PATCHFSTAB"* ]]; then
+		PATCHFSTAB=true
+	fi
+
+	# Call rootAVD with GetUSBHPmodZ to download the usbhostpermissons module
+	if [[ "$@" == *"GetUSBHPmodZ"* ]]; then
+		GetUSBHPmodZ=true
+	fi
+
+	case $1 in
+	  "EnvFixTask" )  # AVD requires additional setup
+			ENVFIXTASK=true
+		;;
+
+	  * )
+	  		RAMDISKIMG=true
+		;;
+	esac
+
+	case $2 in
+	  "restore" )
+			restore=true
+		;;
+
+	  "InstallKernelModules" )
+			InstallKernelModules=true
+		;;
+
+	  "InstallPrebuiltKernelModules" )
+			InstallPrebuiltKernelModules=true
+		;;
+	esac
+
+	export DEBUG
+	export PATCHFSTAB
+	export GetUSBHPmodZ
+	export ENVFIXTASK
+	export RAMDISKIMG
+	export restore
+	export InstallKernelModules
+	export InstallPrebuiltKernelModules
 }
 
 # Script Entry Point
@@ -1043,53 +1228,20 @@ if $RANCHU; then
 	return 1
 fi
 
-# While debugging and developing you can turn this flag on
-DEBUG=false
-#DEBUG=true
+ProcessArguments $@
 
-# Shows whatever line get executed...
-if ("$DEBUG"); then
-	#set -x
+if ( "$DEBUG" ); then
 	echo "[!] We are in Debug Mode"
 fi
 
-ENVFIXTASK=false
-RAMDISKIMG=false
-
-case $1 in
-  "EnvFixTask" )  # AVD requires additional setup
-		ENVFIXTASK=true
-	;;
-
-  * )  # If there is no file to work with, abort the script
-		if (checkfile "$1" -eq 0); then
-			echo "[!] rootAVD needs either a path with file to an AVD ramdisk"
-			echo "[!] or the EnvFixTask argument for Android 12 (S)"
-  			echo "[!] rootAVD will backup your ramdisk.img and replace it when finished"
-  			echo "[*][*] possible commands are... [L]inux / [M]ac/Darwin"
-  			echo "[L][M] ./rootAVD.sh EnvFixTask (fix Requires Additional Setup / construct environment)"
-  			echo "[L][M] add InstallKernelModules to install custom build kernel and its modules into ramdisk.img"
-  			echo "[L][M] add restore to restore all backups"
-  			echo "[L][|] ./rootAVD.sh ~/Android/Sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img"
-  			echo "[L][|] ./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img"
-  			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img"
-			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img"
-  			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img restore"
-			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore"
- 			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules"
-			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules"
- 			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules"
-			echo "[|][M] ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules"
-			exit
-		fi
-		RAMDISKIMG=true
-	;;
-esac
+if ( ! "$ENVFIXTASK" ); then
+	# If there is no file to work with, abort the script
+	if (checkfile "$1" -eq 0); then
+		ShowHelpText
+	fi
+fi
 
 echo "[!] and we are NOT in an emulator shell"
-export ENVFIXTASK
-export RAMDISKIMG
-
 CopyMagiskToAVD $@
 
 exit

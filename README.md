@@ -16,66 +16,81 @@ A Script to...
 * a command prompt / terminal is opened
 * `adb shell` will connect to the running AVD
 
-### How To Use it
-* run rootAVD with a path to an AVDs ramdisk.img file
-* ramdisk.img gets a backup and will be replaced when done patching
-
-### How To Use it under Android S with Magisk v22.x
-* rootAVD needs to run twice
-* 1st - to patch the ramdisk.img
-* 2nd - after Shut-Down & Reboot the AVD:
-	* Option 1 - re-run same script command
-	* Option 2 - run script with EnvFixTask Argument
-		* The "Additional Setup Required" will not be triggered in Android S by Magisk App in AVD,
-		* this must be done manually on the 2nd run
-		* Grant Shell Su Permissions will pop up a few times
-		* rootAVD will reboot the AVD automatically
-		* check Magisk App !!
-
-## Download / Install / Update a custom (pre)build Kernel and its Modules
-### Preconditions
-* Install Magisk Preconditions
-* build a kernel (bzImage) and its modules (initramfs.img)
-* both files are placed inside the rootAVD directory
-* ramdisk.img must be untouched (stock)
-
-### How To Use it
-* run rootAVD with the additional **InstallKernelModules** | **InstallPrebuiltKernelModule** parameter
-* the modules inside ramdisk.img will be replaced by the modules inside initramfs.img
-* kernel-ranchu gets a backup and will be placed with bzImage when done patching
-* bzImage and initramfs.img will be deleted after installation
-
-### Notes
-* Prebuilt Kernel and Modules will be pulled from [AOSP](https://android.googlesource.com/kernel/prebuilts)
-
-## Restore Backups of Ramdisk and Kernel
-### Preconditions
-* none
-
-### How To Use it
-* run rootAVD with the additional restore parameter
-
-## XDA [GUIDE] How to [Build|Mod|Update] a custom AVD Kernel and its Modules
-* [[GUIDE][Build|Mod|Update][kernel-ranchu][goldfish][5.4][5.10][GKI][ramdisk.img][modules][rootAVD][Android 11(R) 12(S)][AVD][Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-update-kernel-ranchu-goldfish-5-4-5-10-gki-ramdisk-img-modules-rootavd-android-11-r-12-s-avd-google-play-store-api.4220697)
-
-### rootAVD command line parameters
-#### Linux
+## rootAVD Help Menu
+### Linux & MacOS
 ```
-./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
-./rootAVD.sh EnvFixTask
-./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore
-./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
-./rootAVD.sh ~/Android/Sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModule
-```
+./rootAVD.sh
+rootAVD A Script to root AVD by NewBit XDA
 
-#### MacOS
-```
-export PATH=$PATH:~/Library/Android/sdk/platform-tools
+Usage:	rootAVD [DIR/ramdisk.img] [OPTIONS] | [EXTRA_CMDS]
+or:	rootAVD EnvFixTask
+
+Requires Additional Setup fix:
+	EnvFixTask			construct Magisk Environment manual
+					- only works with an already Magisk patched ramdisk.img
+					- without [DIR/ramdisk.img] [OPTIONS] [PATCHFSTAB]
+					- needed since Android 12 (S) rev.1
+					- Grant Shell Su Permissions will pop up a few times
+					- the AVD will reboot automatically
+	
+Main operation mode:
+	DIR				a path to an AVD system-image
+					- must always be the 1st Argument after rootAVD
+	
+ADB Path | Ramdisk DIR:
+	[M]ac/Darwin:			export PATH=~/Library/Android/sdk/platform-tools:$PATH
+					~/Library/Android/sdk/system-images/android-$API/google_apis_playstore/x86_64/
+	
+	[L]inux:			export PATH=~/Android/Sdk/platform-tools:$PATH
+					~/Android/Sdk/system-images/android-$API/google_apis_playstore/x86_64/
+	
+	[W]indows:			set PATH=%LOCALAPPDATA%\Android\Sdk\platform-tools;%PATH%
+					%LOCALAPPDATA%\Android\Sdk\system-images\android-$API\google_apis_playstore\x86_64\
+	
+	$API:				25,29,30,S,etc.
+	
+Except for EnvFixTask, ramdisk.img must be untouched (stock).
+	
+Options:
+	restore				restore all existing .backup files, but doesn't delete them
+					- the AVD doesn't need to be running
+					- no other Argument after will be processed
+	
+	InstallKernelModules		install custom build kernel and its modules into ramdisk.img
+					- kernel (bzImage) and its modules (initramfs.img) are inside rootAVD
+					- both files will be deleted after installation
+	
+	InstallPrebuiltKernelModules	download and install an AOSP prebuilt kernel and its modules into ramdisk.img
+					- similar to InstallKernelModules, but the AVD needs to be online
+	
+Options are exclusive, only one at the time will be processed.
+	
+Extra Commands:
+	DEBUG				Debugging Mode, prevents rootAVD to pull back any patched file
+	
+	PATCHFSTAB			fstab.ranchu will get patched to automount Block Devices like /dev/block/sda1
+					- other entries can be added in the script as well
+					- a custom build Kernel might be necessary
+	
+	GetUSBHPmodZ			The USB HOST Permissions Module Zip will be downloaded into /sdcard/Download
+	
+Extra Commands can be combined, there is no particular order.
+	
+Notes: rootAVD will
+- always create .backup files of ramdisk.img and kernel-ranchu
+- replace both when done patching
+- show a Menu, to choose the Magisk Version (Stable || Canary), if the AVD is online
+- make the choosen Magisk Version to its local
+- install all APKs placed in the Apps folder
+	
+Command Examples:
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img GetUSBHPmodZ PATCHFSTAB DEBUG
 ./rootAVD.sh EnvFixTask
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModule
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules DEBUG PATCHFSTAB GetUSBHPmodZ
 ```
 
 #### Windows
@@ -88,14 +103,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 * Android 12 (S) rev.2 needs Magisk v22.1+ or Canary
 * With the new Menu, you can choose between the newest Magisk, Canary and Stable, Version.
 * Once choosen, the script will make that Version to your local one.
-
-### Options
-* Install all APKs placed in the Apps folder
-* If you set `PATCHFSTAB=true`
-	* fstab.ranchu will get patched to automount Block Devices like /dev/block/sda1
-	* !! a custom build Kernel is needed !!
-* If you set `GetUSBHPmodZ=true`
-	* The USB HOST Permissions Module Zip will be downloaded into `/sdcard/Download`
+* Prebuilt Kernel and Modules will be pulled from [AOSP](https://android.googlesource.com/kernel/prebuilts)
 
 ### 2 Ways to boot the AVD into Safe Mode
 * 1st Way - If the AVD still boots normal:
@@ -112,6 +120,9 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 * [Inject Android Hardware USB HOST Permissions](https://github.com/newbit1/usbhostpermissons)
 * [XDA [SCRIPT] rootAVD - root your Android Studio Virtual Device emulator with Magisk [Android 11][Linux][Darwin/MacOS][WIN][Google Play Store APIs]](https://forum.xda-developers.com/t/script-rootavd-root-your-android-studio-virtual-device-emulator-with-magisk-android-11-linux-darwin-macos-win-google-play-store-apis.4218123)
 
+### XDA [GUIDE] How to [Build|Mod|Update] a custom AVD Kernel and its Modules
+* [[GUIDE][Build|Mod|Update][kernel-ranchu][goldfish][5.4][5.10][GKI][ramdisk.img][modules][rootAVD][Android 11(R) 12(S)][AVD][Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-update-kernel-ranchu-goldfish-5-4-5-10-gki-ramdisk-img-modules-rootavd-android-11-r-12-s-avd-google-play-store-api.4220697)
+
 ### Magisk v22.1+ Successfully tested with Stock Kernel on
 * [[Apr. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r03 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r03-windows.zip)
 * [[Apr. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r03 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r03-darwin.zip)
@@ -127,8 +138,11 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 
 ### Change Logs
 #### [Apr. 2021]
+* [General] - Added comprehensive Help Menu
+* [rootAVD.sh] - Changed "DEBUG" "PATCHFSTAB" "GetUSBHPmodZ" to Arguments
+* [General] - Fixed some typos and functions
 * [rootAVD.sh] - Add a Menu to choose the prebuilt Kernel and Modules Version to install
-* [General] - Added "InstallPrebuiltKernelModule" download/update/install prebuilt kernel and modules
+* [General] - Added "InstallPrebuiltKernelModules" download/update/install prebuilt kernel and modules
 * [General] - Added 2 Ways to boot the AVD into Safe Mode
 * [rootAVD.sh] - Added Android S rev 3 support
 * [General] - Added "InstallKernelModules" update/install custom build kernel and modules
