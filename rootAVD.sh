@@ -167,9 +167,9 @@ construct_environment() {
 	if [[ "$ROOT" == "" ]]; then
 		ROOT=$(id -u)
 	fi
-
+	
+	echo "[-] Constructing environment - PAY ATTENTION to the AVDs Screen"
 	if [[ $ROOT -eq 0 ]]; then
-		echo "[-] Constructing environment - PAY ATTENTION to the AVDs Screen"
 		echo "[!] we are root"
 		local BBBIN=$BB
 		local COMMONDIR=$BASEDIR/assets
@@ -496,7 +496,7 @@ DownLoadFile() {
 			fi
 			$BB dd if=$DST count=$COUNT bs=$BS of=$OF > /dev/null 2>&1
 			mv -f $OF $DST
-			$BB wget -q $DST --no-check-certificate $URL$SRC -c
+			$BB wget -q -O $DST --no-check-certificate $URL$SRC -c
 			RESULT="$?"
 		done
 		echo "[!] Downloading File $SRC complete!"
@@ -1036,8 +1036,6 @@ InstallMagiskToAVD() {
 	get_flags
 	api_level_arch_detect
 
-
-
 	$ENVFIXTASK && construct_environment
 
 	if $RANCHU; then
@@ -1071,12 +1069,12 @@ FindSystemImages() {
 
 	echo "${bold}./rootAVD.sh $SYSIM_EX${normal}"
 	if [[ ! $SYSIM_EX == "" ]]; then
-		echo "${bold}./rootAVD.sh $SYSIM_EX GetUSBHPmodZ PATCHFSTAB DEBUG${normal}"
+		echo "${bold}./rootAVD.sh $SYSIM_EX DEBUG PATCHFSTAB GetUSBHPmodZ${normal}"
 		echo "${bold}./rootAVD.sh EnvFixTask${normal}"
 		echo "${bold}./rootAVD.sh $SYSIM_EX restore${normal}"
 		echo "${bold}./rootAVD.sh $SYSIM_EX InstallKernelModules${normal}"
 		echo "${bold}./rootAVD.sh $SYSIM_EX InstallPrebuiltKernelModules${normal}"
-		echo "${bold}./rootAVD.sh $SYSIM_EX InstallPrebuiltKernelModules DEBUG PATCHFSTAB GetUSBHPmodZ${normal}"
+		echo "${bold}./rootAVD.sh $SYSIM_EX InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG${normal}"
 	fi
 }
 

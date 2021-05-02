@@ -17,9 +17,8 @@ A Script to...
 * `adb shell` will connect to the running AVD
 
 ## rootAVD Help Menu
-### Linux & MacOS
+### Linux & MacOS & Windows
 ```
-./rootAVD.sh
 rootAVD A Script to root AVD by NewBit XDA
 
 Usage:	rootAVD [DIR/ramdisk.img] [OPTIONS] | [EXTRA_CMDS]
@@ -93,12 +92,6 @@ Command Examples:
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules DEBUG PATCHFSTAB GetUSBHPmodZ
 ```
 
-#### Windows
-```
-set PATH=%LOCALAPPDATA%\Android\Sdk\platform-tools;%PATH%
-rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_playstore\x86_64\ramdisk.img
-```
-
 ### Notes
 * Android 12 (S) rev.2 needs Magisk v22.1+ or Canary
 * With the new Menu, you can choose between the newest Magisk, Canary and Stable, Version.
@@ -137,6 +130,13 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 * [[Mar. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86_64 r08 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-29_r08-windows.zip)
 
 ### Change Logs
+#### [May 2021]
+* [rootAVD.sh] - Added comprehensive Help Menu
+
+<details>
+<summary>Archive</summary>
+
+### Change Logs
 #### [Apr. 2021]
 * [General] - Added comprehensive Help Menu
 * [rootAVD.sh] - Changed "DEBUG" "PATCHFSTAB" "GetUSBHPmodZ" to Arguments
@@ -150,11 +150,6 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-S\google_apis_plays
 * [General] - Added "restore" to put back your backup files
 * [General] - Updated local Magisk App v22.1
 * [rootAVD.sh] - Added Option to Download the USB HOST Permissions Module
-
-<details>
-<summary>Archive</summary>
-
-### Change Logs
 #### [Mar. 2021]
 * [General] - Add a Download Manager Function for bad TLS record using wget
 * [rootAVD.bat] - Adjustments to run with the updated rootAVD.sh
