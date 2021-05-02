@@ -93,7 +93,7 @@ Command Examples:
 ```
 
 ### Notes
-* Android 12 (S) rev.2 needs Magisk v22.1+ or Canary
+* Android 12 (S) rev.2+ needs Magisk v22.1+ or Canary
 * With the new Menu, you can choose between the newest Magisk, Canary and Stable, Version.
 * Once choosen, the script will make that Version to your local one.
 * Prebuilt Kernel and Modules will be pulled from [AOSP](https://android.googlesource.com/kernel/prebuilts)
@@ -131,7 +131,7 @@ Command Examples:
 
 ### Change Logs
 #### [May 2021]
-* [rootAVD.sh] - Added comprehensive Help Menu
+* [rootAVD.bat] - Added comprehensive Help Menu
 
 <details>
 <summary>Archive</summary>
