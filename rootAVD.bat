@@ -53,10 +53,10 @@ call :TestADB
 
 REM The Folder where the script was called from
 set ROOTAVD=%cd%
-set MAGISKZIP=%ROOTAVD%Magisk.zip
+set MAGISKZIP=%ROOTAVD%\Magisk.zip
 
 REM Kernel Names
-set BZFILE=%ROOTAVD%bzImage
+set BZFILE=%ROOTAVD%\bzImage
 set KRFILE=kernel-ranchu
 
 set ADBWORKDIR=/data/data/com.android.shell
@@ -80,7 +80,7 @@ adb shell mkdir %ADBBASEDIR%
 
 call :pushtoAVD %MAGISKZIP%
 REM Proceed with ramdisk
-set INITRAMFS=%ROOTAVD%initramfs.img
+set INITRAMFS=%ROOTAVD%\initramfs.img
 if %RAMDISKIMG% (
 	REM Is it a ramdisk named file?
 	if not "%RDFFILE%" == "ramdisk.img" (
@@ -112,7 +112,7 @@ if "%ERRORLEVEL%"=="1" (
 	if not %DEBUG% (
 		if %RAMDISKIMG% (
 			call :pullfromAVD ramdiskpatched4AVD.img %AVDPATHWITHRDFFILE%
-			call :pullfromAVD Magisk.apk %ROOTAVD%Apps\
+			call :pullfromAVD Magisk.apk %ROOTAVD%\Apps\
 			call :pullfromAVD Magisk.zip
 					
 			if %InstallPrebuiltKernelModules% (
