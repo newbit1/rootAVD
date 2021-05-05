@@ -22,16 +22,21 @@ A Script to...
 rootAVD A Script to root AVD by NewBit XDA
 
 Usage:	rootAVD [DIR/ramdisk.img] [OPTIONS] | [EXTRA_CMDS]
-or:	rootAVD EnvFixTask
+or:	rootAVD [ARGUMENTS]
 
-Requires Additional Setup fix:
-	EnvFixTask			construct Magisk Environment manual
+Arguments:
+	ListAllAVDs			Lists Command Examples for ALL installed AVDs
+
+	EnvFixTask			Requires Additional Setup fix
+					- construct Magisk Environment manual
 					- only works with an already Magisk patched ramdisk.img
 					- without [DIR/ramdisk.img] [OPTIONS] [PATCHFSTAB]
 					- needed since Android 12 (S) rev.1
 					- Grant Shell Su Permissions will pop up a few times
 					- the AVD will reboot automatically
-	
+
+	InstallApps			Just install all APKs placed in the Apps folder
+
 Main operation mode:
 	DIR				a path to an AVD system-image
 					- must always be the 1st Argument after rootAVD
@@ -83,14 +88,56 @@ Notes: rootAVD will
 - install all APKs placed in the Apps folder
 	
 Command Examples:
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh
+./rootAVD.sh ListAllAVDs
 ./rootAVD.sh EnvFixTask
+./rootAVD.sh InstallApps
+
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
 ```
+<details>
+<summary>Command Examples: for ALL installed AVDs</summary>
+
+```
+./rootAVD.sh
+./rootAVD.sh ListAllAVDs
+./rootAVD.sh EnvFixTask
+./rootAVD.sh InstallApps
+
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img restore
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img InstallKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img restore
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img restore
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+```
+</details>
 
 ### Notes
 * Android 12 (S) rev.2+ needs Magisk v22.1+ or Canary
