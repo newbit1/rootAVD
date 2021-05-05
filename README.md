@@ -107,6 +107,15 @@ Command Examples:
 	* The Time Window is between the **Launching Emulator Bar** is approx **half way** until the **Google Boot Screen** appears
 * Confirmation
 	* On the Bottom Left Corner reads: **Safe mode**
+	
+### Automotive Notes
+* After patching the ramdisk.img and cycle power, switch to user 0 via `adb shell am switch-user 0`
+	* open the Magisk App and the **Requires Additional Setup** pops up -> reboot AVD
+	* switch again to user 0
+		* open the Magisk App -> Settings -> Multiuser Mode -> **User-Independent** -> reboot AVD
+* Every time you want to Grant Su Permissions, switch to user 0 and then back to 10 `adb shell am switch-user 10`
+* Alternative, you can install the Module [magisk-single-user](https://github.com/seebz/magisk-single-user)
+	* and remove all user higher than 0 i.e. `pm remove-user 13` or `pm remove-user 10`
 
 ### Links
 * [XDA [GUIDE] Build / Mod AVD Kernel Android 10 / 11 rootAVD [Magisk] [USB passthrough Linux] [Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-avd-kernel-android10-x86_64-29-root-magisk-usb-passthrough-linux.4212719)
@@ -117,6 +126,7 @@ Command Examples:
 * [[GUIDE][Build|Mod|Update][kernel-ranchu][goldfish][5.4][5.10][GKI][ramdisk.img][modules][rootAVD][Android 11(R) 12(S)][AVD][Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-update-kernel-ranchu-goldfish-5-4-5-10-gki-ramdisk-img-modules-rootavd-android-11-r-12-s-avd-google-play-store-api.4220697)
 
 ### Magisk v22.1+ Successfully tested with Stock Kernel on
+* [[May. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86 r01 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/android-automotive/x86-29_r01.zip)
 * [[Apr. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r03 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r03-windows.zip)
 * [[Apr. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r03 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r03-darwin.zip)
 * [[Mar. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r02 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r02-darwin.zip)
@@ -131,6 +141,8 @@ Command Examples:
 
 ### Change Logs
 #### [May 2021]
+* [rootAVD.sh] - Added "ListAllAVDs" Argument that **Lists Command Examples for ALL installed AVDs**
+* [rootAVD.sh] - Added "InstallApps" Argument to **Just install all APKs placed in the Apps folder**			
 * [rootAVD.bat] - Added comprehensive Help Menu
 
 <details>
@@ -183,3 +195,4 @@ Command Examples:
 * [shakalaca MagiskOnEmulator](https://github.com/shakalaca/MagiskOnEmulator)
 * [Akianonymus _json_value](https://gist.github.com/cjus/1047794#gistcomment-3313785)
 * [Tad Fisher Android Nixpkgs](https://github.com/tadfisher/android-nixpkgs)
+* [Sébastien Corne magisk-single-user](https://github.com/seebz)

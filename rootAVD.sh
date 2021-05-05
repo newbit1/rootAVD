@@ -214,7 +214,7 @@ checkfile() {
 # If all is done well so far, you can install some APK's to the AVD
 # every APK file in the Apps DIR will be (re)installed
 # Like magisk.apk etc.
-installapps() {
+install_apps() {
   	APPS="Apps/*"
 	echo "[-] Install all APKs placed in the Apps folder"
 	FILES=$APPS
@@ -334,17 +334,22 @@ CopyMagiskToAVD() {
 	# The Folder where the script was called from
 	ROOTAVD="`getdir "${BASH_SOURCE:-$0}"`"
 	MAGISKZIP=$ROOTAVD/Magisk.zip
-
+	
+	# change to ROOTAVD directory
+	cd $ROOTAVD
+	
 	# Kernel Names
 	BZFILE=$ROOTAVD/bzImage
 	KRFILE=kernel-ranchu
+	
+	if ( "$InstallApps" ); then
+		install_apps
+		exit
+	fi
 
 	ADBWORKDIR=/data/data/com.android.shell
 	ADBBASEDIR=$ADBWORKDIR/Magisk
 	echo "[-] In any AVD via ADB, you can execute code without root in $ADBWORKDIR"
-
-	# change to ROOTAVD directory
-	cd $ROOTAVD
 
 	# Download the Magisk apk/zip file -> Magisk-v22.0
 	MAGISKZIPDL=https://github.com/topjohnwu/Magisk/releases/download/v22.0/Magisk-v22.0.apk
@@ -418,7 +423,7 @@ CopyMagiskToAVD() {
 			echo "[-] Clean up the ADB working space"
 			adb shell rm -rf $ADBBASEDIR
 
-			installapps
+			install_apps
 
 			echo "[-] Shut-Down & Reboot the AVD and see if it worked"
 			echo "[-] Root and Su with Magisk for Android Studio AVDs"
@@ -1061,21 +1066,36 @@ FindSystemImages() {
 	else
 		return 1
 	fi
-	cd $HOME > /dev/null
-		for SI in $(find $SYSIM_DIR -type f -iname ramdisk.img); do
-			SYSIM_EX="~/$SI"
-		done
-	cd - > /dev/null
 
-	echo "${bold}./rootAVD.sh $SYSIM_EX${normal}"
-	if [[ ! $SYSIM_EX == "" ]]; then
-		echo "${bold}./rootAVD.sh $SYSIM_EX DEBUG PATCHFSTAB GetUSBHPmodZ${normal}"
-		echo "${bold}./rootAVD.sh EnvFixTask${normal}"
-		echo "${bold}./rootAVD.sh $SYSIM_EX restore${normal}"
-		echo "${bold}./rootAVD.sh $SYSIM_EX InstallKernelModules${normal}"
-		echo "${bold}./rootAVD.sh $SYSIM_EX InstallPrebuiltKernelModules${normal}"
-		echo "${bold}./rootAVD.sh $SYSIM_EX InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG${normal}"
-	fi
+
+
+	cd $HOME > /dev/null
+			for SI in $(find -s $SYSIM_DIR -type f -iname ramdisk.img); do
+				if ( "$ListAllAVDs" ); then
+					SYSIM_EX+=" ~/$SI"
+				else
+					SYSIM_EX="~/$SI"
+				fi		
+			done
+	cd - > /dev/null
+	
+	echo "${bold}./rootAVD.sh${normal}"
+	echo "${bold}./rootAVD.sh ListAllAVDs${normal}"
+	echo "${bold}./rootAVD.sh EnvFixTask${normal}"
+	echo "${bold}./rootAVD.sh InstallApps${normal}"	
+	echo ""
+	
+	for SYSIM in $SYSIM_EX;do
+		if [[ ! $SYSIM == "" ]]; then
+			echo "${bold}./rootAVD.sh $SYSIM${normal}"
+			echo "${bold}./rootAVD.sh $SYSIM DEBUG PATCHFSTAB GetUSBHPmodZ${normal}"
+			echo "${bold}./rootAVD.sh $SYSIM restore${normal}"
+			echo "${bold}./rootAVD.sh $SYSIM InstallKernelModules${normal}"
+			echo "${bold}./rootAVD.sh $SYSIM InstallPrebuiltKernelModules${normal}"
+			echo "${bold}./rootAVD.sh $SYSIM InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG${normal}"
+			echo ""
+		fi
+	done
 }
 
 ShowHelpText() {
@@ -1084,16 +1104,21 @@ normal=$(tput sgr0)
 echo "${bold}rootAVD A Script to root AVD by NewBit XDA${normal}"
 echo ""
 echo "Usage:	${bold}rootAVD [DIR/ramdisk.img] [OPTIONS] | [EXTRA_CMDS]${normal}"
-echo "or:	${bold}rootAVD EnvFixTask${normal}"
+echo "or:	${bold}rootAVD [ARGUMENTS]${normal}"
 echo ""
-echo "Requires Additional Setup fix:"
-echo "	${bold}EnvFixTask${normal}			construct Magisk Environment manual"
+echo "Arguments:"
+echo "	${bold}ListAllAVDs${normal}			Lists Command Examples for ALL installed AVDs"
+echo ""
+echo "	${bold}EnvFixTask${normal}			Requires Additional Setup fix"
+echo "					- construct Magisk Environment manual"
 echo "					- only works with an already Magisk patched ramdisk.img"
 echo "					- without [DIR/ramdisk.img] [OPTIONS] [PATCHFSTAB]"
 echo "					- needed since Android 12 (S) rev.1"
 echo "					- Grant Shell Su Permissions will pop up a few times"
 echo "					- the AVD will reboot automatically"
-echo "	"
+echo ""
+echo "	${bold}InstallApps${normal}			Just install all APKs placed in the Apps folder"
+echo ""
 echo "Main operation mode:"
 echo "	${bold}DIR${normal}				a path to an AVD system-image"
 echo "					- must always be the ${bold}1st${normal} Argument after rootAVD"
@@ -1146,7 +1171,6 @@ echo "- install all APKs placed in the Apps folder"
 echo "	"
 echo "${bold}Command Examples:${normal}"
 FindSystemImages
-echo "	"
 exit
 }
 
@@ -1159,6 +1183,8 @@ ProcessArguments() {
 	restore=false
 	InstallKernelModules=false
 	InstallPrebuiltKernelModules=false
+	ListAllAVDs=false
+	InstallApps=false
 
 	# While debugging and developing you can turn this flag on
 	if [[ "$@" == *"DEBUG"* ]]; then
@@ -1175,6 +1201,16 @@ ProcessArguments() {
 	# Call rootAVD with GetUSBHPmodZ to download the usbhostpermissons module
 	if [[ "$@" == *"GetUSBHPmodZ"* ]]; then
 		GetUSBHPmodZ=true
+	fi
+
+	# Call rootAVD with ListAllAVDs to show all AVDs with command examples
+	if [[ "$@" == *"ListAllAVDs"* ]]; then
+		ListAllAVDs=true
+	fi
+
+	# Call rootAVD with InstallApps to just install all APKs placed in the Apps folder
+	if [[ "$@" == *"InstallApps"* ]]; then
+		InstallApps=true
 	fi
 
 	case $1 in
@@ -1209,6 +1245,8 @@ ProcessArguments() {
 	export restore
 	export InstallKernelModules
 	export InstallPrebuiltKernelModules
+	export ListAllAVDs
+	export InstallApps
 }
 
 # Script Entry Point
@@ -1232,7 +1270,7 @@ if ( "$DEBUG" ); then
 	echo "[!] We are in Debug Mode"
 fi
 
-if ( ! "$ENVFIXTASK" ); then
+if ( ! "$ENVFIXTASK" && ! "$InstallApps"); then
 	# If there is no file to work with, abort the script
 	if (checkfile "$1" -eq 0); then
 		ShowHelpText
