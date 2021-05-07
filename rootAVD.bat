@@ -25,9 +25,11 @@ if %DEBUG% (
 )
 
 if not %ENVFIXTASK% (
-	REM If there is no file to work with, abort the script
-	if not exist "%1" (
-    	call :ShowHelpText
+	if not %InstallApps% (
+		REM If there is no file to work with, abort the script
+		if not exist "%1" (
+			call :ShowHelpText
+		)
 	)
 )
 
@@ -58,6 +60,11 @@ set MAGISKZIP=%ROOTAVD%\Magisk.zip
 REM Kernel Names
 set BZFILE=%ROOTAVD%\bzImage
 set KRFILE=kernel-ranchu
+
+if %InstallApps% (
+	call :installapps
+	call :_Exit 2> nul
+)
 
 set ADBWORKDIR=/data/data/com.android.shell
 set ADBBASEDIR=%ADBWORKDIR%/Magisk
@@ -100,8 +107,8 @@ if %RAMDISKIMG% (
 echo [-] Copy rootAVD Script into Magisk DIR
 adb push rootAVD.sh %ADBBASEDIR%
 
-echo [-] Convert Script to Unix Ending
-adb -e shell "dos2unix %ADBBASEDIR%/rootAVD.sh"
+REM echo [-] Convert Script to Unix Ending
+REM adb -e shell "dos2unix %ADBBASEDIR%/rootAVD.sh"
 
 echo [-] run the actually Boot/Ramdisk/Kernel Image Patch Script
 echo [*] from Magisk by topjohnwu and modded by NewBit XDA
@@ -114,16 +121,16 @@ if "%ERRORLEVEL%"=="1" (
 			call :pullfromAVD ramdiskpatched4AVD.img %AVDPATHWITHRDFFILE%
 			call :pullfromAVD Magisk.apk %ROOTAVD%\Apps\
 			call :pullfromAVD Magisk.zip
-					
+
 			if %InstallPrebuiltKernelModules% (
 				call :pullfromAVD %BZFILE%
 				call :InstallKernelModules
 			)
-			
+
 			if %InstallKernelModules% (
 				call :InstallKernelModules
 			)
-		
+
 			echo [-] Clean up the ADB working space
 			adb shell rm -rf %ADBBASEDIR%
 
@@ -135,7 +142,6 @@ if "%ERRORLEVEL%"=="1" (
 			echo [*] Huge Credits and big Thanks to topjohnwu and shakalaca
 		)
 	)
-	
 )
 
 exit /B %ERRORLEVEL%
@@ -159,11 +165,11 @@ exit /B 0
 	set SRC=%1
 	set DST=%2
 	set ADBPULLECHO=
-	
+
 	for /F "delims=" %%i in ("%SRC%") do (
 		set SRC=%%~nxi
 	)
-	
+
 	for /F "delims=" %%i in ("%DST%") do (
 		set DST=%%~nxi
 	)
@@ -192,9 +198,9 @@ exit /B 0
 	adb push %1 %ADBBASEDIR% > tmpFile 2>&1
 	set /P ADBPUSHECHO=<tmpFile
 	del tmpFile
-	
+
 	echo [-] %ADBPUSHECHO%
-	ENDLOCAL	
+	ENDLOCAL
 exit /B 0
 
 :create_backup
@@ -232,34 +238,32 @@ exit /B 0
 		set ADB_EX=%%i
 	)
 
-	REM call set ADB_EX=%%ADB_EX:!HOME!=%%
-
 	IF %ADB_EX% == "" (
 		echo [^^!] ADB binary not found in %%LOCALAPPDATA%%\%ADB_DIR%
 		call :_Exit 2> nul
 	)
-	
+
 	set ADBWORKS=
 	adb shell -n echo true > tmpFile 2>&1
 	set /P ADBWORKS=<tmpFile
 	del tmpFile
 
-	echo.%ADBWORKS%| FIND /I "recognized">Nul && ( 
+	echo.%ADBWORKS%| FIND /I "recognized">Nul && (
   		echo [^^!] ADB is not in your Path, try to
   		echo set PATH=%%LOCALAPPDATA%%\Android\Sdk\platform-tools;%%PATH%%
   		call :_Exit 2> nul
-	)	
+	)
 
 	if "%ADBWORKS%" == "true" (
 		echo [-] ADB connectoin possible
 	) else (
 		echo [*] no ADB connection possible
 		call :_Exit 2> nul
-	)	
+	)
 	ENDLOCAL
 exit /B 0
 
-:restore_backups	
+:restore_backups
 	for /f "delims=" %%i in ('dir %AVDPATH%*.backup /s /b /a-d') do (
 		echo [^!] Restoring %%~ni%%~xi to %%~ni
 		copy %%i %%~di%%~pi%%~ni >nul 2>&1
@@ -277,22 +281,34 @@ call :_Exit 2> nul
 	set restore=%false%
 	set InstallKernelModules=%false%
 	set InstallPrebuiltKernelModules=%false%
-	
+	set ListAllAVDs=%false%
+	set InstallApps=%false%
+
 	REM While debugging and developing you can turn this flag on
-	echo.%params%| FIND /I "DEBUG">Nul && ( 
+	echo.%params%| FIND /I "DEBUG">Nul && (
   		set DEBUG=%true%
   		REM Shows whatever line get executed...
   		REM echo on
 	)
 
 	REM Call rootAVD with PATCHFSTAB if you want the RAMDISK merge your modded fstab.ranchu before Magisk Mirror gets mounted
-	echo.%params%| FIND /I "PATCHFSTAB">Nul && ( 
+	echo.%params%| FIND /I "PATCHFSTAB">Nul && (
   		set PATCHFSTAB=%true%
 	)
 
 	REM Call rootAVD with GetUSBHPmodZ to download the usbhostpermissons module
-	echo.%params%| FIND /I "GetUSBHPmodZ">Nul && ( 
+	echo.%params%| FIND /I "GetUSBHPmodZ">Nul && (
   		set GetUSBHPmodZ=%true%
+	)
+
+	REM Call rootAVD with ListAllAVDs to show all AVDs with command examples
+	echo.%params%| FIND /I "ListAllAVDs">Nul && (
+  		set ListAllAVDs=%true%
+	)
+
+	REM Call rootAVD with InstallApps to just install all APKs placed in the Apps folder
+	echo.%params%| FIND /I "InstallApps">Nul && (
+  		set InstallApps=%true%
 	)
 
 	IF "%1"=="EnvFixTask" (
@@ -323,15 +339,20 @@ exit /B 0
 	echo rootAVD A Script to root AVD by NewBit XDA
 	echo.
 	echo Usage:	rootAVD [DIR/ramdisk.img] [OPTIONS] ^| [EXTRA_CMDS]
-	echo or:	rootAVD EnvFixTask
+	echo or:	rootAVD [ARGUMENTS]
 	echo.
-	echo Requires Additional Setup fix:
-	echo 	EnvFixTask			construct Magisk Environment manual
+	echo Arguments:
+	echo 	ListAllAVDs			Lists Command Examples for ALL installed AVDs
+	echo.
+	echo 	EnvFixTask			Requires Additional Setup fix
+	echo 					- construct Magisk Environment manual
 	echo 					- only works with an already Magisk patched ramdisk.img
 	echo 					- without [DIR/ramdisk.img] [OPTIONS] [PATCHFSTAB]
 	echo 					- needed since Android 12 (S) rev.1
 	echo 					- Grant Shell Su Permissions will pop up a few times
 	echo 					- the AVD will reboot automatically
+	echo.
+	echo 	InstallApps			Just install all APKs placed in the Apps folder
 	echo.
 	echo Main operation mode:
 	echo 	DIR				a path to an AVD system-image
@@ -379,7 +400,7 @@ exit /B 0
 	echo Notes: rootAVD will
 	echo - always create .backup files of ramdisk.img and kernel-ranchu
 	echo - replace both when done patching
-	echo - show a Menu, to choose the Magisk Version (Stable || Canary), if the AVD is online
+	echo - show a Menu, to choose the Magisk Version (Stable ^|^| Canary), if the AVD is online
 	echo - make the choosen Magisk Version to its local
 	echo - install all APKs placed in the Apps folder
 	echo.
@@ -401,23 +422,32 @@ call :_Exit 2> nul
     )
 
 	for /f "delims=" %%i in ('dir %HOME%%SYSIM_DIR%ramdisk.img /s /b /a-d') do (
-		set SYSIM_EX=%%i
+		if %ListAllAVDs% (
+			set SYSIM_EX=%%i !SYSIM_EX!
+		)ELSE (
+			set SYSIM_EX=%%i
+		)		
 	)
 
 	call set SYSIM_EX=%%SYSIM_EX:!HOME!=%%
 
-	IF NOT %SYSIM_EX% == "" (
-		echo rootAVD.bat %%LOCALAPPDATA%%\%SYSIM_EX%
-		echo rootAVD.bat %%LOCALAPPDATA%%\%SYSIM_EX% DEBUG PATCHFSTAB GetUSBHPmodZ
-		echo rootAVD.bat EnvFixTask
-		echo rootAVD.bat %%LOCALAPPDATA%%\%SYSIM_EX% restore
-		echo rootAVD.bat %%LOCALAPPDATA%%\%SYSIM_EX% InstallKernelModules
-		echo rootAVD.bat %%LOCALAPPDATA%%\%SYSIM_EX% InstallPrebuiltKernelModules
-		echo rootAVD.bat %%LOCALAPPDATA%%\%SYSIM_EX% InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
-	)ELSE (
-        echo rootAVD.bat
-    )
+	echo rootAVD.bat
+	echo rootAVD.bat ListAllAVDs
+	echo rootAVD.bat EnvFixTask
+	echo rootAVD.bat InstallApps
+	echo.
 
+	for %%i in (%SYSIM_EX%) do (
+		IF NOT %%i == "" (
+			echo rootAVD.bat %%LOCALAPPDATA%%\%%i
+			echo rootAVD.bat %%LOCALAPPDATA%%\%%i DEBUG PATCHFSTAB GetUSBHPmodZ
+			echo rootAVD.bat %%LOCALAPPDATA%%\%%i restore
+			echo rootAVD.bat %%LOCALAPPDATA%%\%%i InstallKernelModules
+			echo rootAVD.bat %%LOCALAPPDATA%%\%%i InstallPrebuiltKernelModules
+			echo rootAVD.bat %%LOCALAPPDATA%%\%%i InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+			echo.
+		)
+	)
 	ENDLOCAL
 exit /B 0
 
