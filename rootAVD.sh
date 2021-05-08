@@ -213,7 +213,7 @@ install_apps() {
   	APPS="Apps/*"
 	echo "[-] Install all APKs placed in the Apps folder"
 	FILES=$APPS
-	FILENAME=
+
 	for f in $FILES
 	do
 		echo "[*] Trying to install $f"
@@ -379,6 +379,12 @@ CopyMagiskToAVD() {
 			if ( ! checkfile $INITRAMFS -eq 0 ); then
 				pushtoAVD $INITRAMFS
 			fi
+		fi
+
+		if ( "$AddRCscripts" ); then
+			for f in $ROOTAVD/*.rc; do
+				pushtoAVD $f
+			done
 		fi
 	fi
 
@@ -697,8 +703,9 @@ PrepBusyBoxAndMagisk() {
 	chmod -R 755 $BASEDIR/lib
 	mv -f $BASEDIR/lib/x86/libbusybox.so $BB
 	$BB >/dev/null 2>&1 || mv -f $BASEDIR/lib/armeabi-v7a/libbusybox.so $BB
+	
 	chmod -R 755 $BASEDIR
-
+	
 	if ("$UpdateBusyBoxScript"); then
 		UpdateBusyBoxToScript $@
 		exit 1	
@@ -858,6 +865,11 @@ patching_ramdisk(){
 	$IS64BIT && SKIP64="" || SKIP64="#"
 
 	# Here gets the ramdisk.img patched with the magisk su files and stuff
+	
+	echo "[*] adding overlay.d/sbin folders to ramdisk"
+	./magiskboot cpio ramdisk.cpio \
+	"mkdir 0750 overlay.d" \
+	"mkdir 0750 overlay.d/sbin"
 
 	# Call rootAVD with PATCHFSTAB if you want the RAMDISK merge your modded fstab.ranchu before Magisk Mirror gets mounted
 
@@ -874,12 +886,10 @@ patching_ramdisk(){
 		#echo "/devices/1-* auto auto defaults voldmanaged=usb:auto" >> fstab.ranchu
 		# cat fstab.ranchu
 		#/system/vendor/etc/fstab.f2fs.hi3650
-		echo "[-] adding overlay.d folder to ramdisk"
 		./magiskboot cpio ramdisk.cpio \
-		"mkdir 750 overlay.d" \
-		"mkdir 755 overlay.d/vendor" \
-		"mkdir 755 overlay.d/vendor/etc" \
-		"add 644 overlay.d/vendor/etc/fstab.ranchu fstab.ranchu"
+		"mkdir 0755 overlay.d/vendor" \
+		"mkdir 0755 overlay.d/vendor/etc" \
+		"add 0644 overlay.d/vendor/etc/fstab.ranchu fstab.ranchu"
 		echo "[-] overlay adding complete"
 		echo "[-] jumping back to patching ramdisk for magisk init"
 	else
@@ -887,13 +897,24 @@ patching_ramdisk(){
 		echo "[?] If you want fstab.ranchu patched, Call rootAVD with PATCHFSTAB"
 	fi
 
-	$PATCHFSTAB && SKIPOVERLAYD="#" || SKIPOVERLAYD=""
+	echo "[!] AddRCscripts=$AddRCscripts"
+	if ("$AddRCscripts"); then
+		echo "[*] adding *.rc files to ramdisk"
+		for f in *.rc; do
+			./magiskboot cpio ramdisk.cpio "add 0644 overlay.d/sbin/$f $f"
+		done		
+		echo "[-] overlay adding complete"
+		echo "[-] jumping back to patching ramdisk for magisk init"
+	else
+		echo "[!] Skip adding *.rc scripts into ramdisk.img/sbin/*.rc"
+		echo "[?] If you want *.rc scripts added into ramdisk.img/sbin/*.rc, Call rootAVD with AddRCscripts"
+	fi
+
+	#$PATCHFSTAB && SKIPOVERLAYD="#" || SKIPOVERLAYD=""
 
 	echo "[!] patching the ramdisk with Magisk Init"
 	./magiskboot cpio ramdisk.cpio \
 	"add 0750 init magiskinit" \
-	"$SKIPOVERLAYD mkdir 0750 overlay.d" \
-	"mkdir 0750 overlay.d/sbin" \
 	"add 0644 overlay.d/sbin/magisk32.xz magisk32.xz" \
 	"$SKIP64 add 0644 overlay.d/sbin/magisk64.xz magisk64.xz" \
 	"patch" \
@@ -1210,6 +1231,8 @@ echo "	"
 echo "	${bold}InstallPrebuiltKernelModules${normal}	download and install an ${bold}AOSP prebuilt kernel and its modules${normal} into ramdisk.img"
 echo "					- similar to ${bold}InstallKernelModules${normal}, but the AVD needs to be online"
 echo "	"
+echo "	${bold}AddRCscripts${normal}			install all custom *.rc scripts, placed in the rootAVD folder, into ramdisk.img/overlay.d/sbin"
+echo "	"
 echo "Options are ${bold}exclusive${normal}, only one at the time will be processed."
 echo "	"
 echo "Extra Commands:"
@@ -1247,6 +1270,7 @@ ProcessArguments() {
 	ListAllAVDs=false
 	InstallApps=false
 	UpdateBusyBoxScript=false
+	AddRCscripts=false
 
 	# While debugging and developing you can turn this flag on
 	if [[ "$@" == *"DEBUG"* ]]; then
@@ -1279,6 +1303,13 @@ ProcessArguments() {
 	if [[ "$@" == *"UpdateBusyBoxScript"* ]]; then
 		UpdateBusyBoxScript=true
 	fi
+
+	# Call rootAVD with AddRCscripts to add custom *.rc scripts into ramdisk.img/sbin/*.rc
+	if [[ "$@" == *"AddRCscripts"* ]]; then
+		AddRCscripts=true
+	fi
+	
+	
 
 	case $1 in
 	  "EnvFixTask" )  # AVD requires additional setup
@@ -1315,6 +1346,7 @@ ProcessArguments() {
 	export ListAllAVDs
 	export InstallApps
 	export UpdateBusyBoxScript
+	export AddRCscripts
 }
 
 # Script Entry Point

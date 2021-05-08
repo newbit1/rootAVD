@@ -191,6 +191,7 @@ Command Examples:
 
 ### Change Logs
 #### [May 2021]
+* [rootAVD.sh] - Added "AddRCscripts" Argument that **install all custom *.rc scripts, placed in the rootAVD folder, into ramdisk.img/overlay.d/sbin**
 * [rootAVD.sh] - Added BusyBox Binary after the rootAVD script
 * [rootAVD.bat] - Added ListAllAVDs and InstallApps as Arguments
 * [rootAVD.sh] - Added "ListAllAVDs" Argument that **Lists Command Examples for ALL installed AVDs**
