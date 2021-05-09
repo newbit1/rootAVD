@@ -1,6 +1,5 @@
 .DS_Store
-Apps/.DS_Store
-Apps/Magisk.apk
+Apps/*
 initramfs.img
 bzImage
 *.rc

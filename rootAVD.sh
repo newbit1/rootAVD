@@ -900,9 +900,15 @@ patching_ramdisk(){
 	echo "[!] AddRCscripts=$AddRCscripts"
 	if ("$AddRCscripts"); then
 		echo "[*] adding *.rc files to ramdisk"
+		#for f in *.rc; do
+		#	./magiskboot cpio ramdisk.cpio "add 0644 overlay.d/sbin/$f $f"
+		#done
+		CSTRC=custom.rc
+		touch $CSTRC
 		for f in *.rc; do
-			./magiskboot cpio ramdisk.cpio "add 0644 overlay.d/sbin/$f $f"
-		done		
+			echo "$f" > $CSTRC
+		done
+		./magiskboot cpio ramdisk.cpio "add 0644 overlay.d/$CSTRC $CSTRC"		
 		echo "[-] overlay adding complete"
 		echo "[-] jumping back to patching ramdisk for magisk init"
 	else
@@ -1152,7 +1158,7 @@ FindSystemImages() {
 	fi
 
 	cd $HOME > /dev/null
-			for SI in $(find -s $SYSIM_DIR -type f -iname ramdisk.img); do
+			for SI in $(find $SYSIM_DIR -type f -iname ramdisk.img); do
 				if ( "$ListAllAVDs" ); then
 					SYSIM_EX+=" ~/$SI"
 				else
@@ -1175,6 +1181,7 @@ FindSystemImages() {
 			echo "${bold}./rootAVD.sh $SYSIM InstallKernelModules${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM InstallPrebuiltKernelModules${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG${normal}"
+			echo "${bold}./rootAVD.sh $SYSIM AddRCscripts${normal}"			
 			echo ""
 		fi
 	done

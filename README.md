@@ -249,3 +249,4 @@ Command Examples:
 * [Akianonymus _json_value](https://gist.github.com/cjus/1047794#gistcomment-3313785)
 * [Tad Fisher Android Nixpkgs](https://github.com/tadfisher/android-nixpkgs)
 * [Sébastien Corne magisk-single-user](https://github.com/seebz)
+* [remote-android Native Bridge Support in ReDroid](https://github.com/remote-android/redroid-doc/tree/master/native_bridge)
