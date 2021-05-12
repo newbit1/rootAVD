@@ -903,12 +903,12 @@ patching_ramdisk(){
 		#for f in *.rc; do
 		#	./magiskboot cpio ramdisk.cpio "add 0644 overlay.d/sbin/$f $f"
 		#done
-		CSTRC=custom.rc
+		CSTRC=init.custom.rc
 		touch $CSTRC
 		for f in *.rc; do
 			echo "$f" > $CSTRC
 		done
-		./magiskboot cpio ramdisk.cpio "add 0644 overlay.d/$CSTRC $CSTRC"		
+		./magiskboot cpio ramdisk.cpio "add 0755 overlay.d/$CSTRC $CSTRC"		
 		echo "[-] overlay adding complete"
 		echo "[-] jumping back to patching ramdisk for magisk init"
 	else
