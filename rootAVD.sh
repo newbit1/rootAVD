@@ -307,9 +307,6 @@ TestADB() {
   		exit
 	fi
 
-
-
-
 	ADBWORKS=$(adb shell 'echo true' 2>/dev/null)
 	if [ -z "$ADBWORKS" ]; then
 		echo "no ADB connection possible"
@@ -1319,8 +1316,6 @@ ProcessArguments() {
 	if [[ "$@" == *"AddRCscripts"* ]]; then
 		AddRCscripts=true
 	fi
-	
-	
 
 	case $1 in
 	  "EnvFixTask" )  # AVD requires additional setup
@@ -1368,6 +1363,11 @@ if [[ $SHELL == "ranchu" ]]; then
 	echo "[!] We are in an emulator shell"
 	RANCHU=true
 fi
+if [[ $SHELL == "cheets" ]]; then
+	echo "[!] We are in a ChromeOS shell"
+	RANCHU=true
+fi
+
 export RANCHU
 
 if $RANCHU; then
