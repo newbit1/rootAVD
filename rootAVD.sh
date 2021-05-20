@@ -278,33 +278,37 @@ TestADB() {
 	local ADB_EX=""
 
 	echo "[-] Test if ADB SHELL is working"
-
-	if [ -d "$HOME$ADB_DIR_M" ]; then
-		ADB_DIR=$ADB_DIR_M
-	elif [ -d "$HOME$ADB_DIR_L" ]; then
-		ADB_DIR=$ADB_DIR_L
-	else
-		echo "[!] ADB not found, please install and add it to your \$PATH"
-		exit
-	fi
-	cd $HOME > /dev/null
-		for adb in $(find $ADB_DIR -type f -name adb); do
-			ADB_EX="~/$adb"
-		done
-	cd - > /dev/null
-
-	if [[ $ADB_EX == "" ]]; then
-		echo "[!] ADB binary not found in ~/$ADB_DIR"
-		exit
-	fi
-
+	
 	ADBWORKS=$(which adb)
 	if [ "$ADBWORKS" == *"not found"* ] || [ "$ADBWORKS" == "" ]; then
+		if [ -d "$HOME$ADB_DIR_M" ]; then
+			ADB_DIR=$ADB_DIR_M
+		elif [ -d "$HOME$ADB_DIR_L" ]; then
+			ADB_DIR=$ADB_DIR_L
+		else
+			echo "[!] ADB not found, please install and add it to your \$PATH"
+			exit
+		fi
+		
+		cd $HOME > /dev/null
+			for adb in $(find $ADB_DIR -type f -name adb); do
+				ADB_EX="~/$adb"
+			done
+		cd - > /dev/null
+
+		if [[ $ADB_EX == "" ]]; then
+			echo "[!] ADB binary not found in ~/$ADB_DIR"
+			exit
+		fi
+		
   		echo "[!] ADB is not in your Path, try to"
   		echo "export PATH=~/$ADB_DIR:\$PATH"
   		echo ""
   		exit
 	fi
+
+
+
 
 	ADBWORKS=$(adb shell 'echo true' 2>/dev/null)
 	if [ -z "$ADBWORKS" ]; then
