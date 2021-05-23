@@ -687,6 +687,9 @@ UpdateBusyBoxToScript() {
 PrepBusyBoxAndMagisk() {
 	echo "[-] Switch to the location of the script file"
 	BASEDIR="`getdir "${BASH_SOURCE:-$0}"`"
+	if [[ "$BASEDIR" == "." ]]; then
+		BASEDIR=$(pwd)
+	fi
 	TMPDIR=$BASEDIR/tmp
 	BB=$BASEDIR/busybox
 	MZ=$BASEDIR/Magisk.zip
