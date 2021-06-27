@@ -173,6 +173,7 @@ Command Examples:
 * [[GUIDE][Build|Mod|Update][kernel-ranchu][goldfish][5.4][5.10][GKI][ramdisk.img][modules][rootAVD][Android 11(R) 12(S)][AVD][Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-update-kernel-ranchu-goldfish-5-4-5-10-gki-ramdisk-img-modules-rootavd-android-11-r-12-s-avd-google-play-store-api.4220697)
 
 ### Magisk v22.1+ Successfully tested with Stock Kernel on
+* [[June 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r05 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r05-darwin.zip)
 * [[Apr. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r04 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r04-darwin.zip)
 * [[May. 2021] - Android Wear 8 (Oreo) API 26 Google Apis Play Store x86 r04 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/android-wear/x86-26_r04.zip)
 * [[May. 2021] - Android TV 11 (R) API 30 Google Apis Play Store x86 r03 Windows Production Build](https://dl.google.com/android/repository/sys-img/android-tv/x86-30_r03.zip)
@@ -191,6 +192,13 @@ Command Examples:
 * [[Mar. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86_64 r08 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-29_r08-windows.zip)
 
 ### Change Logs
+#### [June 2021]
+* [General] - Android 12 (S) r05
+
+<details>
+<summary>Archive</summary>
+
+### Change Logs
 #### [May 2021]
 * [General] - Updated to Magisk App v23.0
 * [rootAVD.sh] - Added "AddRCscripts" Argument that **install all custom *.rc scripts, placed in the rootAVD folder, into ramdisk.img/overlay.d/sbin**
@@ -199,11 +207,6 @@ Command Examples:
 * [rootAVD.sh] - Added "ListAllAVDs" Argument that **Lists Command Examples for ALL installed AVDs**
 * [rootAVD.sh] - Added "InstallApps" Argument to **Just install all APKs placed in the Apps folder**			
 * [rootAVD.bat] - Added comprehensive Help Menu
-
-<details>
-<summary>Archive</summary>
-
-### Change Logs
 #### [Apr. 2021]
 * [General] - Added comprehensive Help Menu
 * [rootAVD.sh] - Changed "DEBUG" "PATCHFSTAB" "GetUSBHPmodZ" to Arguments
