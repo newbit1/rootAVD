@@ -227,39 +227,50 @@ exit /B 0
 	set ADB_EX=""
 
 	echo [-] Test if ADB SHELL is working
-	if exist %HOME%%ADB_DIR_W% (
-        set ADB_DIR=%ADB_DIR_W%
-    ) else (
-    	echo [^^!] ADB not found, please install platform-tools and add it to your %%PATH%%
-        call :_Exit 2> nul
-    )
-
-	for /f "delims=" %%i in ('dir %HOME%%ADB_DIR%adb.exe /s /b /a-d') do (
-		set ADB_EX=%%i
-	)
-
-	IF %ADB_EX% == "" (
-		echo [^^!] ADB binary not found in %%LOCALAPPDATA%%\%ADB_DIR%
-		call :_Exit 2> nul
-	)
-
+	
 	set ADBWORKS=
 	adb shell -n echo true > tmpFile 2>&1
 	set /P ADBWORKS=<tmpFile
 	del tmpFile
 
-	echo.%ADBWORKS%| FIND /I "recognized">Nul && (
-  		echo [^^!] ADB is not in your Path, try to
-  		echo set PATH=%%LOCALAPPDATA%%\Android\Sdk\platform-tools;%%PATH%%
-  		call :_Exit 2> nul
-	)
-
 	if "%ADBWORKS%" == "true" (
 		echo [-] ADB connectoin possible
 	) else (
-		echo [*] no ADB connection possible
-		call :_Exit 2> nul
-	)
+		
+		echo.%ADBWORKS%| FIND /I "offline">Nul && (
+  			echo [^^!] ADB device is offline
+  			echo [*] no ADB connection possible
+  			call :_Exit 2> nul
+		)
+		
+		echo.%ADBWORKS%| FIND /I "unauthorized">Nul && (
+  			echo [^^!] ADB device is unauthorized
+  			echo [*] no ADB connection possible
+  			call :_Exit 2> nul
+		)
+		
+		echo.%ADBWORKS%| FIND /I "recognized">Nul && (
+			if exist %HOME%%ADB_DIR_W% (
+				set ADB_DIR=%ADB_DIR_W%
+			) else (
+				echo [^^!] ADB not found, please install platform-tools and add it to your %%PATH%%
+				call :_Exit 2> nul
+			)
+			
+			for /f "delims=" %%i in ('dir %HOME%%ADB_DIR%adb.exe /s /b /a-d') do (
+				set ADB_EX=%%i
+			)
+
+			if %ADB_EX% == "" (
+				echo [^^!] ADB binary not found in %%LOCALAPPDATA%%\%ADB_DIR%
+				call :_Exit 2> nul
+			)
+
+  			echo [^^!] ADB is not in your Path, try to
+  			echo set PATH=%%LOCALAPPDATA%%\Android\Sdk\platform-tools;%%PATH%%
+  			call :_Exit 2> nul
+		)	
+	)	
 	ENDLOCAL
 exit /B 0
 

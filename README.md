@@ -168,6 +168,7 @@ Command Examples:
 * [XDA [GUIDE] Build / Mod AVD Kernel Android 10 / 11 rootAVD [Magisk] [USB passthrough Linux] [Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-avd-kernel-android10-x86_64-29-root-magisk-usb-passthrough-linux.4212719)
 * [Inject Android Hardware USB HOST Permissions](https://github.com/newbit1/usbhostpermissons)
 * [XDA [SCRIPT] rootAVD - root your Android Studio Virtual Device emulator with Magisk [Android 11][Linux][Darwin/MacOS][WIN][Google Play Store APIs]](https://forum.xda-developers.com/t/script-rootavd-root-your-android-studio-virtual-device-emulator-with-magisk-android-11-linux-darwin-macos-win-google-play-store-apis.4218123)
+* [rootCROS - A Script to root your Google Chrome OS installed on a non Chromebook Device](https://github.com/newbit1/rootCROS)
 
 ### XDA [GUIDE] How to [Build|Mod|Update] a custom AVD Kernel and its Modules
 * [[GUIDE][Build|Mod|Update][kernel-ranchu][goldfish][5.4][5.10][GKI][ramdisk.img][modules][rootAVD][Android 11(R) 12(S)][AVD][Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-update-kernel-ranchu-goldfish-5-4-5-10-gki-ramdisk-img-modules-rootavd-android-11-r-12-s-avd-google-play-store-api.4220697)
@@ -192,13 +193,16 @@ Command Examples:
 * [[Mar. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86_64 r08 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-29_r08-windows.zip)
 
 ### Change Logs
-#### [June 2021]
-* [General] - Android 12 (S) r05
+#### [July 2021]
+* [rootAVD.bat] - Changed TestADB
+* [General] - Added rootCROS Project to Links
 
 <details>
 <summary>Archive</summary>
 
 ### Change Logs
+#### [June 2021]
+* [General] - Android 12 (S) r05
 #### [May 2021]
 * [General] - Updated to Magisk App v23.0
 * [rootAVD.sh] - Added "AddRCscripts" Argument that **install all custom *.rc scripts, placed in the rootAVD folder, into ramdisk.img/overlay.d/sbin**
