@@ -136,7 +136,7 @@ if "%ERRORLEVEL%"=="1" (
 
 			call :installapps
 
-			echo [-] reboot the AVD and see if it worked
+			echo [-] reboot the AVD ('adb shell reboot -p' then restart) and see if it worked (Run Magisk, 'Requires Additional Setup' window prompted)
 			echo [-] Root and Su with Magisk for Android Studio AVDs
 			echo [-] Modded by NewBit XDA - Jan. 2021
 			echo [*] Huge Credits and big Thanks to topjohnwu and shakalaca
