@@ -169,11 +169,17 @@ Command Examples:
 * [Inject Android Hardware USB HOST Permissions](https://github.com/newbit1/usbhostpermissons)
 * [XDA [SCRIPT] rootAVD - root your Android Studio Virtual Device emulator with Magisk [Android 11][Linux][Darwin/MacOS][WIN][Google Play Store APIs]](https://forum.xda-developers.com/t/script-rootavd-root-your-android-studio-virtual-device-emulator-with-magisk-android-11-linux-darwin-macos-win-google-play-store-apis.4218123)
 * [rootCROS - A Script to root your Google Chrome OS installed on a non Chromebook Device](https://github.com/newbit1/rootCROS)
+* [Video - Android Studio Emulator (AVD) Rooting with Magisk using rootAVD](https://www.youtube.com/watch?v=JR4gDRYzY2c)
 
 ### XDA [GUIDE] How to [Build|Mod|Update] a custom AVD Kernel and its Modules
 * [[GUIDE][Build|Mod|Update][kernel-ranchu][goldfish][5.4][5.10][GKI][ramdisk.img][modules][rootAVD][Android 11(R) 12(S)][AVD][Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-update-kernel-ranchu-goldfish-5-4-5-10-gki-ramdisk-img-modules-rootavd-android-11-r-12-s-avd-google-play-store-api.4220697)
 
+### Magisk doesn't work on
+* [[July 2021] - Android 12 (S) API 31 Google Apis Play Store x86_64 r06 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-31_r06-darwin.zip)
+
 ### Magisk v22.1+ Successfully tested with Stock Kernel on
+* [[Oct. 2021] - Android 11 (R) API 30 Google Apis Play Store x86 r09 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-30_r09-darwin.zip)
+* [[Oct. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86 r08 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-29_r08-darwin.zip)
 * [[June 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r05 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r05-darwin.zip)
 * [[Apr. 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r04 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r04-darwin.zip)
 * [[May. 2021] - Android Wear 8 (Oreo) API 26 Google Apis Play Store x86 r04 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/android-wear/x86-26_r04.zip)
@@ -193,14 +199,19 @@ Command Examples:
 * [[Mar. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86_64 r08 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-29_r08-windows.zip)
 
 ### Change Logs
-#### [July 2021]
-* [rootAVD.bat] - Changed TestADB
-* [General] - Added rootCROS Project to Links
+#### [October 2021]
+* [rootAVD.bat] - Added Shut Down Feature
+* [rootAVD.sh] - Added Shut Down Feature
+* [General] - Added Android 12 (S) API 31 Status
+* [General] - Added Link to Android AppSecs Video about rootAVD
 
 <details>
 <summary>Archive</summary>
 
 ### Change Logs
+#### [July 2021]
+* [rootAVD.bat] - Changed TestADB
+* [General] - Added rootCROS Project to Links
 #### [June 2021]
 * [General] - Android 12 (S) r05
 #### [May 2021]
@@ -259,3 +270,5 @@ Command Examples:
 * [Tad Fisher Android Nixpkgs](https://github.com/tadfisher/android-nixpkgs)
 * [Sébastien Corne magisk-single-user](https://github.com/seebz)
 * [remote-android Native Bridge Support in ReDroid](https://github.com/remote-android/redroid-doc/tree/master/native_bridge)
+* [Android AppSec - for his wonderful little video about this script](https://www.youtube.com/c/AndroidAppSec)
+ 

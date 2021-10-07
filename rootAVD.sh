@@ -314,6 +314,14 @@ TestADB() {
 	fi
 }
 
+ShutDownAVD() {	
+	ADBPULLECHO=$(adb shell reboot -p 2>/dev/null)
+	if [[ ! "$ADBPULLECHO" == *"error"* ]]; then
+		echo "[-] Trying to shut down the AVD"
+	fi
+	echo "[!] If the AVD doesn't shut down, try it manually!"
+}
+
 CopyMagiskToAVD() {
 	# Set Folders and FileNames
 	echo "[*] Set Directorys"
@@ -437,10 +445,11 @@ CopyMagiskToAVD() {
 
 			install_apps
 
-			echo "[-] Shut-Down & Reboot the AVD and see if it worked"
+			echo "[-] Shut-Down & Reboot (Cold Boot Now) the AVD and see if it worked"
 			echo "[-] Root and Su with Magisk for Android Studio AVDs"
 			echo "[-] Modded by NewBit XDA - Jan. 2021"
 			echo "[!] Huge Credits and big Thanks to topjohnwu and shakalaca"
+			ShutDownAVD
 		fi
 	fi
 }
@@ -801,6 +810,8 @@ decompress_ramdisk(){
 	  	update_lib_modules
 		echo "[*] Repacking ramdisk .."
 		cd $TMPDIR/ramdisk > /dev/null
+		echo "[-] Deleting system ramdisk build.prop"
+		rm -rf $TMPDIR/ramdisk/system
 		`find . | cpio -H newc -o > $CPIO`
 		cd - > /dev/null
 	else

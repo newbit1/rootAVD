@@ -136,15 +136,32 @@ if "%ERRORLEVEL%"=="1" (
 
 			call :installapps
 
-			echo [-] reboot the AVD and see if it worked
+			echo [-] Shut-Down & Reboot (Cold Boot Now) the AVD and see if it worked
 			echo [-] Root and Su with Magisk for Android Studio AVDs
 			echo [-] Modded by NewBit XDA - Jan. 2021
 			echo [*] Huge Credits and big Thanks to topjohnwu and shakalaca
+			call :ShutDownAVD
 		)
 	)
 )
 
 exit /B %ERRORLEVEL%
+
+:ShutDownAVD
+	SetLocal EnableDelayedExpansion
+	set ADBPULLECHO=
+	
+	adb shell reboot -p > tmpFile 2>&1
+	set /P ADBPULLECHO=<tmpFile
+	del tmpFile
+
+	echo.%ADBPULLECHO%| FIND /I "error">Nul || (
+  		echo [-] Trying to shut down the AVD
+	)
+	echo [^^!] If the AVD doesnt shut down, try it manually^^!
+
+	EndLocal
+exit /B 0
 
 :InstallKernelModules
 	SetLocal EnableDelayedExpansion
