@@ -10,6 +10,10 @@ A Script to...
 ...within seconds.
 
 ## Install Magisk
+### Download rootAVD via
+* [Click](https://github.com/newbit1/rootAVD/archive/refs/heads/master.zip)
+* `git clone https://github.com/newbit1/rootAVD.git`
+
 ### Preconditions
 * the AVD is running
 * a working Internet connection for the Menu
@@ -178,6 +182,8 @@ Command Examples:
 * [[July 2021] - Android 12 (S) API 31 Google Apis Play Store x86_64 r06 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-31_r06-darwin.zip)
 
 ### Magisk v22.1+ Successfully tested with Stock Kernel on
+* [[Oct. 2021] - Android 11 (R) API 30 Google Apis Play Store x86 r09 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-30_r09-windows.zip)
+* [[Oct. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86 r08 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-29_r08-windows.zip)
 * [[Oct. 2021] - Android 11 (R) API 30 Google Apis Play Store x86 r09 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-30_r09-darwin.zip)
 * [[Oct. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86 r08 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-29_r08-darwin.zip)
 * [[June 2021] - Android 12 (S) API 30 Google Apis Play Store x86_64 r05 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-S_r05-darwin.zip)
