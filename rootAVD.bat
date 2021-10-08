@@ -136,7 +136,7 @@ if "%ERRORLEVEL%"=="1" (
 
 			call :installapps
 
-			echo [-] Shut-Down & Reboot (Cold Boot Now) the AVD and see if it worked
+			echo [-] Shut-Down and Reboot [Cold Boot Now] the AVD and see if it worked
 			echo [-] Root and Su with Magisk for Android Studio AVDs
 			echo [-] Modded by NewBit XDA - Jan. 2021
 			echo [*] Huge Credits and big Thanks to topjohnwu and shakalaca
