@@ -139,7 +139,7 @@ if "%ERRORLEVEL%"=="1" (
 			echo [-] Shut-Down and Reboot [Cold Boot Now] the AVD and see if it worked
 			echo [-] Root and Su with Magisk for Android Studio AVDs
 			echo [-] Modded by NewBit XDA - Jan. 2021
-			echo [*] Huge Credits and big Thanks to topjohnwu and shakalaca
+			echo [*] Huge Credits and big Thanks to topjohnwu, shakalaca and vvb2060
 			call :ShutDownAVD
 		)
 	)
@@ -377,6 +377,7 @@ exit /B 0
 	echo 					- only works with an already Magisk patched ramdisk.img
 	echo 					- without [DIR/ramdisk.img] [OPTIONS] [PATCHFSTAB]
 	echo 					- needed since Android 12 (S) rev.1
+	echo 					- not needed anymore since Android 12 (S) API 31 and Magisk Alpha
 	echo 					- Grant Shell Su Permissions will pop up a few times
 	echo 					- the AVD will reboot automatically
 	echo.
@@ -428,7 +429,7 @@ exit /B 0
 	echo Notes: rootAVD will
 	echo - always create .backup files of ramdisk.img and kernel-ranchu
 	echo - replace both when done patching
-	echo - show a Menu, to choose the Magisk Version (Stable ^|^| Canary), if the AVD is online
+	echo - show a Menu, to choose the Magisk Version (Stable ^|^| Canary ^|^| Alpha), if the AVD is online
 	echo - make the choosen Magisk Version to its local
 	echo - install all APKs placed in the Apps folder
 	echo.

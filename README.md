@@ -1,7 +1,7 @@
 # rootAVD
 ### [newbit @ xda-developers](https://forum.xda-developers.com/m/newbit.1350876)
 A Script to...
-* root your Android Studio Virtual Device (AVD), with Magisk (Stable or Canary)
+* root your Android Studio Virtual Device (AVD), with Magisk (Stable, Canary or Alpha)
 * patch its fstab
 * download and install the USB HOST Permissions Module for Magisk
 * install custom build Kernel and its Modules
@@ -21,7 +21,6 @@ A Script to...
 * `adb shell` will connect to the running AVD
 
 ## rootAVD Help Menu
-### Linux & MacOS & Windows
 ```
 rootAVD A Script to root AVD by NewBit XDA
 
@@ -36,6 +35,7 @@ Arguments:
 					- only works with an already Magisk patched ramdisk.img
 					- without [DIR/ramdisk.img] [OPTIONS] [PATCHFSTAB]
 					- needed since Android 12 (S) rev.1
+					- not needed anymore since Android 12 (S) API 31 and Magisk Alpha
 					- Grant Shell Su Permissions will pop up a few times
 					- the AVD will reboot automatically
 
@@ -87,23 +87,26 @@ Extra Commands can be combined, there is no particular order.
 Notes: rootAVD will
 - always create .backup files of ramdisk.img and kernel-ranchu
 - replace both when done patching
-- show a Menu, to choose the Magisk Version (Stable || Canary), if the AVD is online
+- show a Menu, to choose the Magisk Version (Stable || Canary || Alpha), if the AVD is online
 - make the choosen Magisk Version to its local
 - install all APKs placed in the Apps folder
-	
+```
+### Linux & MacOS
+```
 Command Examples:
 ./rootAVD.sh
 ./rootAVD.sh ListAllAVDs
 ./rootAVD.sh EnvFixTask
 ./rootAVD.sh InstallApps
 
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img restore
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
 ```
+
 <details>
 <summary>Command Examples: for ALL installed AVDs</summary>
 
@@ -134,18 +137,71 @@ Command Examples:
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
 
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img restore
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-S/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img restore
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
 ```
 </details>
+### Windows
+```
+Command Examples:
+rootAVD.bat
+rootAVD.bat ListAllAVDs
+rootAVD.bat EnvFixTask
+rootAVD.bat InstallApps
 
+rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img
+rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img restore
+rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallKernelModules
+rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules
+rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+```
+
+<details>
+<summary>Command Examples: for ALL installed AVDs</summary>
+
+```
+./rootAVD.bat
+./rootAVD.bat ListAllAVDs
+./rootAVD.bat EnvFixTask
+./rootAVD.bat InstallApps
+
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img restore
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img InstallKernelModules
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img restore
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img InstallKernelModules
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img restore
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img InstallKernelModules
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img restore
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallKernelModules
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+```
+</details>
 ### Notes
-* Android 12 (S) rev.2+ needs Magisk v22.1+ or Canary
-* With the new Menu, you can choose between the newest Magisk, Canary and Stable, Version.
+* Android 12 (S) API 31 is a 64 Bit Only System, needs Magisk Alpha
+* With the new Menu, you can choose between the newest Magisk, Canary, Stable and Alpha, Version.
 * Once choosen, the script will make that Version to your local one.
 * Prebuilt Kernel and Modules will be pulled from [AOSP](https://android.googlesource.com/kernel/prebuilts)
 
@@ -171,15 +227,17 @@ Command Examples:
 ### Links
 * [XDA [GUIDE] Build / Mod AVD Kernel Android 10 / 11 rootAVD [Magisk] [USB passthrough Linux] [Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-avd-kernel-android10-x86_64-29-root-magisk-usb-passthrough-linux.4212719)
 * [Inject Android Hardware USB HOST Permissions](https://github.com/newbit1/usbhostpermissons)
-* [XDA [SCRIPT] rootAVD - root your Android Studio Virtual Device emulator with Magisk [Android 11][Linux][Darwin/MacOS][WIN][Google Play Store APIs]](https://forum.xda-developers.com/t/script-rootavd-root-your-android-studio-virtual-device-emulator-with-magisk-android-11-linux-darwin-macos-win-google-play-store-apis.4218123)
+* [XDA [SCRIPT] rootAVD - root your Android Studio Virtual Device emulator with Magisk [Android 12][Linux][Darwin/MacOS][WIN][Google Play Store APIs]](https://forum.xda-developers.com/t/script-rootavd-root-your-android-studio-virtual-device-emulator-with-magisk-android-11-linux-darwin-macos-win-google-play-store-apis.4218123)
 * [rootCROS - A Script to root your Google Chrome OS installed on a non Chromebook Device](https://github.com/newbit1/rootCROS)
 * [Video - Android Studio Emulator (AVD) Rooting with Magisk using rootAVD](https://www.youtube.com/watch?v=JR4gDRYzY2c)
 
 ### XDA [GUIDE] How to [Build|Mod|Update] a custom AVD Kernel and its Modules
 * [[GUIDE][Build|Mod|Update][kernel-ranchu][goldfish][5.4][5.10][GKI][ramdisk.img][modules][rootAVD][Android 11(R) 12(S)][AVD][Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-update-kernel-ranchu-goldfish-5-4-5-10-gki-ramdisk-img-modules-rootavd-android-11-r-12-s-avd-google-play-store-api.4220697)
 
-### Magisk doesn't work on
-* [[July 2021] - Android 12 (S) API 31 Google Apis Play Store x86_64 r06 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-31_r06-darwin.zip)
+### Magisk v23.0 Alpha Successfully tested with Stock Kernel on
+* [[Oct. 2021] - Android 12 (S) API 31 Google Apis Play Store x86_64 r08 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-31_r08-darwin.zip)
+* [[Oct. 2021] - Android 11 (R) API 30 Google Apis Play Store x86 r09 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-30_r09-darwin.zip)
+* [[Oct. 2021] - Android 11 (R) API 30 Google Apis Play Store x86_64 r10 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-darwin.zip)
 
 ### Magisk v22.1+ Successfully tested with Stock Kernel on
 * [[Oct. 2021] - Android 11 (R) API 30 Google Apis Play Store x86 r09 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-30_r09-windows.zip)
@@ -206,6 +264,7 @@ Command Examples:
 
 ### Change Logs
 #### [October 2021]
+* [General] - Added Alpha Channel to the Menu
 * [rootAVD.bat] - Added Shut Down Feature
 * [rootAVD.sh] - Added Shut Down Feature
 * [General] - Added Android 12 (S) API 31 Status
@@ -277,4 +336,5 @@ Command Examples:
 * [Sébastien Corne magisk-single-user](https://github.com/seebz)
 * [remote-android Native Bridge Support in ReDroid](https://github.com/remote-android/redroid-doc/tree/master/native_bridge)
 * [Android AppSec - for his wonderful little video about this script](https://www.youtube.com/c/AndroidAppSec)
+* [vvb2060 Magisk Alpha](https://github.com/vvb2060/magisk_files/)
  

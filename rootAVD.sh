@@ -62,35 +62,88 @@ api_level_arch_detect() {
 	echo "[-] Api Level Arch Detect"
 	# Detect version and architecture
 	# To select the right files for the patching
-	API=$(getprop ro.build.version.sdk)
+
 	ABI=$(getprop ro.product.cpu.abi)
-	ABI2=$(getprop ro.product.cpu.abi2)
-	ABILONG=$(getprop ro.product.cpu.abi)
+	ABILIST32=$(getprop ro.product.cpu.abilist32)
+	ABILIST64=$(getprop ro.product.cpu.abilist64)
+		
+	API=$(getprop ro.build.version.sdk)
 	FIRSTAPI=$(getprop ro.product.first_api_level)
-	ARCH=arm
-	ARCH32=arm
+	
 	IS64BIT=false
-	if [ "$ABI" = "x86" ]; then ARCH=x86; ARCH32=x86; fi;
-	if [ "$ABI2" = "x86" ]; then ARCH=x86; ARCH32=x86; fi;
-	if [ "$ABILONG" = "arm64-v8a" ]; then ARCH=arm64; ARCH32=arm; IS64BIT=true; fi;
-	if [ "$ABILONG" = "x86_64" ]; then ARCH=x64; ARCH32=x86; IS64BIT=true; fi;
+	IS64BITONLY=false
+	IS32BITONLY=false
+	
+	if [ "$ABI" = "x86" ]; then
+		ARCH=x86
+		ARCH32=x86
+	elif [ "$ABI" = "arm64-v8a" ]; then
+		ARCH=arm64
+		ARCH32=arm
+		IS64BIT=true
+	elif [ "$ABI" = "x86_64" ]; then
+		ARCH=x64
+		ARCH32=x86
+		IS64BIT=true
+	#elif [ "$ABI" = "armeabi-v7a" ]; then
+	else
+		ARCH=arm
+  		ARCH32=arm
+		#ABI=armeabi-v7a
+		#ABI32=armeabi-v7a
+		#IS64BIT=false
+	fi
+	
+	#if [ "$ABI" = "x86" ]; then ARCH=x86; ARCH32=x86; fi;
+	#if [ "$ABILONG" = "arm64-v8a" ]; then ARCH=arm64; ARCH32=arm; IS64BIT=true; fi;
+	#if [ "$ABILONG" = "x86_64" ]; then ARCH=x64; ARCH32=x86; IS64BIT=true; fi;
+		
+	if [ -z "$ABILIST32" ]; then 
+		IS64BITONLY=true
+	fi
+	
+	if [ -z "$ABILIST64" ]; then
+		IS32BITONLY=true
+	fi
+	
+	if $IS64BITONLY || $IS32BITONLY ; then
+		echo "[-] Device Platform is $ARCH only"
+	else	
+		echo "[-] Device Platform: $ARCH"
+		echo "[-] ARCH32 $ARCH32"
+	fi
 
-	echo "[-] Device Platform: $ARCH"
-	echo "[-] Device SDK API: $API"
-	echo "[-] ARCH32 $ARCH32"
+	echo "[-] Device SDK API: $API"	
 	echo "[-] First API Level: $FIRSTAPI"
-
-	# There is only a x86 or arm DIR with binaries
-	BINDIR=$BASEDIR/lib/$ARCH32
-
-	[ ! -d "$BINDIR" ] && BINDIR=$BASEDIR/lib/armeabi-v7a
+	
+	if  $IS64BIT && ! $IS64BITONLY; then
+		BINDIR=$BASEDIR/lib/$ABI
+		cd $BINDIR
+			for file in lib*.so; do mv "$file" "${file:3:${#file}-6}"; done
+		cd $BASEDIR
+		echo "[*] copy all $ABI files from $BINDIR to $BASEDIR"
+		cp $BINDIR/* $BASEDIR 2>/dev/null
+	fi
+	
+	BINDIR=$BASEDIR/lib/$ARCH32	
+	#[ ! -d "$BINDIR" ] && BINDIR=$BASEDIR/lib/armeabi-v7a
 	cd $BINDIR
-	for file in lib*.so; do mv "$file" "${file:3:${#file}-6}"; done
+		for file in lib*.so; do mv "$file" "${file:3:${#file}-6}"; done
 	cd $BASEDIR
 
-	echo "[*] copy all files from $BINDIR to $BASEDIR"
+	echo "[*] copy all $ARCH32 files from $BINDIR to $BASEDIR"
 	cp $BINDIR/* $BASEDIR
-
+	
+	# If 64 Bit Only, make sure you have 64 Bit Binarys
+	if ( "$IS64BITONLY" ); then
+		BINDIR=$BASEDIR/lib/$ABI
+		cd $BINDIR
+			for file in lib*.so; do mv "$file" "${file:3:${#file}-6}"; done
+		cd $BASEDIR
+		echo "[*] copy all $ARCH only files from $BINDIR to $BASEDIR"
+		cp $BINDIR/* $BASEDIR 2>/dev/null
+	fi
+		
 	chmod -R 755 $BASEDIR
 
 	[ -d /system/lib64 ] && IS64BIT=true || IS64BIT=false
@@ -448,7 +501,7 @@ CopyMagiskToAVD() {
 			echo "[-] Shut-Down & Reboot (Cold Boot Now) the AVD and see if it worked"
 			echo "[-] Root and Su with Magisk for Android Studio AVDs"
 			echo "[-] Modded by NewBit XDA - Jan. 2021"
-			echo "[!] Huge Credits and big Thanks to topjohnwu and shakalaca"
+			echo "[!] Huge Credits and big Thanks to topjohnwu, shakalaca and vvb2060"
 			ShutDownAVD
 		fi
 	fi
@@ -555,29 +608,37 @@ CheckAvailableMagisks() {
 		CheckAVDIsOnline
 		if ("$AVDIsOnline"); then
 			echo "[!] Checking available Magisk Versions"
-			URL="https://raw.githubusercontent.com/topjohnwu/magisk-files/master/"
+			URL="https://raw.githubusercontent.com/topjohnwu/magisk-files/master/"			
+			ALPHAURL="https://raw.githubusercontent.com/vvb2060/magisk_files/alpha/"
+			
 			CANJSON="canary.json"
 			STABLJSON="stable.json"
-			rm $CANJSON $STABLJSON > /dev/null 2>&1
+			ALPHAJSON="alpha.json"
+			rm $CANJSON $STABLJSON $ALPHAJSON > /dev/null 2>&1
 
 			$BB wget -q --no-check-certificate $URL$CANJSON
 			$BB wget -q --no-check-certificate $URL$STABLJSON
+			$BB wget -q --no-check-certificate $ALPHAURL$ALPHAJSON
 
 			MAGISK_CAN_VER=$(json_value "version" < $CANJSON)
 			MAGISK_CAN_VER_CODE=$(json_value "versionCode" 1 < $CANJSON)
 			MAGISK_CAN_DL=$(json_value "link" 1 < $CANJSON)
-
 			MAGISK_CAN_VER=$(GetPrettyVer $MAGISK_CAN_VER $MAGISK_CAN_VER_CODE)
 
 			MAGISK_STABL_VER=$(json_value "version" < $STABLJSON)
 			MAGISK_STABL_VER_CODE=$(json_value "versionCode" 1 < $STABLJSON)
 			MAGISK_STABL_DL=$(json_value "link" 1 < $STABLJSON)
-
 			MAGISK_STABL_VER=$(GetPrettyVer $MAGISK_STABL_VER $MAGISK_STABL_VER_CODE)
+			
+			MAGISK_ALPHA_VER=$(json_value "version" < $ALPHAJSON)
+			MAGISK_ALPHA_VER_CODE=$(json_value "versionCode" 1 < $ALPHAJSON)
+			MAGISK_ALPHA_DL=$(json_value "link" 1 < $ALPHAJSON)
+			MAGISK_ALPHA_VER=$(GetPrettyVer $MAGISK_ALPHA_VER $MAGISK_ALPHA_VER_CODE)			
 
 			MAGISK_V1="[1] Local $MAGISK_LOCL_VER (ENTER)"
 			MAGISK_V2="[2] Canary $MAGISK_CAN_VER"
 			MAGISK_V3="[3] Stable $MAGISK_STABL_VER"
+			MAGISK_V4="[4] Alpha $MAGISK_ALPHA_VER"
 
 			while :
 			do
@@ -585,6 +646,7 @@ CheckAvailableMagisks() {
 				echo $MAGISK_V1
 				echo $MAGISK_V2
 				echo $MAGISK_V3
+				echo $MAGISK_V4
 				read choice
 				case $choice in
 					"1"|"")
@@ -605,6 +667,14 @@ CheckAvailableMagisks() {
 						echo "[$choice] You choose Magisk Stable Version $MAGISK_STABL_VER"
 						break
 						;;
+					"4")
+						MAGISK_VER=$MAGISK_ALPHA_VER
+						# Alpha Entry is diffrent from Magisk-files
+						MAGISK_DL=$ALPHAURL$MAGISK_ALPHA_DL
+						echo "[$choice] You choose Magisk Alpha Version $MAGISK_ALPHA_VER"
+						break
+						;;	
+						
 					*) echo "invalid option $choice";;
 				esac
 			done
@@ -705,12 +775,14 @@ PrepBusyBoxAndMagisk() {
 	cd $BASEDIR
 	echo "[*] Extracting busybox and Magisk.zip ..."
 	
+	rm -rf lib assets
+	
 	$(which unzip > /dev/null 2>&1)
 	if [[ "$?" == "0" ]]; then
-		unzip $MZ -oq
+		unzip $MZ -oq "lib/*" "assets/*"
 	else
 		ExtractBusyboxFromScript $@
-		$BB unzip $MZ -oq
+		$BB unzip $MZ -oq "lib/*" "assets/*"
 	fi
 
 	chmod -R 755 $BASEDIR/lib
@@ -1218,6 +1290,7 @@ echo "					- construct Magisk Environment manual"
 echo "					- only works with an already Magisk patched ramdisk.img"
 echo "					- without [DIR/ramdisk.img] [OPTIONS] [PATCHFSTAB]"
 echo "					- needed since Android 12 (S) rev.1"
+echo "					- not needed anymore since Android 12 (S) API 31 and Magisk Alpha"
 echo "					- Grant Shell Su Permissions will pop up a few times"
 echo "					- the AVD will reboot automatically"
 echo ""
@@ -1271,7 +1344,7 @@ echo "	"
 echo "${bold}Notes: rootAVD will${normal}"
 echo "- always create ${bold}.backup${normal} files of ${bold}ramdisk.img${normal} and ${bold}kernel-ranchu${normal}"
 echo "- ${bold}replace${normal} both when done patching"
-echo "- show a ${bold}Menu${normal}, to choose the Magisk Version ${bold}(Stable || Canary)${normal}, if the AVD is ${bold}online${normal}"
+echo "- show a ${bold}Menu${normal}, to choose the Magisk Version ${bold}(Stable || Canary || Alpha)${normal}, if the AVD is ${bold}online${normal}"
 echo "- make the ${bold}choosen${normal} Magisk Version to its ${bold}local${normal}"
 echo "- install all APKs placed in the Apps folder"
 echo "	"
