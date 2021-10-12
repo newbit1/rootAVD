@@ -145,6 +145,7 @@ Command Examples:
 ./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
 ```
 </details>
+
 ### Windows
 ```
 Command Examples:
@@ -199,6 +200,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 ./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
 ```
 </details>
+
 ### Notes
 * Android 12 (S) API 31 is a 64 Bit Only System, needs Magisk Alpha
 * With the new Menu, you can choose between the newest Magisk, Canary, Stable and Alpha, Version.
