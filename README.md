@@ -266,6 +266,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 
 ### Change Logs
 #### [October 2021]
+* [General] - Added Multiarch Busybox Binarys and 64-Bit Only Support
 * [General] - Added Alpha Channel to the Menu
 * [rootAVD.bat] - Added Shut Down Feature
 * [rootAVD.sh] - Added Shut Down Feature
