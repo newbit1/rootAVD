@@ -3,3 +3,4 @@ Apps/*
 initramfs.img
 bzImage
 *.rc
+libbusybox*

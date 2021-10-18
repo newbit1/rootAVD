@@ -261,7 +261,7 @@ exit /B 0
 		)
 		
 		echo.%ADBWORKS%| FIND /I "unauthorized">Nul && (
-  			echo [^^!] ADB device is unauthorized
+  			echo [^^!] %ADBWORKS%
   			echo [*] no ADB connection possible
   			call :_Exit 2> nul
 		)
@@ -286,7 +286,14 @@ exit /B 0
   			echo [^^!] ADB is not in your Path, try to
   			echo set PATH=%%LOCALAPPDATA%%\Android\Sdk\platform-tools;%%PATH%%
   			call :_Exit 2> nul
-		)	
+		)
+		
+		echo.%ADBWORKS%| FIND /I "error">Nul && (
+			echo [^^!] %ADBWORKS%
+  			echo [*] no ADB connection possible  			
+  			call :_Exit 2> nul
+		)
+		call :_Exit 2> nul
 	)	
 	ENDLOCAL
 exit /B 0
@@ -356,11 +363,31 @@ call :_Exit 2> nul
 exit /B 0
 
 :installapps
+	SetLocal EnableDelayedExpansion
 	echo [-] Install all APKs placed in the Apps folder
-	FOR %%i IN (APPS\*.apk) DO (
-		echo [*] Trying to install %%i
-		adb install -r -d %%i
+	for %%i in (APPS\*.apk) do (		
+		set APK=%%i
+		:whileloop
+			echo [*] Trying to install !APK!			
+			for /f "delims=" %%A in ('adb install -r -d !APK! 2^>^&1' ) do (
+				echo [-] %%A
+				echo.%%A| FIND /I "INSTALL_FAILED_UPDATE_INCOMPATIBLE">Nul && (
+					set Package=					
+					for %%p in (%%A) do (
+						echo.!Package!| FIND /I "Package">Nul && (
+							echo [*] Need to uninstall %%p first						
+							adb uninstall %%p > tmpFile 2>&1
+							set /P ADBECHO=<tmpFile
+							del tmpFile
+							echo [-] !ADBECHO!
+							goto :whileloop
+						)
+						set Package=%%p
+					)
+				)				
+			)
 	)
+	ENDLOCAL
 exit /B 0
 
 :ShowHelpText
