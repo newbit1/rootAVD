@@ -266,6 +266,8 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 
 ### Change Logs
 #### [October 2021]
+* [rootAVD.sh] - Updated LZ4 decompression Routine
+* [rootAVD.sh] - Updated InstallPrebuiltKernelModules Routine to support ARM64 Kernels
 * [rootAVD.sh] - Updated Busybox Extraction Routine
 * [General] - Added Multiarch Busybox Binarys and 64-Bit Only Support
 * [General] - Added Alpha Channel to the Menu
