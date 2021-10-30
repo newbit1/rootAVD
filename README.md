@@ -207,7 +207,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * Once choosen, the script will make that Version to your local one.
 * Prebuilt Kernel and Modules will be pulled from [AOSP](https://android.googlesource.com/kernel/prebuilts)
 * Starting Magisk from Terminal via `adb shell monkey -p com.topjohnwu.magisk -c android.intent.category.LAUNCHER 1`
-
+* API 28 (Pie) is **not supported** at all -> [because](https://source.android.com/devices/bootloader/partitions/system-as-root#sar-partitioning)
 
 ### 2 Ways to boot the AVD into Safe Mode
 * 1st Way - If the AVD still boots normal:
@@ -248,6 +248,9 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [[Oct. 2021] - Android 11 (R) API 30 Google Apis Play Store x86_64 r10 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-darwin.zip)
 
 ### Magisk v22.1+ Successfully tested with Stock Kernel on
+* [[Oct. 2021] - Android  8 (Oreo) API 26 Google Apis Play Store x86 r07 Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-26_r07.zip)
+* [[Oct. 2021] - Android  7 (Nougat) API 24 Google Apis Play Store x86 r19 Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-24_r19.zip)
+* [[Oct. 2021] - Android  7 (Nougat) API 24 Google Apis x86_64 r27 Production Build](https://dl.google.com/android/repository/sys-img/google_apis/x86_64-24_r27.zip)
 * [[Oct. 2021] - Android 11 (R) API 30 Google Apis Play Store x86 r09 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-30_r09-windows.zip)
 * [[Oct. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86 r08 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-29_r08-windows.zip)
 * [[Oct. 2021] - Android 11 (R) API 30 Google Apis Play Store x86 r09 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-30_r09-darwin.zip)
@@ -272,6 +275,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 
 ### Change Logs
 #### [October 2021]
+* [rootAVD.sh] - Added get Up-To-Date Script Routine if Script is broken
 * [rootAVD.sh] - Updated LZ4 decompression Routine
 * [rootAVD.sh] - Updated InstallPrebuiltKernelModules Routine to support ARM64 Kernels
 * [rootAVD.sh] - Updated Busybox Extraction Routine
