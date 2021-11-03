@@ -20,6 +20,10 @@ A Script to...
 * a command prompt / terminal is opened
 * `adb shell` will connect to the running AVD
 
+### How to Install ADB (Android SDK Platform-Tools)
+* Open Android Studio -> SDK Manager -> Android SDK -> SDK Tools -> Check on **Android SDK Platform-Tools** -> Apply
+<img src="https://user-images.githubusercontent.com/37043777/140064719-ea2dd704-1aea-4c38-9725-3edbdafe7924.png" width="200" height="200" />
+
 ## rootAVD Help Menu
 ```
 rootAVD A Script to root AVD by NewBit XDA
@@ -79,7 +83,7 @@ Extra Commands:
 	PATCHFSTAB			fstab.ranchu will get patched to automount Block Devices like /dev/block/sda1
 					- other entries can be added in the script as well
 					- a custom build Kernel might be necessary
-	
+
 	GetUSBHPmodZ			The USB HOST Permissions Module Zip will be downloaded into /sdcard/Download
 	
 Extra Commands can be combined, there is no particular order.
@@ -202,7 +206,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 </details>
 
 ### Notes
-* Android 12 (S) API 31 is a 64 Bit Only System, needs Magisk Alpha
+* Android 12 (S) API 31 is a 64 Bit Only System, needs Magisk Canary or Alpha
 * With the new Menu, you can choose between the newest Magisk, Canary, Stable and Alpha, Version.
 * Once choosen, the script will make that Version to your local one.
 * Prebuilt Kernel and Modules will be pulled from [AOSP](https://android.googlesource.com/kernel/prebuilts)
