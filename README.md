@@ -242,6 +242,108 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 ### XDA [GUIDE] How to [Build|Mod|Update] a custom AVD Kernel and its Modules
 * [[GUIDE][Build|Mod|Update][kernel-ranchu][goldfish][5.4][5.10][GKI][ramdisk.img][modules][rootAVD][Android 11(R) 12(S)][AVD][Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-update-kernel-ranchu-goldfish-5-4-5-10-gki-ramdisk-img-modules-rootavd-android-11-r-12-s-avd-google-play-store-api.4220697)
 
+### Compatibility Chart
+<table>
+	<tr>
+		<th rowspan="2"align="center">Android</th>
+		<th rowspan="2"align="center">Play Store</th>
+		<th rowspan="2"align="center">API Level</th>
+		<th rowspan="2"align="center">Revision</th>
+		<th rowspan="2"align="center">CPU/ABI</th>
+		<th rowspan="2"align="center">Architecture</th>
+		<th rowspan="2"align="center">Build/Link</th>
+		<th colspan="3"align="center">Magisk v23.0</th>
+	</tr>
+	<tr>
+		<th>Stable</th>
+		<th>Canary</th>
+		<th>Alpha</th>
+	</tr>
+	<tr>
+		<td rowspan="4"align="center">12 (S)</td>
+		<td rowspan="15"align="center"><img src="https://user-images.githubusercontent.com/37043777/140272882-10a9b396-550c-40c7-b809-2ca05527f7a5.png" width="15"/></td>
+		<td rowspan="2"align="center">32 (Sv2)</td>
+		<td rowspan="2"align="center">r01</td>
+		<td rowspan="2"align="center">x86_64</td>
+		<td rowspan="5"align="center">64-Bit</td>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-Sv2_r01-windows.zip">Windows</a></td>
+		<td rowspan="5"align="center">:x:</td>
+		<td rowspan="15"align="center">:heavy_check_mark:</td>
+		<td rowspan="15"align="center">:heavy_check_mark:</td>
+	</tr>
+	<tr>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-Sv2_r01-darwin.zip">Darwin<br/>MacOS</a></td>
+	</tr>
+	<tr>
+		<td rowspan="2"align="center">31</td>
+		<td rowspan="2"align="center">r08</td>
+		<td align="center">ARM 64 v8a</td>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/arm64-v8a-31_r08-darwin.zip">(M1) Darwin<br/>MacOS</a></td>
+	</tr>
+	<tr>
+		<td align="center">x86_64</td>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-31_r08-darwin.zip">Darwin<br/>MacOS</a></td>
+	</tr>
+	<tr>
+		<td rowspan="5"align="center">11 (R)</td>
+		<td rowspan="5"align="center">30</td>
+		<td rowspan="3"align="center">r10</td>
+		<td align="center">ARM 64 v8a</td>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/arm64-v8a-30_r10-darwin.zip">(M1) Darwin<br/>MacOS</a></td>
+	</tr>
+	<tr>
+		<td rowspan="2"align="center">x86_64</td>
+		<td rowspan="2"align="center">32-Bit<br/>64-Bit</td>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-darwin.zip">Darwin<br/>MacOS</a></td>
+		<td rowspan="10"align="center">:heavy_check_mark:</td>
+	</tr>
+	<tr>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-windows.zip">Windows</a></td>
+	</tr>
+	<tr>
+		<td rowspan="2"align="center">r09</td>
+		<td rowspan="2"align="center">x86</td>
+		<td rowspan="2"align="center">32-Bit</td>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-30_r09-darwin.zip">Darwin<br/>MacOS</a></td>
+	</tr>
+	<tr>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-30_r09-windows.zip">Windows</a></td>
+	</tr>
+	<tr>
+		<td rowspan="4"align="center">10 (Q)</td>
+		<td rowspan="4"align="center">29</td>
+		<td rowspan="4"align="center">r08</td>
+		<td rowspan="2"align="center">x86_64</td>
+		<td rowspan="2"align="center">32-Bit<br/>64-Bit</td>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-29_r08-windows.zip">Windows</a></td>
+	</tr>
+	<tr>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-29_r08-darwin.zip">Darwin<br/>MacOS</a></td>
+	</tr>
+	<tr>
+		<td rowspan="4"align="center">x86</td>
+		<td rowspan="4"align="center">32-Bit</td>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-29_r08-windows.zip">Windows</a></td>
+	</tr>
+	<tr>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-29_r08-darwin.zip">Darwin<br/>MacOS</a></td>
+	</tr>
+	<tr>
+		<td align="center">8 (Oreo)</td>
+		<td align="center">26</td>
+		<td align="center">r07</td>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-26_r07.zip">Darwin<br/>MacOS</a></td>
+	</tr>
+	<tr>
+		<td align="center">7 (Nougat)</td>
+		<td align="center">24</td>
+		<td align="center">r19</td>
+		<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86-24_r19.zip">Darwin<br/>MacOS</a></td>
+	</tr>
+</table>
+
+<details>
+<summary>Archive</summary>
 ### Magisk v23.0 Alpha Successfully tested with Stock Kernel on
 * [[Oct. 2021] - Android 12 (S) API 32 Google Apis Play Store x86_64 Sv2 r01 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-Sv2_r01-windows.zip)
 * [[Oct. 2021] - Android 12 (S) API 32 Google Apis Play Store x86_64 Sv2 r01 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-Sv2_r01-darwin.zip)
@@ -276,6 +378,8 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [[Mar. 2021] - Android 11 (R) API 30 Google Apis Play Store x86_64 r10 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-windows.zip)
 * [[Mar. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86_64 r08 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-29_r08-darwin.zip)
 * [[Mar. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86_64 r08 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-29_r08-windows.zip)
+	
+</details>
 
 ### Change Logs
 #### [October 2021]
