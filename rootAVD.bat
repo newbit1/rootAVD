@@ -278,7 +278,7 @@ exit /B 0
 				set ADB_EX=%%i
 			)
 
-			if %ADB_EX% == "" (
+			if !ADB_EX! == "" (
 				echo [^^!] ADB binary not found in %%LOCALAPPDATA%%\%ADB_DIR%
 				call :_Exit 2> nul
 			)
