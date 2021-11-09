@@ -242,6 +242,32 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 ### XDA [GUIDE] How to [Build|Mod|Update] a custom AVD Kernel and its Modules
 * [[GUIDE][Build|Mod|Update][kernel-ranchu][goldfish][5.4][5.10][GKI][ramdisk.img][modules][rootAVD][Android 11(R) 12(S)][AVD][Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-update-kernel-ranchu-goldfish-5-4-5-10-gki-ramdisk-img-modules-rootavd-android-11-r-12-s-avd-google-play-store-api.4220697)
 
+### How to root AVDs without Play Store (Google APIs) out of the box
+### Windows
+* open a terminal -> win + r `cmd`
+	* add emulator to your PATH
+	* find your AVD
+	* launch your AVD with the `-writable-system` argument
+	```
+	set PATH=%LOCALAPPDATA%\Android\Sdk\emulator;%PATH%
+	emulator -list-avds
+		Pixel_4_API_28
+	emulator -avd Pixel_4_API_28 -writable-system
+	```
+* open a 2nd terminal -> win + r `cmd`
+	* enter the following commands one by one
+	```
+	set PATH=%LOCALAPPDATA%\Android\Sdk\platform-tools;%PATH%
+	adb root
+	adb shell avbctl disable-verification
+	adb disable-verity
+	adb reboot
+	adb root
+	adb remount
+	adb shell
+	generic_x86_64:/ #
+	```
+
 ### Compatibility Chart
 <table>
 	<tr>
