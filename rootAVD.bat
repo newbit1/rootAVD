@@ -85,7 +85,7 @@ adb shell rm -rf %ADBBASEDIR%
 echo [*] Creating the ADB working space
 adb shell mkdir %ADBBASEDIR%
 
-call :pushtoAVD %MAGISKZIP%
+call :pushtoAVD "%MAGISKZIP%"
 REM Proceed with ramdisk
 set INITRAMFS=%ROOTAVD%\initramfs.img
 if %RAMDISKIMG% (
