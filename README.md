@@ -251,8 +251,8 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 	```
 	set PATH=%LOCALAPPDATA%\Android\Sdk\emulator;%PATH%
 	emulator -list-avds
-		Pixel_4_API_28
-	emulator -avd Pixel_4_API_28 -writable-system
+		Pixel_4_API_29
+	emulator -avd Pixel_4_API_29 -writable-system
 	```
 * open a 2nd terminal -> win + r `cmd`
 	* enter the following commands one by one
