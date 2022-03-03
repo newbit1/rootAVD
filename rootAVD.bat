@@ -85,7 +85,7 @@ adb shell rm -rf %ADBBASEDIR%
 echo [*] Creating the ADB working space
 adb shell mkdir %ADBBASEDIR%
 
-call :pushtoAVD %MAGISKZIP%
+call :pushtoAVD "%MAGISKZIP%"
 REM Proceed with ramdisk
 set INITRAMFS=%ROOTAVD%\initramfs.img
 if %RAMDISKIMG% (
@@ -95,11 +95,11 @@ if %RAMDISKIMG% (
 		call :_Exit 2> nul
 	)
 	call :create_backup %RDFFILE%
-	call :pushtoAVD %AVDPATHWITHRDFFILE%
+	call :pushtoAVD "%AVDPATHWITHRDFFILE%"
 
 	if %InstallKernelModules% (
 		if exist "%INITRAMFS%" (
-			call :pushtoAVD %INITRAMFS%
+			call :pushtoAVD "%INITRAMFS%"
 		)
 	)
 )
