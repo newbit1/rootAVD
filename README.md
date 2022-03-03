@@ -442,6 +442,13 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 </details>
 
 ### Change Logs
+#### [February 2022]
+* [General] - Updated to Magisk Stable Version 24.1
+
+<details>
+<summary>Archive</summary>
+
+### Change Logs
 #### [October 2021]
 * [rootAVD.sh] - Added get Up-To-Date Script Routine if Script is broken
 * [rootAVD.sh] - Updated LZ4 decompression Routine
@@ -453,11 +460,6 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [rootAVD.sh] - Added Shut Down Feature
 * [General] - Added Android 12 (S) API 31 Status
 * [General] - Added Link to Android AppSecs Video about rootAVD
-
-<details>
-<summary>Archive</summary>
-
-### Change Logs
 #### [July 2021]
 * [rootAVD.bat] - Changed TestADB
 * [General] - Added rootCROS Project to Links
@@ -510,9 +512,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 ### Credits
 * [topjohnwu @ xda-developers](https://forum.xda-developers.com/m/topjohnwu.4470081)
 * [topjohnwu Magisk File Host](https://github.com/topjohnwu/magisk-files)
-* [topjohnwu Magisk App](https://github.com/topjohnwu/Magisk/releases)
-* [topjohnwu Magisk v21.4](https://github.com/topjohnwu/Magisk/releases/tag/v21.4)
-* [topjohnwu Magisk Manager v8.0.7](https://github.com/topjohnwu/Magisk/releases/tag/manager-v8.0.7)
+* [topjohnwu Magisk](https://github.com/topjohnwu/Magisk)
 * [shakalaca @ xda-developers](https://forum.xda-developers.com/m/shakalaca.1813976)
 * [shakalaca MagiskOnEmulator](https://github.com/shakalaca/MagiskOnEmulator)
 * [Akianonymus _json_value](https://gist.github.com/cjus/1047794#gistcomment-3313785)
