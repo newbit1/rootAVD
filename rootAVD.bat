@@ -151,7 +151,8 @@ exit /B %ERRORLEVEL%
 	SetLocal EnableDelayedExpansion
 	set ADBPULLECHO=
 	
-	adb shell reboot -p > tmpFile 2>&1
+	REM adb shell reboot -p > tmpFile 2>&1
+	adb shell setprop sys.powerctl shutdown > tmpFile 2>&1
 	set /P ADBPULLECHO=<tmpFile
 	del tmpFile
 
