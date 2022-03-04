@@ -383,6 +383,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [topjohnwu @ xda-developers](https://forum.xda-developers.com/m/topjohnwu.4470081)
 * [topjohnwu Magisk File Host](https://github.com/topjohnwu/magisk-files)
 * [topjohnwu Magisk](https://github.com/topjohnwu/Magisk)
+* [Magisk-Modules-Repo](https://github.com/Magisk-Modules-Repo)
 * [shakalaca @ xda-developers](https://forum.xda-developers.com/m/shakalaca.1813976)
 * [shakalaca MagiskOnEmulator](https://github.com/shakalaca/MagiskOnEmulator)
 * [Akianonymus _json_value](https://gist.github.com/cjus/1047794#gistcomment-3313785)
@@ -393,4 +394,5 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [vvb2060 Magisk Alpha](https://github.com/vvb2060/magisk_files/)
 * [All-in-one Markdown editor by terrylinooo](https://markdown-editor.github.io/) 
 * [Online Free WYSIWYG HTML Editor](https://www.htmeditor.com/author/)
- 
+* [HTML Tidy - Online Markup Corrector](https://htmltidy.net)
+* [eRightSoft - SUPER © Simplified Universal Player Encoder & Recorder](https://www.erightsoft.com/SUPER.html)
