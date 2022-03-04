@@ -19,6 +19,9 @@ A Script to...
 * a working Internet connection for the Menu
 * a command prompt / terminal is opened
 * `adb shell` will connect to the running AVD
+* 
+### Use Case Example on MacOS
+<img src="https://github.com/newbit1/video-files/blob/master/rootAVD.gif" width="50%" height="50%"/>
 
 ### How to Install ADB (Android SDK Platform-Tools)
 * Open Android Studio -> SDK Manager -> Android SDK -> SDK Tools -> Check on **Android SDK Platform-Tools** -> Apply
