@@ -21,7 +21,7 @@ A Script to...
 * `adb shell` will connect to the running AVD
 * 
 ### Use Case Example on MacOS
-<img src="https://github.com/newbit1/video-files/blob/master/rootAVD.gif" width="50%" height="50%"/>
+<img src="https://github.com/newbit1/video-files/blob/master/rootAVD_MacOS.gif" width="50%" height="50%"/>
 
 ### How to Install ADB (Android SDK Platform-Tools)
 * Open Android Studio -> SDK Manager -> Android SDK -> SDK Tools -> Check on **Android SDK Platform-Tools** -> Apply
@@ -395,4 +395,4 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [All-in-one Markdown editor by terrylinooo](https://markdown-editor.github.io/) 
 * [Online Free WYSIWYG HTML Editor](https://www.htmeditor.com/author/)
 * [HTML Tidy - Online Markup Corrector](https://htmltidy.net)
-* [eRightSoft - SUPER © Simplified Universal Player Encoder & Recorder](https://www.erightsoft.com/SUPER.html)
+* [ffmpeg + ImageMagick. Convert video to GIF by using Terminal.app in macOS](https://acronis.design/ffmpeg-imagemagick-convert-video-to-gif-using-the-terminal-app-in-macos-657948adf900)
