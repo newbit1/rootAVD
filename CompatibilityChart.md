@@ -8,7 +8,7 @@
 <th rowspan="2" align="center">CPU/ABI</th>
 <th rowspan="2" align="center">Arch</th>
 <th rowspan="2" align="center">Build</th>
-<th colspan="3" align="center">Magisk v24.1</th>
+<th colspan="3" align="center">Magisk v24.3</th>
 </tr>
 <tr>
 <th>Stable</th>
