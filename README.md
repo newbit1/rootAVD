@@ -215,8 +215,9 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 </details>
 
 ### Notes
-* Android 12 (S) API 31 is a 64 Bit Only System, needs Magisk Canary or Alpha
-* With the new Menu, you can choose between the newest Magisk, Canary, Stable and Alpha, Version.
+* 64 Bit Only Systems needs Magisk 23.x
+* In the Menu, you can choose between the newest Magisk, Canary, Stable and Alpha, Version.
+* With the new Option `s`, you can see and download any other Versions of Magisk
 * Once choosen, the script will make that Version to your local one.
 * Prebuilt Kernel and Modules will be pulled from [AOSP](https://android.googlesource.com/kernel/prebuilts)
 * Starting Magisk from Terminal via `adb shell monkey -p com.topjohnwu.magisk -c android.intent.category.LAUNCHER 1`
@@ -240,6 +241,14 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * Every time you want to Grant Su Permissions, switch to user 0 and then back to 10 `adb shell am switch-user 10`
 * Alternative, you can install the Module [magisk-single-user](https://github.com/seebz/magisk-single-user)
 	* and remove all user higher than 0 i.e. `adb shell pm remove-user 13` or `adb shell pm remove-user 10`
+
+### BlueStacks 4 Notes on MacOs
+* Modules are working
+* Zygisk doesn't work
+* The Home Screen Apk closes as soon as Magisk APP is installed
+	* but you can start Magisk from Terminal via `adb shell monkey -p com.topjohnwu.magisk -c android.intent.category.LAUNCHER 1`
+	* and Hide the Magisk APP to Settings i.e.
+* ADB Connection is very buggy, `adb kill-server` is necessary quite often
 
 ### Links
 * [XDA [GUIDE] Build / Mod AVD Kernel Android 10 / 11 rootAVD [Magisk] [USB passthrough Linux] [Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-avd-kernel-android10-x86_64-29-root-magisk-usb-passthrough-linux.4212719)
@@ -317,6 +326,12 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 </details>
 
 ### Change Logs
+#### [March 2022]
+* [rootAVD.sh] - Changed the need of a Magisk.zip file
+* [General] - Added Use Case Examples as Gif
+* [General] - Added Option to Download older Magisk Versions
+* [rootAVD.sh] - Added BlueStacks 4 Support on MacOS
+* [General] - Bug fixes
 #### [February 2022]
 * [General] - Updated to Magisk Stable Version 24.1
 
@@ -391,6 +406,8 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [Magisk-Modules-Repo](https://github.com/Magisk-Modules-Repo)
 * [shakalaca @ xda-developers](https://forum.xda-developers.com/m/shakalaca.1813976)
 * [shakalaca MagiskOnEmulator](https://github.com/shakalaca/MagiskOnEmulator)
+* [huskydg @ xda-developers](https://forum.xda-developers.com/m/huskydg.11455139)
+* [huskydg MagiskOnEmu](https://github.com/HuskyDG/MagiskOnEmu)
 * [Akianonymus _json_value](https://gist.github.com/cjus/1047794#gistcomment-3313785)
 * [Tad Fisher Android Nixpkgs](https://github.com/tadfisher/android-nixpkgs)
 * [Sébastien Corne magisk-single-user](https://github.com/seebz)
