@@ -246,7 +246,6 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [Inject Android Hardware USB HOST Permissions](https://github.com/newbit1/usbhostpermissons)
 * [XDA [SCRIPT] rootAVD - root your Android Studio Virtual Device emulator with Magisk [Android 12][Linux][Darwin/MacOS][WIN][Google Play Store APIs]](https://forum.xda-developers.com/t/script-rootavd-root-your-android-studio-virtual-device-emulator-with-magisk-android-11-linux-darwin-macos-win-google-play-store-apis.4218123)
 * [rootCROS - A Script to root your Google Chrome OS installed on a non Chromebook Device](https://github.com/newbit1/rootCROS)
-* [Video - Android Studio Emulator (AVD) Rooting with Magisk using rootAVD](https://www.youtube.com/watch?v=JR4gDRYzY2c)
 
 ### XDA [GUIDE] How to [Build|Mod|Update] a custom AVD Kernel and its Modules
 * [[GUIDE][Build|Mod|Update][kernel-ranchu][goldfish][5.4][5.10][GKI][ramdisk.img][modules][rootAVD][Android 11(R) 12(S)][AVD][Google Play Store API]](https://forum.xda-developers.com/t/guide-build-mod-update-kernel-ranchu-goldfish-5-4-5-10-gki-ramdisk-img-modules-rootavd-android-11-r-12-s-avd-google-play-store-api.4220697)
@@ -396,9 +395,10 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [Tad Fisher Android Nixpkgs](https://github.com/tadfisher/android-nixpkgs)
 * [Sébastien Corne magisk-single-user](https://github.com/seebz)
 * [remote-android Native Bridge Support in ReDroid](https://github.com/remote-android/redroid-doc/tree/master/native_bridge)
-* [Android AppSec - for his wonderful little video about this script](https://www.youtube.com/c/AndroidAppSec)
 * [vvb2060 Magisk Alpha](https://github.com/vvb2060/magisk_files/)
 * [All-in-one Markdown editor by terrylinooo](https://markdown-editor.github.io/) 
 * [Online Free WYSIWYG HTML Editor](https://www.htmeditor.com/author/)
 * [HTML Tidy - Online Markup Corrector](https://htmltidy.net)
 * [ffmpeg + ImageMagick. Convert video to GIF by using Terminal.app in macOS](https://acronis.design/ffmpeg-imagemagick-convert-video-to-gif-using-the-terminal-app-in-macos-657948adf900)
+* [Kazam Screencaster](https://launchpad.net/kazam)
+
