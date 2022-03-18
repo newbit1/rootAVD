@@ -19,25 +19,25 @@
 <td rowspan="3" align="center">Tiramisu</td>
 <td rowspan="23" align="center"><img src="https://user-images.githubusercontent.com/37043777/140272882-10a9b396-550c-40c7-b809-2ca05527f7a5.png" width="15" /></td>
 <td align="center">32</td>
-<td align="center">r01</td>
+<td align="center">r02</td>
 <td align="center">x86_64</td>
 <td rowspan="8" align="center">64-Bit</td>
-<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-Tiramisu_r01.zip">Windows</a></td>
+<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-Tiramisu_r02.zip">Windows</a></td>
 <td rowspan="23" align="center">:heavy_check_mark:</td>
 <td rowspan="23" align="center">:heavy_check_mark:</td>
 <td rowspan="23" align="center">:heavy_check_mark:</td>
 </tr>
 <tr>
 <td align="center">32&nbsp;</td>
-<td align="center">r01&nbsp;</td>
+<td align="center">r02&nbsp;</td>
 <td align="center">x86_64&nbsp;</td>
-<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-Tiramisu_r01.zip">Darwin<br />MacOS</a></td>
+<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-Tiramisu_r02.zip">Darwin<br />MacOS</a></td>
 </tr>
 <tr>
-<td align="center">&nbsp;</td>
-<td align="center">&nbsp;</td>
-<td align="center">&nbsp;</td>
-<td align="center">&nbsp;</td>
+<td align="center">32&nbsp;</td>
+<td align="center">r02&nbsp;</td>
+<td align="center">x86_64&nbsp;</td>
+<td align="center"><a href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-Tiramisu_r02.zip">Linux</a></td>
 </tr>
 <tr>
 <td rowspan="4" align="center">12 (S)</td>
