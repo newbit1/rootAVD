@@ -23,6 +23,9 @@ A Script to...
 #### on MacOS
 <img src="https://github.com/newbit1/video-files/blob/master/rootAVD_MacOS.gif" width="50%" height="50%"/>
 
+#### BlueStacks 4 on MacOS
+<img src="https://github.com/newbit1/video-files/blob/master/rootAVD_MacOS_BlueStacks.gif" width="50%" height="50%"/>
+
 #### on Windows
 <img src="https://github.com/newbit1/video-files/blob/master/rootAVD_Windows.gif" width="50%" height="50%"/>
 
