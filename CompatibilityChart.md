@@ -1,9 +1,9 @@
-### Compatibility Chart
+### Compatibility Chart with Google <b><img src="https://user-images.githubusercontent.com/37043777/140272882-10a9b396-550c-40c7-b809-2ca05527f7a5.png" width="15"> PlayStore</b> System Images<b><br>
+</b>
 <table>
 <tbody>
 <tr>
 <th rowspan="2" align="center">Android</th>
-<th rowspan="2" align="center">PlayStore</th>
 <th rowspan="2" align="center">API Level</th>
 <th rowspan="2" align="center">Rev.</th>
 <th rowspan="2" align="center">CPU/ABI</th>
@@ -17,13 +17,13 @@
 <th>Alpha</th>
 </tr>
 <tr>
-<td rowspan="3" align="center">Tiramisu<br>Android 13</td>
-<td rowspan="23" align="center"><img
-src="https://user-images.githubusercontent.com/37043777/140272882-10a9b396-550c-40c7-b809-2ca05527f7a5.png"
-width="15"></td>
-<td align="center"><br></td>
-<td align="center"><br></td>
-<td align="center"><br></td>
+<td rowspan="3" align="center">Tiramisu</td>
+<td align="center"><br>
+</td>
+<td align="center"><br>
+</td>
+<td align="center"><br>
+</td>
 <td rowspan="8" align="center">64-Bit</td>
 <td align="center"><br>
 </td>
@@ -71,7 +71,6 @@ MacOS</a></td>
 <td align="center">ARM 64 v8a</td>
 <td align="center"><a
 href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/arm64-v8a-31_r08-darwin.zip">(M1)
-
 Darwin<br>
 MacOS</a></td>
 </tr>
@@ -88,7 +87,6 @@ MacOS</a></td>
 <td align="center">ARM 64 v8a</td>
 <td align="center"><a
 href="https://dl.google.com/android/repository/sys-img/google_apis_playstore/arm64-v8a-30_r10-darwin.zip">(M1)
-
 Darwin<br>
 MacOS</a></td>
 </tr>
