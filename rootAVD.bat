@@ -319,6 +319,7 @@ call :_Exit 2> nul
 	set InstallPrebuiltKernelModules=%false%
 	set ListAllAVDs=%false%
 	set InstallApps=%false%
+	set NOPARAMSATALL=%false%
 
 	REM While debugging and developing you can turn this flag on
 	echo.%params%| FIND /I "DEBUG">Nul && (
@@ -360,6 +361,11 @@ call :_Exit 2> nul
     	set InstallKernelModules=%true%
 	) ELSE IF "%2"=="InstallPrebuiltKernelModules" (
 		set InstallPrebuiltKernelModules=%true%
+	)
+	
+	IF "%params%"=="" (
+		REM No Parameters SET at all
+    	set NOPARAMSATALL=%true%
 	)
 exit /B 0
 
@@ -509,5 +515,8 @@ call :_Exit 2> nul
 exit /B 0
 
 :_Exit
+if %NOPARAMSATALL% (
+	cmd /k
+)
 ()
 goto :eof
