@@ -226,6 +226,16 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * Starting Magisk from Terminal via `adb shell monkey -p com.topjohnwu.magisk -c android.intent.category.LAUNCHER 1`
 * API 28 (Pie) is **not supported** at all -> [because](https://source.android.com/devices/bootloader/partitions/system-as-root#sar-partitioning)
 
+### Fake Boot.img Function
+* During runtime, the script will launch the Magisk APK so that you can patch the fake Boot.img within 60s
+* The script also detects if there is already a patched Boot.img present
+* This feature lets you also update and switch between Magisk Versions
+* All the ramdisk hacks like fstab, boot scripts and kernel+module updates, can not be applied,
+	* (I don't know a way to Pause the patching process from the Magisk APK)
+	* those hacks must be done first, the classical way via the script, and once the ramdisk hacks are applied, the desired Magisk Version can be installed
+* If a not proper working ramdisk prevents the Magisk APK from beeing installed and starting, use the toggleRamdisk Argument to stack your patched,\
+but not yet 100% working ramdisk away, boot the AVD with the Stock ramdisk, toggleRamdisk back, and run the script with the FAKEBOOTIMG Argument
+
 ### 2 Ways to boot the AVD into Safe Mode
 * 1st Way - If the AVD still boots normal:
 	* Tap and Hold the **Power Button** until the 3 Options appear
@@ -329,7 +339,10 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 </details>
 
 ### Change Logs
+#### [November 2022]
+* [rootAVD.sh] - Added FAKEBOOTIMG Argument that creates a fake Boot.img which can be patched directed from the Magisk APK
 #### [March 2022]
+* [rootAVD.sh] - Added toggleRamdisk Argument that toggles between patched and stock ramdisk
 * [rootAVD.sh] - Changed the need of a Magisk.zip file
 * [General] - Added Use Case Examples as Gif
 * [General] - Added Option to Download older Magisk Versions
