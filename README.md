@@ -32,6 +32,9 @@ A Script to...
 #### on Linux
 <img src="https://github.com/newbit1/video-files/blob/master/rootAVD_Linux.gif" width="50%" height="50%"/>
 
+#### Fake Boot.img on MacOS
+<img src="https://github.com/newbit1/video-files/blob/master/rootAVD_MacOS_FAKEBOOTIMG.gif" width="50%" height="50%"/>
+
 ### How to Install ADB (Android SDK Platform-Tools)
 * Open Android Studio -> SDK Manager -> Android SDK -> SDK Tools -> Check on **Android SDK Platform-Tools** -> Apply
 <img src="https://user-images.githubusercontent.com/37043777/140064719-ea2dd704-1aea-4c38-9725-3edbdafe7924.png" width="200" height="200" />
@@ -230,9 +233,10 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * During runtime, the script will launch the Magisk APK so that you can patch the fake Boot.img within 60s
 * The script also detects if there is already a patched Boot.img present
 * This feature lets you also update and switch between Magisk Versions
+	* Updating a patched ramdisk will delete the overlay.d folder, all mods are gone!
 * All the ramdisk hacks like fstab, boot scripts and kernel+module updates, can not be applied,
 	* (I don't know a way to Pause the patching process from the Magisk APK)
-	* those hacks must be done first, the classical way via the script, and once the ramdisk hacks are applied, the desired Magisk Version can be installed
+	* those hacks can be done, the classical way via the script, with the working and patched ramdisk
 * If a not proper working ramdisk prevents the Magisk APK from beeing installed and starting, use the toggleRamdisk Argument to stack your patched,\
 but not yet 100% working ramdisk away, boot the AVD with the Stock ramdisk, toggleRamdisk back, and run the script with the FAKEBOOTIMG Argument
 
@@ -340,6 +344,12 @@ but not yet 100% working ramdisk away, boot the AVD with the Stock ramdisk, togg
 
 ### Change Logs
 #### [November 2022]
+* [General] - Updated to Magisk Stable Version 25.2
+* [General] - Added FAKEBOOTIMG Use Case Examples as Gif
+* [rootAVD.sh] - Added support for adding the stub.apk if present
+* [General] - Added support for already patched ramdisk files
+* [General] - removed the EnvFixTask Argument
+* [General] - Bug fixes
 * [rootAVD.sh] - Added FAKEBOOTIMG Argument that creates a fake Boot.img which can be patched directed from the Magisk APK
 #### [March 2022]
 * [rootAVD.sh] - Added toggleRamdisk Argument that toggles between patched and stock ramdisk
