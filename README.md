@@ -234,11 +234,6 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * The script also detects if there is already a patched Boot.img present
 * This feature lets you also update and switch between Magisk Versions
 	* Updating a patched ramdisk will delete the overlay.d folder, all mods are gone!
-* All the ramdisk hacks like fstab, boot scripts and kernel+module updates, can not be applied,
-	* (I don't know a way to Pause the patching process from the Magisk APK)
-	* those hacks can be done, the classical way via the script, with the working and patched ramdisk
-* If a not proper working ramdisk prevents the Magisk APK from beeing installed and starting, use the toggleRamdisk Argument to stack your patched,\
-but not yet 100% working ramdisk away, boot the AVD with the Stock ramdisk, toggleRamdisk back, and run the script with the FAKEBOOTIMG Argument
 
 ### 2 Ways to boot the AVD into Safe Mode
 * 1st Way - If the AVD still boots normal:
@@ -344,6 +339,7 @@ but not yet 100% working ramdisk away, boot the AVD with the Stock ramdisk, togg
 
 ### Change Logs
 #### [November 2022]
+* [General] - Bug fixes
 * [General] - Updated to Magisk Stable Version 25.2
 * [General] - Added FAKEBOOTIMG Use Case Examples as Gif
 * [rootAVD.sh] - Added support for adding the stub.apk if present
