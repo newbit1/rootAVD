@@ -338,6 +338,8 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 </details>
 
 ### Change Logs
+#### [December 2022]
+* [rootAVD.sh] - Fixed arithmetic syntax error in decompress_ramdisk
 #### [November 2022]
 * [General] - Bug fixes
 * [General] - Updated to Magisk Stable Version 25.2
