@@ -229,6 +229,10 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * Starting Magisk from Terminal via `adb shell monkey -p com.topjohnwu.magisk -c android.intent.category.LAUNCHER 1`
 * API 28 (Pie) is **not supported** at all -> [because](https://source.android.com/devices/bootloader/partitions/system-as-root#sar-partitioning)
 
+### Notes for Apk Developers
+* [How-To SU](http://su.chainfire.eu) from [Chainfire's](https://github.com/Chainfire) [libsuperuser](https://github.com/Chainfire/libsuperuser) - Guidelines for problem-free su usage (for Android Developers)
+* [TopJohnWu's libsu](https://github.com/topjohnwu/libsu) - An Android library providing a complete solution for apps using root permissions
+
 ### Fake Boot.img Function
 * During runtime, the script will launch the Magisk APK so that you can patch the fake Boot.img within 60s
 * The script also detects if there is already a patched Boot.img present
