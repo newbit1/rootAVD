@@ -342,6 +342,13 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 </details>
 
 ### Change Logs
+#### [April 2023]
+* [rootAVD.sh] - added support for ramdisk-qemu.img
+
+<details>
+<summary>Archive</summary>
+
+### Change Logs
 #### [December 2022]
 * [rootAVD.sh] - Fixed arithmetic syntax error in decompress_ramdisk
 #### [November 2022]
@@ -362,11 +369,6 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [General] - Bug fixes
 #### [February 2022]
 * [General] - Updated to Magisk Stable Version 24.1
-
-<details>
-<summary>Archive</summary>
-
-### Change Logs
 #### [October 2021]
 * [rootAVD.sh] - Added get Up-To-Date Script Routine if Script is broken
 * [rootAVD.sh] - Updated LZ4 decompression Routine
