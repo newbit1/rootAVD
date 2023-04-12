@@ -90,7 +90,7 @@ REM Proceed with ramdisk
 set INITRAMFS=%ROOTAVD%\initramfs.img
 if %RAMDISKIMG% (
 	REM Is it a ramdisk named file?
-	if not "%RDFFILE%" == "ramdisk.img" (
+	if not "%RDFFILE%" == "ramdisk.img" and not "%RDFFILE%" == "ramdisk-qemu.img" (
 		echo [!] please give a path to a ramdisk file
 		call :_Exit 2> nul
 	)
