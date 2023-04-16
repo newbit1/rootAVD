@@ -114,7 +114,7 @@ echo [-] run the actually Boot/Ramdisk/Kernel Image Patch Script
 echo [*] from Magisk by topjohnwu and modded by NewBit XDA
 adb shell sh %ADBBASEDIR%/rootAVD.sh %*
 
-if "%ERRORLEVEL%"=="1" (
+if "%ERRORLEVEL%"=="0" (
 	REM In Debug-Mode we can skip parts of the script
 	if not %DEBUG% (
 		if %RAMDISKIMG% (

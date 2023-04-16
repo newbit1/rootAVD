@@ -345,6 +345,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 
 ### Change Logs
 #### [April 2023]
+* [rootAVD.bat] - changed return 1 to return 0
 * [rootAVD.sh] - changed return 1 to return 0
 * [rootAVD.sh] - changed copy and move routine
 * [rootAVD.sh] - added support for ramdisk-qemu.img
