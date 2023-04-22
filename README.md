@@ -240,6 +240,9 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * The script also detects if there is already a patched Boot.img present
 * This feature lets you also update and switch between Magisk Versions
 	* Updating a patched ramdisk will delete the overlay.d folder, all mods are gone!
+* If Magisk can't open a file manager, i.e. on Automotive AVDs,
+	* download and install the famous [X-plore file manager](https://www.lonelycatgames.com/apps/xplore)
+* The script switches to user 0, so that you can see `/sdcard/Download/fakeboot.img`
 
 ### 2 Ways to boot the AVD into Safe Mode
 * 1st Way - If the AVD still boots normal:
@@ -257,7 +260,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 	* switch again to user 0
 		* open the Magisk App -> Settings -> Multiuser Mode -> **User-Independent** -> reboot AVD
 * Every time you want to Grant Su Permissions, switch to user 0 and then back to 10 `adb shell am switch-user 10`
-* Alternative, you can install the Module [magisk-single-user](https://github.com/seebz/magisk-single-user)
+* Alternative, you can install the Module [Magisk Single User Mod](https://github.com/newbit1/msum)
 	* and remove all user higher than 0 i.e. `adb shell pm remove-user 13` or `adb shell pm remove-user 10`
 
 ### BlueStacks 4 Notes on MacOs
@@ -345,6 +348,9 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 
 ### Change Logs
 #### [April 2023]
+* [General] - added link to X-plore file manager
+* [General] - added link to Magisk Single User Mod
+* [General] - added switching to user 0 when running FAKEBOOTIMG
 * [rootAVD.bat] - changed return 1 to return 0
 * [rootAVD.sh] - changed return 1 to return 0
 * [rootAVD.sh] - changed copy and move routine
