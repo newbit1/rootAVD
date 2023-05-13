@@ -4,3 +4,4 @@ initramfs.img
 bzImage
 *.rc
 libbusybox*
+sbin*
