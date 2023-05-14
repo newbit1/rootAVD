@@ -347,6 +347,9 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 </details>
 
 ### Change Logs
+#### [May 2023]
+* [rootAVD.sh] - removed Busybox from Script
+
 #### [April 2023]
 * [General] - added link to X-plore file manager
 * [General] - added link to Magisk Single User Mod
