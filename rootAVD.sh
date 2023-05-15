@@ -108,8 +108,6 @@ api_level_arch_detect() {
 	
 	AVERSION=$(getprop ro.build.version.release)	
 	
-	ARCH=arm
-  	ARCH32=armeabi-v7a
 	IS64BIT=false
 	IS64BITONLY=false
 	IS32BITONLY=false
@@ -125,6 +123,11 @@ api_level_arch_detect() {
 		ARCH=x64
 		ARCH32=x86
 		IS64BIT=true
+	else
+		ARCH=arm
+		ABI=armeabi-v7a
+		ABI32=armeabi-v7a
+		IS64BIT=false
 	fi
 
 	if [ -z "$ABILIST32" ]; then 
@@ -1070,15 +1073,15 @@ FindWorkingBusyBox() {
 # 		break
 # 	done
 
-	for file in $(ls $BASEDIR/lib/*/*busybox*); do
-		chmod +x "$file"		
+	for file in $(ls $BASEDIR/lib/$ABI/*busybox*); do
+		chmod +x "$file"	
 		bbversion=$($file | $file head -n 1)>/dev/null 2>&1
 		if [[ $bbversion == *"BusyBox"*"Magisk"*"multi-call"* ]]; then
-  			echo "[!] Found a working Busybox Version"
-  			echo "[!] $bbversion"
-  			export WorkingBusyBox="$file"
-  			break
-		fi		
+			echo "[!] Found a working Busybox Version"
+			echo "[!] $bbversion"
+			export WorkingBusyBox="$file"
+			break
+		fi
 	done
 }
 
