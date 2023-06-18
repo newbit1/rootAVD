@@ -49,9 +49,9 @@ get_flags() {
 			KEEPFORCEENCRYPT=false
 		fi
 	fi
-	
+
 	RECOVERYMODE=false
-	
+
 	if [[ $API -eq 28 ]]; then
 		RECOVERYMODE=true
 	fi
@@ -64,7 +64,7 @@ get_flags() {
 	echo "[*] KEEPFORCEENCRYPT=$KEEPFORCEENCRYPT"
 }
 
-copyARCHfiles() {	
+copyARCHfiles() {
 	BINDIR=$BASEDIR/lib/$ABI
 	ASSETSDIR=$BASEDIR/assets
 	STUBAPK=false
@@ -76,20 +76,20 @@ copyARCHfiles() {
 	elif $IS64BIT && ! $IS64BITONLY; then
 		echo "[*] copy $ARCH32 files to $BINDIR"
 		cp $BASEDIR/lib/$ARCH32/lib*32.so $BINDIR 2>/dev/null
-	fi	
-	
+	fi
+
 	cd $BINDIR
-		for file in lib*.so; do mv "$file" "${file:3:${#file}-6}"; done		
+		for file in lib*.so; do mv "$file" "${file:3:${#file}-6}"; done
 	cd $BASEDIR
 	echo "[-] copy all $ABI files from $BINDIR to $BASEDIR"
 	cp $BINDIR/* $BASEDIR 2>/dev/null
-	
+
 	if [ -e $ASSETSDIR/stub.apk ]; then
  		echo "[-] copy 'stub.apk' from $ASSETSDIR to $BASEDIR"
  		cp $ASSETSDIR/stub.apk $BASEDIR 2>/dev/null
  		STUBAPK=true
  	fi
-	
+
 	chmod -R 755 $BASEDIR
 	export STUBAPK
 }
@@ -102,16 +102,16 @@ api_level_arch_detect() {
 	ABI=$(getprop ro.product.cpu.abi)
 	ABILIST32=$(getprop ro.product.cpu.abilist32)
 	ABILIST64=$(getprop ro.product.cpu.abilist64)
-		
+
 	API=$(getprop ro.build.version.sdk)
 	FIRSTAPI=$(getprop ro.product.first_api_level)
-	
-	AVERSION=$(getprop ro.build.version.release)	
-	
+
+	AVERSION=$(getprop ro.build.version.release)
+
 	IS64BIT=false
 	IS64BITONLY=false
 	IS32BITONLY=false
-	
+
 	if [ "$ABI" = "x86" ]; then
 		ARCH=x86
 		ARCH32=x86
@@ -130,27 +130,27 @@ api_level_arch_detect() {
 		IS64BIT=false
 	fi
 
-	if [ -z "$ABILIST32" ]; then 
+	if [ -z "$ABILIST32" ]; then
 		IS64BITONLY=true
 	fi
-	
+
 	if [ -z "$ABILIST64" ]; then
 		IS32BITONLY=true
 	fi
-	
+
 	if $IS64BITONLY || $IS32BITONLY ; then
 		echo "[-] Device Platform is $ARCH only"
-	else	
+	else
 		echo "[-] Device Platform: $ARCH"
 		echo "[-] ARCH32 $ARCH32"
 	fi
 
-	echo "[-] Device SDK API: $API"	
+	echo "[-] Device SDK API: $API"
 	echo "[-] First API Level: $FIRSTAPI"
 	echo "[-] The AVD runs on Android $AVERSION"
-	
+
 	[ -d /system/lib64 ] && IS64BIT=true || IS64BIT=false
-	
+
 	export ARCH
   	export ARCH32
 	export IS64BIT
@@ -257,10 +257,10 @@ generate_build_prop() {
 	local recfstab=$BASEDIR/recovery.fstab
 	getprop > $BPR
 	sed -i -e 's/: /=/g' -e 's/\[//g' -e 's/\]//g' $BPR
-	
+
 	echo "[*] generating recovery.fstab from fstab.ranchu"
 	cp /system/vendor/etc/fstab.ranchu $recfstab
-	
+
 	echo "[-] adding Build.prop and recovery.fstab to Stock Ramdisk"
 	$BASEDIR/magiskboot cpio $CPIO \
 		"add 0644 system/build.prop build.prop" \
@@ -273,24 +273,24 @@ create_fake_boot_img() {
 	echo "[*] Creating a fake Boot.img"
 	FBHI=$BASEDIR/fakebootheader.img
 	FBI=$SDCARD/fakeboot.img
-	
+
 	echo "[-] removing old $FBI"
 	rm -f $FBI $RDF
-	
+
 	printf "\x41\x4E\x44\x52\x4F\x49\x44\x21" > $FBHI # ANDROID!
 	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI
 	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI
-	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI 
+	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI
 	printf "\x00\x00\x00\x00\x00\x08\x00\x00" >> $FBHI # 00080000 (Pagesize 2048)
 	echo "[!] Only a minimal header is required for Magisk to repack the ramdisk"
 	#mv $RDF $CPIO
 	if $DEBUG; then
 		generate_build_prop
 	fi
-	
+
 	echo "[*] repacking ramdisk.img into $FBI"
 	$BASEDIR/magiskboot repack $FBHI $FBI > /dev/null 2>&1
-	InstallMagiskTemporarily	
+	InstallMagiskTemporarily
 	detecting_users
 	runMagisk_to_Patch_fake_boot_img
 	RemoveTemporarilyMagisk
@@ -317,9 +317,9 @@ unpack_patched_ramdisk_from_fake_boot_img() {
 }
 
 process_fake_boot_img() {
-	
+
 	SDCARD=/sdcard/Download
-	
+
 	echo "[*] Processing fake Boot.img"
 	MagiskPatchedFiles=$(ls "$SDCARD"/*magisk_patched*) > /dev/null 2>&1
 	if [ "$MagiskPatchedFiles" != "" ]; then
@@ -401,17 +401,17 @@ install_apps() {
 			if [[ "$ADBECHO" == *"INSTALL_FAILED_UPDATE_INCOMPATIBLE"* ]]; then
 				echo "$ADBECHO" | while read I; do echo "[*] $I"; done
 				Package=
-				for I in $ADBECHO; do			
+				for I in $ADBECHO; do
 					if [[ "$Package" == *"Package"* ]]; then
-						echo "[*] Need to uninstall $I first"				
+						echo "[*] Need to uninstall $I first"
 						ADBECHO=$(adb uninstall $I 2>&1)
 						echo "$ADBECHO" | while read I; do echo "[*] $I"; done
-						ADBECHO=$(adb install -r -d "$f" 2>&1)					
+						ADBECHO=$(adb install -r -d "$f" 2>&1)
 						break
 					fi
 					Package=$I
 				done
-			fi	
+			fi
 		done
 		echo "$ADBECHO" | while read I; do echo "[*] $I"; done
 	done
@@ -424,7 +424,7 @@ create_backup() {
 	local BACKUPFILE=""
 	FILE="$1"
 	FILEPATH=${FILE%/*}
-	FILENAME=${FILE##*/}	
+	FILENAME=${FILE##*/}
 	BACKUPFILE="$FILENAME.backup"
 	# If no backup file exist, create one
 	if ( checkfile $FILEPATH/$BACKUPFILE -eq 0 ); then
@@ -441,7 +441,7 @@ pushtoAVD() {
 	local DST="$2"
 	local ADBPUSHECHO=""
 	SRC=${1##*/}
-		
+
 	if [[ "$DST" == "" ]]; then
 		echo "[*] Push $SRC into $ADBBASEDIR"
 		ADBPUSHECHO=$(adb push $1 $ADBBASEDIR 2>/dev/null)
@@ -449,7 +449,7 @@ pushtoAVD() {
 		echo "[*] Push $SRC into $ADBBASEDIR/$DST"
 		ADBPUSHECHO=$(adb push $1 $ADBBASEDIR/$DST 2>/dev/null)
 	fi
-	
+
 	echo "[-] $ADBPUSHECHO"
 }
 
@@ -485,14 +485,14 @@ toggle_Ramdisk() {
 	#AVDPATH=${AVDPATHWITHRDFFILE%/*}
 	#RDFFILE=${AVDPATHWITHRDFFILE##*/}
 	#RESTOREPATH=$AVDPATH
-	
+
 	local RamdiskFile="$AVDPATHWITHRDFFILE"
 	local PatchedFile="$AVDPATHWITHRDFFILE.patched"
 	local BackupFile="$AVDPATHWITHRDFFILE.backup"
-	
+
 	local hasBackup=false
 	local hasPatched=false
-	
+
 	if ( checkfile $BackupFile -eq 0 ); then
 		echo "[!] we need a valid backup file to proceed"
 		exit 0
@@ -506,7 +506,7 @@ toggle_Ramdisk() {
 		cp $BackupFile $RamdiskFile
 	else
 		echo "[*] Popping patched Ramdisk back from Stack"
-		mv -f $PatchedFile $RamdiskFile 
+		mv -f $PatchedFile $RamdiskFile
 	fi
 	exit 0
 }
@@ -519,7 +519,7 @@ TestADB() {
 	local ADB_EX=""
 
 	echo "[-] Test if ADB SHELL is working"
-	
+
 	ADBWORKS=$(which adb)
 	if [ "$ADBWORKS" == *"not found"* ] || [ "$ADBWORKS" == "" ]; then
 		if [ -d "$HOME$ADB_DIR_M" ]; then
@@ -530,7 +530,7 @@ TestADB() {
 			echo "[!] ADB not found, please install and add it to your \$PATH"
 			exit
 		fi
-		
+
 		cd $HOME > /dev/null
 			for adb in $(find $ADB_DIR -type f -name adb); do
 				ADB_EX="~/$adb"
@@ -541,7 +541,7 @@ TestADB() {
 			echo "[!] ADB binary not found in ~/$ADB_DIR"
 			exit
 		fi
-		
+
   		echo "[!] ADB is not in your Path, try to"
   		echo "export PATH=~/$ADB_DIR:\$PATH"
   		echo ""
@@ -560,22 +560,22 @@ MakeBlueStacksRW() {
 	if ( checkfile $BLUESTACKSPATH/$AVBOXFILE -eq 0 ); then
 		echo "[!] $AVBOXFILE not found"
 		echo "[!] check your BlueStacks installation"
-		exit 0	
+		exit 0
 	fi
 	echo "[!] $AVBOXFILE found"
 	create_backup $AVBOX
 	echo "[*] Changing $ROOTVDIFILE type to \"Normal\""
-	sed 's,location="Root.vdi" format="VDI" type="Readonly",location="Root.vdi" format="VDI" type="Normal",' $AVBOX > $AVBOX".edit" 
+	sed 's,location="Root.vdi" format="VDI" type="Readonly",location="Root.vdi" format="VDI" type="Normal",' $AVBOX > $AVBOX".edit"
 	mv $AVBOX".edit" $AVBOX
 }
 
 ShutDownAVD() {
-	
+
 	if ( "$BLUESTACKS" ); then
 		echo "[-] Shut-Down & Reboot BlueStacks and see if it worked"
 		echo "[-] Root and Su with Magisk for BlueStacks"
-		
-		APPNAME=BlueStacks.app	
+
+		APPNAME=BlueStacks.app
 		if [ $(ps aux | grep -v grep | grep -c $APPNAME) -gt 0 ]; then
 			echo "[-] Trying to shut down BlueStacks"
 			pkill -x BlueStacks
@@ -589,49 +589,49 @@ ShutDownAVD() {
 	else
 		echo "[-] Shut-Down & Reboot (Cold Boot Now) the AVD and see if it worked"
 		echo "[-] Root and Su with Magisk for Android Studio AVDs"
-		
+
 		ADBPULLECHO=$(adb shell setprop sys.powerctl shutdown 2>/dev/null)
 		if [[ ! "$ADBPULLECHO" == *"error"* ]]; then
 			echo "[-] Trying to shut down the AVD"
 		fi
-		echo "[!] If the AVD doesn't shut down, try it manually!"		
+		echo "[!] If the AVD doesn't shut down, try it manually!"
 	fi
 	echo "[-] Modded by NewBit XDA - Jan. 2021"
 	echo "[!] Huge Credits and big Thanks to topjohnwu, shakalaca, vvb2060 and HuskyDG"
 }
 
 CopyMagiskToAVD() {
-	# Set Folders and FileNames	
+	# Set Folders and FileNames
 	echo "[*] Set Directorys"
 	if ( "$BLUESTACKS" ); then
 		# BlueStacks has its ramdisk.img within, no AVD Path needed
-		# but the VBOX container Root.vdi should be backuped		
+		# but the VBOX container Root.vdi should be backuped
 		BLUESTACKSROOTVDIFILE=~/Library/BlueStacks/Android/Root.vdi
 		AVBOX=~/Library/BlueStacks/Android/Android.vbox
 		AVBOXFILE=${AVBOX##*/}
 		BLUESTACKSPATH=${BLUESTACKSROOTVDIFILE%/*}
 		ROOTVDIFILE=${BLUESTACKSROOTVDIFILE##*/}
 		RESTOREPATH=$BLUESTACKSPATH
-	else			
+	else
 		AVDPATHWITHRDFFILE="$1"
 		AVDPATH=${AVDPATHWITHRDFFILE%/*}
 		RDFFILE=${AVDPATHWITHRDFFILE##*/}
 		RESTOREPATH=$AVDPATH
 	fi
-	
+
 	if ( "$restore" ); then
 		restore_backups $RESTOREPATH
 	fi
-	
+
 	if ( "$toggleRamdisk" ); then
 		toggle_Ramdisk $RESTOREPATH
 	fi
-	
+
 	if ( "$BLUESTACKS" ); then
 		if ( checkfile $BLUESTACKSPATH/$ROOTVDIFILE -eq 0 ); then
 			echo "[!] $ROOTVDIFILE not found"
 			echo "[!] check your BlueStacks installation"
-			exit		
+			exit
 		fi
 		echo "[!] $ROOTVDIFILE found"
 		create_backup $BLUESTACKSROOTVDIFILE
@@ -657,12 +657,12 @@ CopyMagiskToAVD() {
 
 	ADBWORKDIR=/data/data/com.android.shell
 	adb shell "cd $ADBWORKDIR" 2>/dev/null
-	
+
 	if [ "$?" != "0" ]; then
 		echo "[!] $ADBWORKDIR doesn't exist, switching to tmp'"
 		ADBWORKDIR=/data/local/tmp
 	fi
-	 
+
 	ADBBASEDIR=$ADBWORKDIR/Magisk
 	echo "[-] In any AVD via ADB, you can execute code without root in $ADBWORKDIR"
 
@@ -671,7 +671,7 @@ CopyMagiskToAVD() {
 
 	echo "[*] Creating the ADB working space"
 	adb shell mkdir $ADBBASEDIR
-	
+
 	# If Magisk.zip file doesn't exist, just ignore it
 	if ( ! checkfile $MAGISKZIP -eq 0 ); then
 		echo "[-] Magisk installer Zip exists already"
@@ -705,11 +705,11 @@ CopyMagiskToAVD() {
 	fi
 
 	pushtoAVD "rootAVD.sh"
-	
+
 	if ( "$UpdateBusyBoxScript" ); then
-		pushtoAVD "libbusybox*.so"	
+		pushtoAVD "libbusybox*.so"
 	fi
-	
+
 	echo "[-] run the actually Boot/Ramdisk/Kernel Image Patch Script"
 	echo "[*] from Magisk by topjohnwu and modded by NewBit XDA"
 
@@ -719,9 +719,9 @@ CopyMagiskToAVD() {
 		if ( "$UpdateBusyBoxScript" ); then
 			pullfromAVD "bbscript.sh" "rootAVD.sh"
 			chmod +x rootAVD.sh
-			exit	
+			exit
 		fi
-		
+
 		if ( ! "$DEBUG" && "$BLUESTACKS" ); then
 			pullfromAVD "Magisk.apk" "Apps/"
 			pullfromAVD "Magisk.zip" $ROOTAVD
@@ -731,7 +731,7 @@ CopyMagiskToAVD() {
 			ShutDownAVD
 			adb kill-server
 		fi
-				
+
 		# In Debug-Mode we can skip parts of the script
 		if ( ! "$DEBUG" && "$RAMDISKIMG" ); then
 
@@ -780,7 +780,7 @@ json_value() {
     $BB grep -o "\"""${1}""\"\:.*" | $BB sed -e "s/.*\"""${1}""\": //" -e 's/[",]*$//' -e 's/["]*$//' -e 's/[,]*$//' -e "s/\"//" -n -e "${2}"p
 }
 
-CheckAVDIsOnline() {	
+CheckAVDIsOnline() {
 	if [ -z $AVDIsOnline ]; then
 		echo "[-] Checking AVDs Internet connection..."
 		AVDIsOnline=false
@@ -861,10 +861,10 @@ FetchMagiskDLData() {
 	local VER_CODE=""
 	local DLL=""
 	local i=1
-	
+
 	rm -rf *.json > /dev/null 2>&1
 	$BB wget -q --no-check-certificate $SRCURL$JSON
-	
+
 	VER=$(json_value "version" < $JSON)
 	VER_CODE=$(json_value "versionCode" 1 < $JSON)
 	DLL=$(json_value "link" 1 < $JSON)
@@ -873,11 +873,11 @@ FetchMagiskDLData() {
 	if ! echo $DLL | $BB grep -q 'https'; then
 		DLL=$SRCURL$DLL
 	fi
-	
+
 	if [ -e $MAGISK_DL_LINKS ]; then
 		echo $DLL >> $MAGISK_DL_LINKS
 		echo $VER >> $MAGISK_VERSIONS
-		echo $CHANNEL >> $MAGISK_CHANNEL		
+		echo $CHANNEL >> $MAGISK_CHANNEL
 		i=$($BB sed -n '$=' $MAGISK_DL_LINKS)
 		echo "[$i] $CHANNEL $VER" >> $MAGISK_MENU
 	else
@@ -886,18 +886,18 @@ FetchMagiskDLData() {
 			echo $MAGISK_LOCL_VER > $MAGISK_VERSIONS
 			echo "local "$CHANNEL > $MAGISK_CHANNEL
 			echo "[$i] local $CHANNEL $MAGISK_LOCL_VER (ENTER)" > $MAGISK_MENU
-			i=$((i+1))			
+			i=$((i+1))
 		fi
 		echo $DLL >> $MAGISK_DL_LINKS
 		echo $VER >> $MAGISK_VERSIONS
-		echo $CHANNEL >> $MAGISK_CHANNEL		
+		echo $CHANNEL >> $MAGISK_CHANNEL
 		if [[ "$i" == "1" ]]; then
-			
+
 			echo "[$i] $CHANNEL $VER (ENTER)" >> $MAGISK_MENU
 		else
 			#echo $CHANNEL > $MAGISK_CHANNEL
 			echo "[$i] $CHANNEL $VER" >> $MAGISK_MENU
-		fi		
+		fi
 	fi
 	rm -rf *.json > /dev/null 2>&1
 }
@@ -911,10 +911,10 @@ FetchMagiskRLCommits() {
 	local JSON="$CHANNEL.json"
 	local REPOURL="$5"
 	local COMMITS=""
-	
+
 	rm -rf $JSON
 	$BB wget -q --no-check-certificate $DOMAIN$COMMITSURL$JSON
-	
+
 	COMMITS=$($BB grep $BLOBURL $JSON | $BB sed -e 's,.*'"$BLOBURL"',,' -e 's,'"$JSON"'.*,,')
 
 	for commit in $COMMITS;do
@@ -928,13 +928,13 @@ CheckAvailableMagisks() {
 	MAGISK_DL_LINKS=$BASEDIR/magisk_dl_links.txt
 	MAGISK_MENU=$BASEDIR/magisk_menu.txt
 	MAGISK_CHANNEL=$BASEDIR/magisk_channel.txt
-	
+
 	local GITHUB="https://github.com/"
 	RAWGITHUB="https://raw.githubusercontent.com/"
-	local TJWREPOURL="topjohnwu/magisk-files/"	
+	local TJWREPOURL="topjohnwu/magisk-files/"
 	local TJWCOMMITSURL="topjohnwu/magisk-files/commits/master/"
 	local TJWBLOBURL="topjohnwu/magisk-files/blob/"
-	
+
 	local VVB2060REPOURL="vvb2060/magisk_files/"
 	local VVB2060COMMITSURL="vvb2060/magisk_files/commits/alpha/"
 	local VVB2060BLOBURL="vvb2060/magisk_files/blob/"
@@ -946,11 +946,11 @@ CheckAvailableMagisks() {
 		OF=$BASEDIR/download.tmp
 		BS=1024
 		CUTOFF=100
-		
+
 		if [ -e $UFSH ]; then
 			MAGISK_LOCL_VER=$($BB grep $UFSH -e "MAGISK_VER" -w | sed 's/^.*=//')
 			MAGISK_LOCL_VER_CODE=$($BB grep $UFSH -e "MAGISK_VER_CODE" -w | sed 's/^.*=//')
-			MAGISK_LOCL_VER=$(GetPrettyVer $MAGISK_LOCL_VER $MAGISK_LOCL_VER_CODE)		
+			MAGISK_LOCL_VER=$(GetPrettyVer $MAGISK_LOCL_VER $MAGISK_LOCL_VER_CODE)
 		else
 			MAGISK_LOCL_VER=""
 			MAGISK_LOCL_VER_CODE=""
@@ -961,18 +961,18 @@ CheckAvailableMagisks() {
 			echo "[!] Checking available Magisk Versions"
 
 			rm *.txt > /dev/null 2>&1
-			
+
 			FetchMagiskDLData $RAWGITHUB$TJWREPOURL"master/" "stable"
 			FetchMagiskDLData $RAWGITHUB$TJWREPOURL"master/" "canary"
 			FetchMagiskDLData $RAWGITHUB$VVB2060REPOURL"alpha/" "alpha"
-			
+
 			while :
 			do
 				DLL_cnt=$($BB sed -n '$=' $MAGISK_DL_LINKS)
 				echo "[?] Choose a Magisk Version to install and make it local"
 				echo "[s] (s)how all available Magisk Versions"
 				cat $MAGISK_MENU
-				read -t 10 choice		
+				read -t 10 choice
 				case $choice in
 					*)
 						if [[ "$choice" == "" ]]; then
@@ -983,14 +983,14 @@ CheckAvailableMagisks() {
 							MAGISK_VER=$($BB sed "$choice"'!d' $MAGISK_VERSIONS)
 							MAGISK_CNL=$($BB sed "$choice"'!d' $MAGISK_CHANNEL)
 							echo "[-] You choose Magisk $MAGISK_CNL Version $MAGISK_VER"
-							
+
 							MAGISK_DL=$($BB sed "$choice"'!d' $MAGISK_DL_LINKS)
 							if [[ "$MAGISK_DL" == "local" ]]; then
 								MAGISKVERCHOOSEN=false
-							fi							
+							fi
 							break
 						fi
-						
+
 						if [[ "$choice" == "s" ]]; then
 							echo "[!] Fetching all available Magisk Versions..."
 							rm *.txt > /dev/null 2>&1
@@ -1044,45 +1044,80 @@ CheckAvailableMagisks() {
 }
 
 InstallMagiskTemporarily() {
+	magiskispreinstalled=false
+
+	echo "[*] Searching for pre installed Magisk Apps"
 	PKG_NAMES=$(pm list packages magisk | cut -f 2 -d ":") > /dev/null 2>&1
 	PKG_NAME=""
-	echo "[!] Temporarily installing Magisk"
-	
-	for PKG_NAME in $PKG_NAMES; do
-		pm clear $PKG_NAME >/dev/null 2>&1
-		pm uninstall $PKG_NAME >/dev/null 2>&1
-	done	
 
-	pm install -r $MZ >/dev/null 2>&1
-	PKG_NAME=$(pm list packages magisk | cut -f 2 -d ":") > /dev/null 2>&1	
+	if [[ "$PKG_NAMES" == "" ]]; then
+		echo "[!] Temporarily installing Magisk"
+		pm install -r $MZ >/dev/null 2>&1
+		PKG_NAME=$(pm list packages magisk | cut -f 2 -d ":") > /dev/null 2>&1
+	else
+		#for PKG_NAME in $PKG_NAMES; do
+		#	pm clear $PKG_NAME >/dev/null 2>&1
+		#	pm uninstall $PKG_NAME >/dev/null 2>&1
+		#done
+		echo "[!] Found a pre installed Magisk App, use it"
+		PKG_NAME=$PKG_NAMES
+		magiskispreinstalled=true
+	fi
 }
 
 RemoveTemporarilyMagisk() {
-	echo "[!] Removing Temporarily installed Magisk"
-	pm clear $PKG_NAME >/dev/null 2>&1
-	pm uninstall $PKG_NAME >/dev/null 2>&1
+
+	if ! $magiskispreinstalled; then
+		echo "[!] Removing Temporarily installed Magisk"
+		pm clear $PKG_NAME >/dev/null 2>&1
+		pm uninstall $PKG_NAME >/dev/null 2>&1
+	fi
+}
+
+TestingBusyBoxVersion() {
+
+	local busyboxworks=false
+	local RESULT=""
+	echo "[*] Testing Busybox ..."
+
+	rm -fR $TMP
+	mkdir -p $TMP
+
+	cd $TMP > /dev/null
+		$($1 unzip $MZ -oq > /dev/null 2>&1)
+		RESULT="$?"
+		if [[ "$RESULT" != "0" ]]; then
+			echo "[!] Busybox binary does not support extracting Magisk.zip"
+		else
+			busyboxworks=true
+		fi
+	cd - > /dev/null
+
+	rm -fR $TMP
+	$busyboxworks && return 0 || return 1
 }
 
 FindWorkingBusyBox() {
 	echo "[*] Finding a working Busybox Version"
 	local bbversion=""
-	
-# 	for file in $(ls $BASEDIR/lib/*/*busybox*); do
-# 		echo "[*] Extracting Magisk.zip ..."
-# 		$file unzip $MZ -oq
-# 		break
-# 	done
+	local RESULT=""
 
-	for file in $(ls $BASEDIR/lib/$ABI/*busybox*); do
-		chmod +x "$file"	
+	for file in $(ls $BASEDIR/lib/*/*busybox*); do
+		chmod +x "$file"
 		bbversion=$($file | $file head -n 1)>/dev/null 2>&1
 		if [[ $bbversion == *"BusyBox"*"Magisk"*"multi-call"* ]]; then
-			echo "[!] Found a working Busybox Version"
-			echo "[!] $bbversion"
-			export WorkingBusyBox="$file"
-			break
+			TestingBusyBoxVersion "$file"
+			RESULT="$?"
+			if [[ "$RESULT" == "0" ]]; then
+				echo "[!] Found a working Busybox Version"
+				echo "[!] $bbversion"
+				export WorkingBusyBox="$file"
+				return
+			fi
 		fi
 	done
+	echo "[!] Can not find any working Busybox Version"
+	abort_script
 }
 
 ExtractMagiskViaPM() {
@@ -1097,15 +1132,15 @@ ExtractMagiskViaPM() {
 
 DownloadUptoDateSript() {
 	echo "[*] Trying to Download the Up-To-Date Script Version"
-	
+
 	local DLL_URL="https://github.com/newbit1/rootAVD/raw/master/"
 	local DLL_SCRIPT="rootAVD.sh"
 	local DLL_ROOTAVD_ZIP="https://github.com/newbit1/rootAVD/archive/refs/heads/master.zip"
 	local PKG_PATH=""
-	
+
 	ExtractMagiskViaPM
 	FindWorkingBusyBox
-	CopyBusyBox	
+	CopyBusyBox
 	DownLoadFile $DLL_URL $DLL_SCRIPT
 }
 
@@ -1119,7 +1154,7 @@ ExtractBusyboxFromScript() {
 	bblineoffset=$(sed -n '/BUSYBOXBINARY/=' $BBSCR | sort -nr)
 	bbline_cnt=$(sed -n '/BUSYBOXBINARY/=' $BBSCR | sort -nr | sed -n '$=')
 
-	if [[ "$bbline_cnt" -gt "3" ]]; then	
+	if [[ "$bbline_cnt" -gt "3" ]]; then
 		echo "[*] Extracting busybox from script ..."
 		for i in $bblineoffset;do
 			cp $BBSCR busybox
@@ -1132,12 +1167,12 @@ ExtractBusyboxFromScript() {
 			fi
 		done
 	fi
-	
+
 	$($BB >/dev/null 2>&1)
 	if [[ ! "$?" == "0" ]]; then
 		echo "[!] There is no busybox behind the script"
 		#echo "[!] Run rootAVD with UpdateBusyBoxScript first"
-		DownloadUptoDateSript	
+		DownloadUptoDateSript
 	fi
 }
 
@@ -1147,26 +1182,26 @@ UpdateBusyBoxToScript() {
 	local last_line=""
 	cp $0 $BBSCR
 	chmod +x libbusybox*.so
-	
+
 	# Find the first working busybox binary
-	for file in libbusybox*.so; do 
+	for file in libbusybox*.so; do
 		cp -fF $file $BB
 		$($BB >/dev/null 2>&1)
 		if [[ "$?" == "0" ]]; then
 			echo "[!] Found a working busybox Binary: $file"
 			echo "[!] $($BB | $BB head -n 1)"
-			break	
+			break
 		fi
 	done
-	
+
 	$($BB >/dev/null 2>&1)
 	if [[ ! "$?" == "0" ]]; then
 		echo "[!] Can't find a working busybox Binary"
-		exit 0		
+		exit 0
 	fi
-		
+
 	# Add every provided busybox binary behind the script
-	for file in libbusybox*.so; do 
+	for file in libbusybox*.so; do
 		echo "" >> $BBSCR
 		echo "###BUSYBOXBINARY###" >> $BBSCR
 		FSIZE=$(./busybox stat $BBSCR -c %s)
@@ -1180,7 +1215,7 @@ CopyBusyBox() {
 	echo "[*] Copy busybox from lib to workdir"
 # 	if [ -e $BASEDIR/lib ]; then
 # 		chmod -R 755 $BASEDIR/lib
-# 		cp -f $BASEDIR/lib/$ABI/libbusybox.so $BB >/dev/null 2>&1	
+# 		cp -f $BASEDIR/lib/$ABI/libbusybox.so $BB >/dev/null 2>&1
 # 		$BB >/dev/null 2>&1 && return || cp -f $BASEDIR/lib/$ARCH32/libbusybox.so $BB >/dev/null 2>&1
 # 		$BB >/dev/null 2>&1 && return || cp -f $BASEDIR/lib/$ARCH/libbusybox.so $BB >/dev/null 2>&1
 # 	fi
@@ -1192,7 +1227,7 @@ MoveBusyBox() {
 	echo "[*] Move busybox from lib to workdir"
 # 	if [ -e $BASEDIR/lib ]; then
 # 		chmod -R 755 $BASEDIR/lib
-# 		mv -f $BASEDIR/lib/$ABI/libbusybox.so $BB >/dev/null 2>&1	
+# 		mv -f $BASEDIR/lib/$ABI/libbusybox.so $BB >/dev/null 2>&1
 # 		$BB >/dev/null 2>&1 && return || mv -f $BASEDIR/lib/$ARCH32/libbusybox.so $BB >/dev/null 2>&1
 # 		$BB >/dev/null 2>&1 && return || mv -f $BASEDIR/lib/$ARCH/libbusybox.so $BB >/dev/null 2>&1
 # 	fi
@@ -1206,9 +1241,9 @@ FindUnzip() {
 		echo "[*] Looking for an unzip binary"
 		$(which unzip > /dev/null 2>&1)
 		RESULT="$?"
-		
+
 		if [[ "$RESULT" == "0" ]]; then
-			echo "[-] unzip binary found"	
+			echo "[-] unzip binary found"
 			echo "[*] Extracting busybox and Magisk.zip via unzip ..."
 			$(unzip $MZ -oq > /dev/null 2>&1)
 			RESULT="$?"
@@ -1216,23 +1251,23 @@ FindUnzip() {
 				echo "[!] unzip binary does not support extracting Magisk.zip"
 				exit 1
 			else
-				FindWorkingBusyBox	
-			fi			
+				FindWorkingBusyBox
+			fi
 		else
 			echo "[-] No unzip binary found"
 		fi
-		
+
 		if [[ "$RESULT" != "0" ]]; then
 			ExtractMagiskViaPM
 			FindWorkingBusyBox
-			CopyBusyBox			
+			CopyBusyBox
 			echo "[*] Extracting Magisk.zip via Busybox ..."
-			$($BB unzip $MZ -oq > /dev/null 2>&1)		
+			$($BB unzip $MZ -oq > /dev/null 2>&1)
 			RESULT="$?"
 			if [[ "$RESULT" != "0" ]]; then
 				echo "[!] Busybox binary does not support extracting Magisk.zip"
 				exit 1
-			fi	
+			fi
 		fi
 	else
 		echo "[!] No Magisk.zip present"
@@ -1250,17 +1285,17 @@ PrepBusyBoxAndMagisk() {
 	BB=$BASEDIR/busybox
 	MZ=$BASEDIR/Magisk.zip
 	cd $BASEDIR
-	
+
 	if ("$UpdateBusyBoxScript"); then
 		UpdateBusyBoxToScript $@
-		exit 1	
+		exit 1
 	fi
-	
+
 	rm -rf lib assets
-	FindUnzip		
-	MoveBusyBox	
-	
-	chmod -R 755 $BASEDIR	
+	FindUnzip
+	MoveBusyBox
+
+	chmod -R 755 $BASEDIR
 	CheckAvailableMagisks
 }
 
@@ -1271,11 +1306,11 @@ ExecBusyBoxAsh() {
 	export TMP
 	export BB
 	export MZ
-		
+
 	if [ "$DERIVATE" == "BlueStacks" ]; then
 		CheckBlueStacksSUBinary
 		echo "[*] Re-Run rootAVD in Magisk Busybox STANDALONE (D)ASH as Root"
-		exec $SU 0 $BB sh $0 $@	
+		exec $SU 0 $BB sh $0 $@
 	fi
 	echo "[*] Re-Run rootAVD in Magisk Busybox STANDALONE (D)ASH"
 	exec $BB sh $0 $@
@@ -1325,14 +1360,14 @@ decompress_ramdisk(){
 		echo "[-] Multiple cpio archives detected"
 		REPACKRAMDISK=1
 	  fi
-	fi	
-	
+	fi
+
 	if [ "$DERIVATE" == "BlueStacks" ]; then
 		$RAMDISK_GZ && gzip -fdk $RDF$ENDG
 		COUNT=`strings -t d $RDF | grep TRAILER | wc -l`
 		REPACKRAMDISK=1
-	fi	
-	
+	fi
+
 	if [[ -n "$REPACKRAMDISK" ]]; then
 		$RAMDISK_GZ && rm $RDF$ENDG
 	  	echo "[*] Unpacking ramdisk .."
@@ -1342,11 +1377,11 @@ decompress_ramdisk(){
 	  	IBS=1
 	  	OBS=4096
 	  	OF=$TMP/temp$ENDG
-		
-	  	RAMDISKS=`strings -t d $RDF | grep TRAILER | sed 's|TRAILER.*|TRAILER|'`	  	
+
+	  	RAMDISKS=`strings -t d $RDF | grep TRAILER | sed 's|TRAILER.*|TRAILER|'`
 
 	  	for OFFSET in $RAMDISKS; do
-	  		
+
 			# calculate offset to next archive
 			if [ `echo "$OFFSET" | grep TRAILER` ]; then
 				# find position of end of TRAILER!!! string in image
@@ -1363,7 +1398,7 @@ decompress_ramdisk(){
 						break
 					done
 					LASTINDEX=$((START+HEAD))
-				fi	
+				fi
 		  		continue
 			fi
 
@@ -1371,13 +1406,13 @@ decompress_ramdisk(){
 			$RAMDISK_GZ && BLOCKS=$(((OFFSET+128)/IBS))
 			if $RAMDISK_LZ4; then
 				if [ $LASTINDEX == "0" ]; then
-					echo "[*] Searching for the real End of the 1st Archive"				
+					echo "[*] Searching for the real End of the 1st Archive"
 					while [ $LASTINDEX == "0" ]; do
 						FIRSTFILEBYTES=$(xxd -p -c8 -l8 -s "$OFFSET" "$RDF")
 						FIRSTFILEBYTES="${FIRSTFILEBYTES:0:8}"
 						if [ "$FIRSTFILEBYTES" == "$COMPRESS_SIGN" ]; then
-							break		
-						fi		
+							break
+						fi
 						OFFSET=$((OFFSET+1))
 					done
 				fi
@@ -1387,17 +1422,17 @@ decompress_ramdisk(){
 			# extract and dump
 			echo "[-] Dumping from $LASTINDEX to $BLOCKS .."
 			dd if=$RDF skip=$LASTINDEX count=$BLOCKS ibs=$IBS obs=$OBS of=$OF > /dev/null 2>&1
-					
+
 			cd $TMP/ramdisk > /dev/null
 				$RAMDISK_GZ && cat $OF | $BASEDIR/busybox cpio -i > /dev/null 2>&1
-				if $RAMDISK_LZ4; then	
+				if $RAMDISK_LZ4; then
 					$BASEDIR/magiskboot decompress $OF $OF.cpio
 					$BASEDIR/busybox cpio -F $OF.cpio -i > /dev/null 2>&1
 				fi
 			cd - > /dev/null
 
 			LASTINDEX=$OFFSET
-	  	done	  	
+	  	done
 		repack_ramdisk
 	else
 		echo "[*] After decompressing ramdisk.img, magiskboot will work"
@@ -1445,14 +1480,14 @@ apply_ramdisk_hacks() {
 			#echo "$f" > $CSTRC
 			$BASEDIR/magiskboot cpio ramdisk.cpio "add 0755 overlay.d/$f $f"
 		done
-		
+
 		if [ -d $BASEDIR/sbin ]; then
 			echo "[*] adding sbin files to ramdisk"
 			for f in sbin/*; do
 			$BASEDIR/magiskboot cpio ramdisk.cpio "add 0755 overlay.d/$f $f"
-			done		
+			done
 		fi
-		#$BASEDIR/magiskboot cpio ramdisk.cpio "add 0755 overlay.d/$CSTRC $CSTRC"		
+		#$BASEDIR/magiskboot cpio ramdisk.cpio "add 0755 overlay.d/$CSTRC $CSTRC"
 		echo "[-] overlay adding complete"
 		#echo "[-] jumping back to patching ramdisk for magisk init"
 	#else
@@ -1470,7 +1505,7 @@ verify_ramdisk_origin() {
 	local KRNRDF=""
 	echo "[-] This AVD = $KRNAVD"
 	KRNRDF=$(cat $CPIO | strings | grep -m 1 vermagic= | sed 's/vermagic=//;s/ .*$//')
-	
+
 	if [ "$KRNRDF" != "" ]; then
 		echo "[-]  Ramdisk = $KRNRDF"
 		if [ "$KRNAVD" == "$KRNRDF" ]; then
@@ -1533,9 +1568,9 @@ patching_ramdisk(){
 	# actually here is the SHA of the bootimage generated
 	# we only have one file, so it could make sense
 	[ ! -z $SHA1 ] && echo "SHA1=$SHA1" >> config
-	
+
 	# Compress to save precious ramdisk space
-	
+
 	if $IS32BITONLY || ! $IS64BITONLY ; then
 		$BASEDIR/magiskboot compress=xz magisk32 magisk32.xz
 	fi
@@ -1546,21 +1581,21 @@ patching_ramdisk(){
 
 	$IS64BITONLY && SKIP32="#" || SKIP32=""
 	$IS64BIT && SKIP64="" || SKIP64="#"
-	
+
 	if $STUBAPK; then
 		echo "[!] stub.apk is present, compress and add it to ramdisk"
 		$BASEDIR/magiskboot compress=xz stub.apk stub.xz
 	fi
-	
+
 	$STUBAPK && SKIPSTUB="" || SKIPSTUB="#"
 
 	# Here gets the ramdisk.img patched with the magisk su files and stuff
-	
+
 	echo "[*] adding overlay.d/sbin folders to ramdisk"
 	$BASEDIR/magiskboot cpio ramdisk.cpio \
 	"mkdir 0750 overlay.d" \
 	"mkdir 0750 overlay.d/sbin"
-	
+
 	apply_ramdisk_hacks
 
 	echo "[!] patching the ramdisk with Magisk Init"
@@ -1612,15 +1647,15 @@ find_next_pages() {
 	local TMPHTML="tmp.html"
 	rm -rf $TMPHTML
 	NEXTPAGESRC=$(strip_next_pages $1)
-	
+
 	echo "[-] Find Next Page(s)"
-	while [[ "$NEXTPAGESRC" != "" ]]; do				
+	while [[ "$NEXTPAGESRC" != "" ]]; do
 		NEXTPAGESRC=$(echo $NEXTPAGESRC | sed -e 's/.*href=\"/\1/' -e 's/\">Next.*//')
 		#echo $NEXTPAGESRC
 		DownLoadFile $URL $NEXTPAGESRC $TMPHTML
 		strip_html_links $TMPHTML
 		cat $TMPHTML >> $1
-		NEXTPAGESRC=$(strip_next_pages $TMPHTML)					
+		NEXTPAGESRC=$(strip_next_pages $TMPHTML)
 	done
 }
 
@@ -1636,14 +1671,14 @@ update_lib_modules() {
 			local majmin=${unameR%.*}
 			#majmin=5.15
 			local installedbuild=${unameR##*ab}
-			
+
 			echo "[*] Fetching Kernel Data:"
 			echo "[-]              Android: $AVERSION"
 			echo "[-]                 Arch: $KERNEL_ARCH"
 			echo "[-]                Uname: $unameR"
 			echo "[-]              Version: $majmin"
 			echo "[-]        Build Version: $installedbuild"
-			
+
 			local URL="https://android.googlesource.com"
 			#local TAG="android$AVERSION-mainline-sdkext-release"
 			local TAG="android$AVERSION-gsi"
@@ -1673,16 +1708,16 @@ update_lib_modules() {
 			local ker_line_cnt=""
 			local mod_line_cnt=""
 			local i=""
-			
+
 
 			DownLoadFile $URL $KERSRC $KERPREMASHTML
-			strip_html_links $KERPREMASHTML			
-			find_next_pages $KERPREMASHTML $URL			
+			strip_html_links $KERPREMASHTML
+			find_next_pages $KERPREMASHTML $URL
 			strip_kernel_builds $KERPREMASHTML
-			
-			DownLoadFile $URL $MODSRC $MODPREMASHTML			
+
+			DownLoadFile $URL $MODSRC $MODPREMASHTML
 			strip_html_links $MODPREMASHTML
-			find_next_pages $MODPREMASHTML $URL	
+			find_next_pages $MODPREMASHTML $URL
 			strip_kernel_builds $MODPREMASHTML
 
 			ker_line_cnt=$(sed -n '$=' $KERPREMASHTML)
@@ -1774,7 +1809,7 @@ update_lib_modules() {
 		fi
 
 		echo "[-] Extracting Modules from $INITRAMFS"
-		
+
 		cd $TMP/initramfs > /dev/null
 			$BASEDIR/magiskboot decompress initramfs.cpio$CMPRMTH
 			$BASEDIR/busybox cpio -F initramfs.cpio -i *lib* > /dev/null 2>&1
@@ -1785,14 +1820,14 @@ update_lib_modules() {
 			rm -rf bzImage 2>/dev/null
 			return 0
 		fi
-		
+
 		# If Stock or patched Status
 		if $PATCHEDBOOTIMAGE; then
 			# If it is a already patched ramdisk
 			if [ ! -e "$TMP/ramdisk" ]; then
 				mkdir -p $TMP/ramdisk
 			fi
-			
+
 			echo "[*] Extracting Modules from patched ramdisk.img"
 			cd $TMP/ramdisk > /dev/null
 				$BASEDIR/busybox cpio -F $CPIO -i *lib* > /dev/null 2>&1
@@ -1802,10 +1837,10 @@ update_lib_modules() {
 			echo "[*] Extracting Modules from Stock ramdisk.img"
 			extract_stock_ramdisk
 		fi
-				
+
 		OLDVERMAGIC=$(cat $(find $TMP/ramdisk/. -name '*.ko' | head -n 1 2> /dev/null) | strings | grep vermagic= | sed 's/vermagic=//;s/ .*$//' 2> /dev/null)
 		OLDANDROID=$(cat $(find $TMP/ramdisk/. -name '*.ko' | head -n 1 2> /dev/null) | strings | grep 'Android (' | sed 's/ c.*$//' 2> /dev/null)
-		
+
 		# If Stock or patched Status
 		if $PATCHEDBOOTIMAGE; then
 			# If it is a already patched ramdisk
@@ -1816,10 +1851,10 @@ update_lib_modules() {
 			echo "[*] Removing Modules from Stock ramdisk.img"
 			rm -f $TMP/ramdisk/lib/modules/*
 		fi
-		
+
 		echo "[!] $OLDVERMAGIC"
 		echo "[!] $OLDANDROID"
-		
+
 		echo "[-] Installing new Modules into ramdisk.img"
 		cd $TMP/initramfs > /dev/null
 			find ./lib/modules -type f -name '*' -exec cp {} . \;
@@ -1857,7 +1892,7 @@ update_lib_modules() {
 		else
 			# If it is a Stock Ramdisk
 			repack_ramdisk
-		fi		
+		fi
 	fi
 }
 
@@ -1872,9 +1907,9 @@ random() {
 	NUM="0123456789"; NUMC=10
 	COUNT=$(seq 1 1 $VALUE)
 	list_pick=$HEX; C=$HEXC
-	[ "$TYPE" == "char" ] &&  list_pick=$CHAR && C=$CHARC 
-	[ "$TYPE" == "number" ] && list_pick=$NUM && C=$NUMC 
-	[ "$TYPE" == "custom" ] && list_pick="$PICK" && C=$PICKC 
+	[ "$TYPE" == "char" ] &&  list_pick=$CHAR && C=$CHARC
+	[ "$TYPE" == "number" ] && list_pick=$NUM && C=$NUMC
+	[ "$TYPE" == "custom" ] && list_pick="$PICK" && C=$PICKC
 		  for i in $COUNT; do
 			  random_pick=$(( $RANDOM % $C))
 			  echo -n ${list_pick:$random_pick:1}
@@ -1909,7 +1944,7 @@ for module in \$(ls /data/adb/modules); do
                   echo \"## * module sepolicy: \$module\" >>\"\$MAGISKTMP/.magisk/sepolicy.rules\"
                   cat  \"/data/adb/modules/\$module/sepolicy.rule\" >>\"\$MAGISKTMP/.magisk/sepolicy.rules\"
                   echo \"\" >>\"\$MAGISKTMP/.magisk/sepolicy.rules\"
-                  
+
               fi
           done
 \$MAGISKTMP/magiskpolicy --live --apply \"\$MAGISKTMP/.magisk/sepolicy.rules\""
@@ -1945,7 +1980,7 @@ test ! -d \\\"\\\$MIRROR_SYSTEM/android/system\\\" && exit
 test \\\"\\\$(cd /system; ls)\\\" == \\\"\\\$(cd \\\"\\\$MIRROR_SYSTEM\\\"; ls)\\\" && exit
 mount --bind \\\"\\\$MIRROR_SYSTEM/android/system\\\" \\\"\\\$MIRROR_SYSTEM\\\" )
 ( #fix mount data mirror
-function cmdline() { 
+function cmdline() {
 	awk -F\\\"\\\${1}=\\\" '{print \\\$2}' < /proc/cmdline | cut -d' ' -f1 2> /dev/null
 }
 
@@ -1994,7 +2029,7 @@ magiskloader="
 
          on early-init
              $EXPORT_PATH
-              
+
 
           on post-fs-data
 $RM_RUSTY_MAGISK
@@ -2152,7 +2187,7 @@ mkdir -p \$MAGISKTMP/emu
 exec 2>>\$MAGISKTMP/emu/record_logs.txt
 exec >>\$MAGISKTMP/emu/record_logs.txt
 
-cd $MAGISKBASE 
+cd $MAGISKBASE
 
 test ! -f \"./\$magisk_name\" && { echo -n >/dev/.overlay_unblock; exit_magisk; exit 0; }
 
@@ -2234,27 +2269,27 @@ CheckBlueStacksSUBinary(){
 		abort_script
 	fi
 	echo "[*] $SU binary found"
-	
+
 	# Disable SELinux
-	#$SU -c 'setenforce 0'	
-} 
+	#$SU -c 'setenforce 0'
+}
 
 GetBlueStacksRamdisk() {
 	echo "[*] Getting BlueStacks Ramdisk"
 
 	BA="/boot/android"
-	
+
 	BSTKRDF="$BA/android/ramdisk.img"
 	BSTKRDFBU="$BSTKRDF.backup"
 
 	echo "[-] remounting $BA as RW"
 	mount -o remount,rw $BA
-	
+
 	if [ ! -e $BSTKRDFBU ]; then
 		echo "[*] Copy $BSTKRDF to $BSTKRDFBU"
 		cp -fac $BSTKRDF $BSTKRDFBU
 	fi
-	
+
 	echo "[*] Copy $BSTKRDF to $BASEDIR"
 	cp -fac $BSTKRDF $BASEDIR/
 }
@@ -2268,7 +2303,7 @@ FinalizeBlueStacks() {
 		echo "[-] Change ramdisk Owner to System"
 		chown 1000:1000 $BSTKRDF
 	fi
-	
+
 	echo "[*] Change $BASEDIR Owner back to Shell while root for deleting reasons"
 	chown 2000:2000 $BASEDIR -R
 	echo "[*] Cleaning /data/adb Folder"
@@ -2313,15 +2348,15 @@ SettingBlueStackMagiskPermissions() {
 	echo "[*] Setting BlueStack Magisk Permissions"
 	local ROOT=$(stat -c %u /dev)
 	cd $BLSTKMAGISKDIR/ > /dev/null
-		set_perm_recursive assets $ROOT $ROOT 0750 0777	
-		set_perm ./busybox $ROOT $ROOT 0750 u:object_r:magisk_file:s0	
-		
-		if [ -e "magisk64" ]; then			
+		set_perm_recursive assets $ROOT $ROOT 0750 0777
+		set_perm ./busybox $ROOT $ROOT 0750 u:object_r:magisk_file:s0
+
+		if [ -e "magisk64" ]; then
 			set_perm ./magisk64 $ROOT $ROOT 0750 u:object_r:magisk_exec:s0
-		elif [ -e "magisk32" ]; then			
+		elif [ -e "magisk32" ]; then
 			set_perm ./magisk32 $ROOT $ROOT 0750 u:object_r:magisk_exec:s0
 		fi
-				
+
 		set_perm ./magiskboot $ROOT $ROOT 0750
 		set_perm ./magiskinit $ROOT $ROOT 0750
 		set_perm ./overlay.sh $ROOT $ROOT 0750
@@ -2332,7 +2367,7 @@ SettingBlueStackMagiskPermissions() {
 InstallMagiskIntoBlueStacksRamdisk() {
 	echo "[-] Patching BlueStacks ramdisk .."
 	echo "[*] Taken from HuskyDG script MagiskOnEmu/libbash.so"
-	
+
 	MAGISKBASE="/magisk"
 	BLSTKMAGISKDIR=$TMP/ramdisk$MAGISKBASE
 	local INITRC=$TMP/ramdisk/init.rc
@@ -2348,15 +2383,15 @@ InstallMagiskIntoBlueStacksRamdisk() {
 	cp $INITRC $BLSTKMAGISKDIR/
 	echo "[*] generating Magisk Boot Scripts"
 	magisk_loader
-	echo "[*] Magisk files will be mounted to $MAGISKTMP"	
+	echo "[*] Magisk files will be mounted to $MAGISKTMP"
 	echo "[-] writing overlay.sh Script"
 	echo "$overlay_loader" >"$BLSTKMAGISKDIR/overlay.sh"
 	echo "[*] appending boot commands to init.rc"
 	echo "$magiskloader" >> "$TMP/ramdisk/init.rc"
-	
+
 	# setting permissions
 	SettingBlueStackMagiskPermissions
-	
+
 	echo "[-] Repacking BlueStacks ramdisk .."
 	cd $TMP/ramdisk > /dev/null
 		`find . | cpio -H newc -o > $CPIO`
@@ -2371,21 +2406,21 @@ service(){
 InstallMagiskToAVD() {
 
 	if [ -z $PREPBBMAGISK ]; then
-		ProcessArguments $@		
+		ProcessArguments $@
 		api_level_arch_detect
-		PrepBusyBoxAndMagisk	
+		PrepBusyBoxAndMagisk
 		ExecBusyBoxAsh $@
 	fi
-	
+
 	echo "[*] rootAVD with Magisk $MAGISK_VER Installer"
-	
+
 	get_flags
 	copyARCHfiles
 
 	#$ENVFIXTASK && construct_environment
-	
+
 	if [ "$DERIVATE" == "BlueStacks" ]; then
-		GetBlueStacksRamdisk		
+		GetBlueStacksRamdisk
 	fi
 
 	if $INEMULATOR; then
@@ -2394,10 +2429,10 @@ InstallMagiskToAVD() {
 		if $FAKEBOOTIMG; then
 			process_fake_boot_img
 		fi
-		
+
 		test_ramdisk_patch_status
 		verify_ramdisk_origin
-		
+
 		if [ "$DERIVATE" == "BlueStacks" ]; then
 			InstallMagiskIntoBlueStacksRamdisk
 		else
@@ -2405,20 +2440,20 @@ InstallMagiskToAVD() {
 				apply_ramdisk_hacks
 			else
 				patching_ramdisk
-			fi		
+			fi
 		fi
-		
-		## Magisk Module testing		
+
+		## Magisk Module testing
 		if $DEBUG; then
 			service
-		fi		
-		
+		fi
+
 		repacking_ramdisk
 		rename_copy_magisk
 	fi
-	
+
 	if [ "$DERIVATE" == "BlueStacks" ]; then
-		FinalizeBlueStacks		
+		FinalizeBlueStacks
 	fi
 }
 
@@ -2433,7 +2468,7 @@ FindSystemImages() {
 	#export ANDROID_HOME=~/Downloads/sdk
 	local ANDROIDHOME=""
 	local NoSystemImages=true
-	
+
 	if [ ! -z "$ANDROID_HOME" ]; then
 		ANDROIDHOME="$ANDROID_HOME/system-images"
 		if [ -d "$ANDROIDHOME" ]; then
@@ -2444,8 +2479,8 @@ FindSystemImages() {
 				HOME="$ANDROID_HOME/"
 				SYSIM_DIR="system-images"
 			fi
-			NoSystemImages=false		
-		fi				
+			NoSystemImages=false
+		fi
 	else
 		if [ -d "$HOME$SYSIM_DIR_M" ]; then
 			SYSIM_DIR="$SYSIM_DIR_M"
@@ -2453,9 +2488,9 @@ FindSystemImages() {
 		elif [ -d "$HOME$SYSIM_DIR_L" ]; then
 			SYSIM_DIR="$SYSIM_DIR_L"
 			NoSystemImages=false
-		fi		
+		fi
 	fi
-	
+
 	if $NoSystemImages ; then
 		echo "[!] No system-images could be found"
 		return 1
@@ -2486,7 +2521,7 @@ FindSystemImages() {
 			echo "${bold}./rootAVD.sh $SYSIM InstallKernelModules${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM InstallPrebuiltKernelModules${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG${normal}"
-			echo "${bold}./rootAVD.sh $SYSIM AddRCscripts${normal}"			
+			echo "${bold}./rootAVD.sh $SYSIM AddRCscripts${normal}"
 			echo ""
 		else
 			echo ""
@@ -2647,7 +2682,7 @@ ProcessArguments() {
 	  		RAMDISKIMG=true
 		;;
 	esac
-	
+
 	case $2 in
 	  "restore" )
 			restore=true
@@ -2709,7 +2744,7 @@ if [[ "$SHELLRESULT" == "0" ]]; then
 		$(which /system/xbin/bstk/su > /dev/null 2>&1)
 		DERIVATE="$?"
 		if [[ "$DERIVATE" == "0" ]]; then
-			DERIVATE="BlueStacks"			
+			DERIVATE="BlueStacks"
 		fi
 	fi
 	if [ ! -z $PREPBBMAGISK ]; then
@@ -2717,7 +2752,7 @@ if [[ "$SHELLRESULT" == "0" ]]; then
 		# Don't use $BB from now on
 	else
 		echo "[!] We are in a $DERIVATE emulator shell"
-	fi	
+	fi
 fi
 
 #if [[ $SHELL == "ranchu" ]]; then
