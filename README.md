@@ -43,72 +43,70 @@ A Script to...
 ```
 rootAVD A Script to root AVD by NewBit XDA
 
-Usage:	rootAVD [DIR/ramdisk.img] [OPTIONS] | [EXTRA_CMDS]
-or:	rootAVD [ARGUMENTS]
+Usage:  rootAVD [DIR/ramdisk.img] [OPTIONS] | [EXTRA_CMDS]
+or:     rootAVD [ARGUMENTS]
 
 Arguments:
-	ListAllAVDs			Lists Command Examples for ALL installed AVDs
+        ListAllAVDs                     Lists Command Examples for ALL installed AVDs
 
-	EnvFixTask			Requires Additional Setup fix
-					- construct Magisk Environment manual
-					- only works with an already Magisk patched ramdisk.img
-					- without [DIR/ramdisk.img] [OPTIONS] [PATCHFSTAB]
-					- needed since Android 12 (S) rev.1
-					- not needed anymore since Android 12 (S) API 31 and Magisk Alpha
-					- Grant Shell Su Permissions will pop up a few times
-					- the AVD will reboot automatically
-
-	InstallApps			Just install all APKs placed in the Apps folder
+        InstallApps                     Just install all APKs placed in the Apps folder
 
 Main operation mode:
-	DIR				a path to an AVD system-image
-					- must always be the 1st Argument after rootAVD
-	
-ADB Path | Ramdisk DIR:
-	[M]ac/Darwin:			export PATH=~/Library/Android/sdk/platform-tools:$PATH
-					~/Library/Android/sdk/system-images/android-$API/google_apis_playstore/x86_64/
-	
-	[L]inux:			export PATH=~/Android/Sdk/platform-tools:$PATH
-					~/Android/Sdk/system-images/android-$API/google_apis_playstore/x86_64/
-	
-	[W]indows:			set PATH=%LOCALAPPDATA%\Android\Sdk\platform-tools;%PATH%
-					%LOCALAPPDATA%\Android\Sdk\system-images\android-$API\google_apis_playstore\x86_64\
-	
-	$API:				25,29,30,S,etc.
-	
-Except for EnvFixTask, ramdisk.img must be untouched (stock).
-	
-Options:
-	restore				restore all existing .backup files, but doesn't delete them
-					- the AVD doesn't need to be running
-					- no other Argument after will be processed
-	
-	InstallKernelModules		install custom build kernel and its modules into ramdisk.img
-					- kernel (bzImage) and its modules (initramfs.img) are inside rootAVD
-					- both files will be deleted after installation
-	
-	InstallPrebuiltKernelModules	download and install an AOSP prebuilt kernel and its modules into ramdisk.img
-					- similar to InstallKernelModules, but the AVD needs to be online
-	
-Options are exclusive, only one at the time will be processed.
-	
-Extra Commands:
-	DEBUG				Debugging Mode, prevents rootAVD to pull back any patched file
-	
-	PATCHFSTAB			fstab.ranchu will get patched to automount Block Devices like /dev/block/sda1
-					- other entries can be added in the script as well
-					- a custom build Kernel might be necessary
+        DIR                             a path to an AVD system-image
+                                        - must always be the 1st Argument after rootAVD
 
-	GetUSBHPmodZ			The USB HOST Permissions Module Zip will be downloaded into /sdcard/Download
-	
-Extra Commands can be combined, there is no particular order.
-	
+ADB Path | Ramdisk DIR| ANDROID_HOME:
+        [M]ac/Darwin:                   export PATH=~/Library/Android/sdk/platform-tools:\$PATH
+                                        ~/Library/Android/sdk/system-images/android-\$API/google_apis_playstore/x86_64/
+
+        [L]inux:                        export PATH=~/Android/Sdk/platform-tools:\$PATH
+                                        ~/Android/Sdk/system-images/android-\$API/google_apis_playstore/x86_64/
+
+        [W]indows:                      set PATH=%LOCALAPPDATA%\Android\Sdk\platform-tools;%PATH%
+                                        system-images\android-$API\google_apis_playstore\x86_64\
+
+                ANDROID_HOME:           By default, the script uses %LOCALAPPDATA%, to set its Android Home directory and
+                                        search for AVD system-images and ADB binarys. This behaviour can be overwritten by setting
+                                        the ANDROID_HOME variable. e.g. set ANDROID_HOME=%USERPROFILE%\Downloads\sdk
+
+        $API:                           25,29,30,31,32,33,34,UpsideDownCake,etc.
+
+Options:
+        restore                         restore all existing .backup files, but doesn't delete them
+                                        - the AVD doesn't need to be running
+                                        - no other Argument after will be processed
+
+        InstallKernelModules            install custom build kernel and its modules into ramdisk.img
+                                        - kernel (bzImage) and its modules (initramfs.img) are inside rootAVD
+                                        - both files will be deleted after installation
+
+        InstallPrebuiltKernelModules    download and install an AOSP prebuilt kernel and its modules into ramdisk.img
+                                        - similar to InstallKernelModules, but the AVD needs to be online
+
+Options are exclusive, only one at the time will be processed.
+
+Extra Arguments:
+        DEBUG                           Debugging Mode, prevents rootAVD to pull back any patched file
+
+        PATCHFSTAB                      fstab.ranchu will get patched to automount Block Devices like /dev/block/sda1
+                                        - other entries can be added in the script as well
+                                        - a custom build Kernel might be necessary
+
+        GetUSBHPmodZ                    The USB HOST Permissions Module Zip will be downloaded into /sdcard/Download
+
+        FAKEBOOTIMG                     Creates a fake Boot.img file that can directly be patched from the Magisk APP
+                                        - Magisk will be launched to patch the fake Boot.img within 60s
+                                        - the fake Boot.img will be placed under /sdcard/Download/fakeboot.img
+
+Extra Arguments can be combined, there is no particular order.
+
 Notes: rootAVD will
-- always create .backup files of ramdisk.img and kernel-ranchu
+- always create .backup files of ramdisk*.img and kernel-ranchu
 - replace both when done patching
 - show a Menu, to choose the Magisk Version (Stable || Canary || Alpha), if the AVD is online
 - make the choosen Magisk Version to its local
 - install all APKs placed in the Apps folder
+- use %LOCALAPPDATA%\Android\Sdk to search for AVD system images
 ```
 ### Linux & MacOS
 ```
@@ -170,53 +168,44 @@ Command Examples:
 Command Examples:
 rootAVD.bat
 rootAVD.bat ListAllAVDs
-rootAVD.bat EnvFixTask
 rootAVD.bat InstallApps
 
-rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img
-rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img restore
-rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallKernelModules
-rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules
-rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img FAKEBOOTIMG
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img restore
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img InstallKernelModules
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
 ```
 
 <details>
 <summary>Command Examples: for ALL installed AVDs</summary>
 
 ```
-./rootAVD.bat
-./rootAVD.bat ListAllAVDs
-./rootAVD.bat EnvFixTask
-./rootAVD.bat InstallApps
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img FAKEBOOTIMG
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img restore
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img InstallKernelModules
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules
+rootAVD.bat system-images\android-33\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
 
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img restore
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img InstallKernelModules
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\android-automotive-playstore\x86\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+rootAVD.bat system-images\android-25\google_apis_playstore\x86_64\ramdisk.img
+rootAVD.bat system-images\android-25\google_apis_playstore\x86_64\ramdisk.img FAKEBOOTIMG
+rootAVD.bat system-images\android-25\google_apis_playstore\x86_64\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+rootAVD.bat system-images\android-25\google_apis_playstore\x86_64\ramdisk.img restore
+rootAVD.bat system-images\android-25\google_apis_playstore\x86_64\ramdisk.img InstallKernelModules
+rootAVD.bat system-images\android-25\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules
+rootAVD.bat system-images\android-25\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
 
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img restore
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img InstallKernelModules
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-29\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
-
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img restore
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img InstallKernelModules
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-30\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
-
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img restore
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallKernelModules
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_playstore\x86_64\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.img
+rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.img FAKEBOOTIMG
+rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.img restore
+rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.img InstallKernelModules
+rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.img InstallPrebuiltKernelModules
+rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
 ```
 </details>
 
@@ -230,6 +219,11 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * API 28 (Pie) is **not supported** at all -> [because](https://source.android.com/devices/bootloader/partitions/system-as-root#sar-partitioning)
 * Magisk Versions >= 26.x can only be proper installed with the FAKEBOOTIMG argument
 	* due to the [New sepolicy.rule Implementation](https://github.com/topjohnwu/Magisk/releases/tag/v26.1)
+* Android 14 needs Magisk Version >= 26.x to be rooted
+
+### ANDROID_HOME
+* Default location can be overwritten by setting the `ANDROID_HOME` variable
+* In both cases, the script will search in it for AVD system-images and adb binarys
 
 ### Notes for Apk Developers
 * [How-To SU](http://su.chainfire.eu) from [Chainfire's](https://github.com/Chainfire) [libsuperuser](https://github.com/Chainfire/libsuperuser) - Guidelines for problem-free su usage (for Android Developers)
@@ -253,7 +247,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 	* The Time Window is between the **Launching Emulator Bar** is approx **half way** until the **Google Boot Screen** appears
 * Confirmation
 	* On the Bottom Left Corner reads: **Safe mode**
-	
+
 ### Automotive Notes
 * After patching the ramdisk.img and cycle power, switch to user 0 via `adb shell am switch-user 0`
 	* open the Magisk App and the **Requires Additional Setup** pops up -> reboot AVD
@@ -343,10 +337,17 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [[Mar. 2021] - Android 11 (R) API 30 Google Apis Play Store x86_64 r10 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-30_r10-windows.zip)
 * [[Mar. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86_64 r08 Darwin/MacOS Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-29_r08-darwin.zip)
 * [[Mar. 2021] - Android 10 (Q) API 29 Google Apis Play Store x86_64 r08 Windows Production Build](https://dl.google.com/android/repository/sys-img/google_apis_playstore/x86_64-29_r08-windows.zip)
-	
+
 </details>
 
 ### Change Logs
+#### [June 2023]
+* [rootAVD.bat] - rewritten the file and folder handling entirely
+* [rootAVD.bat] - fixed typos and bug fixes
+* [rootAVD.bat] - updated the TestADB routine, adb path will now be set automatically
+* [rootAVD.bat] - updated Exit calls
+* [General] - updated the README.md
+
 #### [May 2023]
 * [rootAVD.sh] - removed Busybox from Script
 
@@ -405,7 +406,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [rootAVD.sh] - Added BusyBox Binary after the rootAVD script
 * [rootAVD.bat] - Added ListAllAVDs and InstallApps as Arguments
 * [rootAVD.sh] - Added "ListAllAVDs" Argument that **Lists Command Examples for ALL installed AVDs**
-* [rootAVD.sh] - Added "InstallApps" Argument to **Just install all APKs placed in the Apps folder**			
+* [rootAVD.sh] - Added "InstallApps" Argument to **Just install all APKs placed in the Apps folder**
 * [rootAVD.bat] - Added comprehensive Help Menu
 #### [Apr. 2021]
 * [General] - Added comprehensive Help Menu
@@ -457,7 +458,7 @@ rootAVD.bat %LOCALAPPDATA%\Android\Sdk\system-images\android-31\google_apis_play
 * [Sébastien Corne magisk-single-user](https://github.com/seebz)
 * [remote-android Native Bridge Support in ReDroid](https://github.com/remote-android/redroid-doc/tree/master/native_bridge)
 * [vvb2060 Magisk Alpha](https://github.com/vvb2060/magisk_files/)
-* [All-in-one Markdown editor by terrylinooo](https://markdown-editor.github.io/) 
+* [All-in-one Markdown editor by terrylinooo](https://markdown-editor.github.io/)
 * [Online Free WYSIWYG HTML Editor](https://www.htmeditor.com/author/)
 * [HTML Tidy - Online Markup Corrector](https://htmltidy.net)
 * [ffmpeg + ImageMagick. Convert video to GIF by using Terminal.app in macOS](https://acronis.design/ffmpeg-imagemagick-convert-video-to-gif-using-the-terminal-app-in-macos-657948adf900)

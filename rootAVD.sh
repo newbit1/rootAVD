@@ -2428,17 +2428,41 @@ FindSystemImages() {
 	local SYSIM_DIR_L=Android/Sdk/system-images
 	local SYSIM_DIR=""
 	local SYSIM_EX=""
-
-	if [ -d "$HOME$SYSIM_DIR_M" ]; then
-		SYSIM_DIR=$SYSIM_DIR_M
-	elif [ -d "$HOME$SYSIM_DIR_L" ]; then
-		SYSIM_DIR=$SYSIM_DIR_L
+	#export ANDROID_HOME ~/Library/Android/sdk
+	#unset ANDROID_HOME
+	#export ANDROID_HOME=~/Downloads/sdk
+	local ANDROIDHOME=""
+	local NoSystemImages=true
+	
+	if [ ! -z "$ANDROID_HOME" ]; then
+		ANDROIDHOME="$ANDROID_HOME/system-images"
+		if [ -d "$ANDROIDHOME" ]; then
+			SYSIM_DIR="$ANDROIDHOME"
+			if [[ "$SYSIM_DIR" == *"$HOME"* ]]; then
+				SYSIM_DIR=${SYSIM_DIR##*$HOME}
+			else
+				HOME="$ANDROID_HOME/"
+				SYSIM_DIR="system-images"
+			fi
+			NoSystemImages=false		
+		fi				
 	else
+		if [ -d "$HOME$SYSIM_DIR_M" ]; then
+			SYSIM_DIR="$SYSIM_DIR_M"
+			NoSystemImages=false
+		elif [ -d "$HOME$SYSIM_DIR_L" ]; then
+			SYSIM_DIR="$SYSIM_DIR_L"
+			NoSystemImages=false
+		fi		
+	fi
+	
+	if $NoSystemImages ; then
+		echo "[!] No system-images could be found"
 		return 1
 	fi
 
 	cd $HOME > /dev/null
-			for SI in $(find $SYSIM_DIR -type f -iname ramdisk.img); do
+			for SI in $(find $SYSIM_DIR -type f -iname ramdisk*.img); do
 				if ( "$ListAllAVDs" ); then
 					SYSIM_EX+=" ~/$SI"
 				else
@@ -2449,19 +2473,24 @@ FindSystemImages() {
 
 	echo "${bold}./rootAVD.sh${normal}"
 	echo "${bold}./rootAVD.sh ListAllAVDs${normal}"
-	echo "${bold}./rootAVD.sh EnvFixTask${normal}"
+	#echo "${bold}./rootAVD.sh EnvFixTask${normal}"
 	echo "${bold}./rootAVD.sh InstallApps${normal}"
 	echo ""
 
 	for SYSIM in $SYSIM_EX;do
 		if [[ ! $SYSIM == "" ]]; then
 			echo "${bold}./rootAVD.sh $SYSIM${normal}"
+			echo "${bold}./rootAVD.sh $SYSIM FAKEBOOTIMG${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM DEBUG PATCHFSTAB GetUSBHPmodZ${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM restore${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM InstallKernelModules${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM InstallPrebuiltKernelModules${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM AddRCscripts${normal}"			
+			echo ""
+		else
+			echo ""
+			echo "No ramdisk files could be found"
 			echo ""
 		fi
 	done
