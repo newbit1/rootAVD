@@ -619,6 +619,19 @@ ShutDownAVD() {
 	echo "[!] Huge Credits and big Thanks to topjohnwu, shakalaca, vvb2060 and HuskyDG"
 }
 
+GetAVDPKGRevision() {
+	local sourcepropfile="source.properties"
+	if [[ -d "$AVDPATH" ]]; then
+		cd "$AVDPATH" > /dev/null
+			# If a source.properties file exist, try to find the Pkg.Revision number
+			if ( ! checkfile $sourcepropfile -eq 0 ); then
+				echo "[-] source.properties file exist"
+				echo "[*] AVD system-image $(grep 'Pkg.Revision=' $sourcepropfile)"
+			fi
+		cd - > /dev/null
+	fi
+}
+
 CopyMagiskToAVD() {
 	# Set Folders and FileNames
 	echo "[*] Set Directorys"
@@ -656,6 +669,8 @@ CopyMagiskToAVD() {
 		create_backup "$BLUESTACKSROOTVDIFILE"
 		MakeBlueStacksRW
 	fi
+
+	GetAVDPKGRevision
 	TestADB
 
 	# The Folder where the script was called from
