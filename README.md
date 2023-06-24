@@ -113,15 +113,16 @@ Notes: rootAVD will
 Command Examples:
 ./rootAVD.sh
 ./rootAVD.sh ListAllAVDs
-./rootAVD.sh EnvFixTask
 ./rootAVD.sh InstallApps
 
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img restore
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-33/google_apis_playstore/x86_64/ramdisk.img
+./rootAVD.sh system-images/android-33/google_apis_playstore/x86_64/ramdisk.img FAKEBOOTIMG
+./rootAVD.sh system-images/android-33/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh system-images/android-33/google_apis_playstore/x86_64/ramdisk.img restore
+./rootAVD.sh system-images/android-33/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
+./rootAVD.sh system-images/android-33/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh system-images/android-33/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-33/google_apis_playstore/x86_64/ramdisk.img AddRCscripts
 ```
 
 <details>
@@ -130,36 +131,61 @@ Command Examples:
 ```
 ./rootAVD.sh
 ./rootAVD.sh ListAllAVDs
-./rootAVD.sh EnvFixTask
 ./rootAVD.sh InstallApps
 
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img restore
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img InstallKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/android-automotive-playstore/x86/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-25/google_apis/armeabi-v7a/ramdisk.img
+./rootAVD.sh system-images/android-25/google_apis/armeabi-v7a/ramdisk.img FAKEBOOTIMG
+./rootAVD.sh system-images/android-25/google_apis/armeabi-v7a/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh system-images/android-25/google_apis/armeabi-v7a/ramdisk.img restore
+./rootAVD.sh system-images/android-25/google_apis/armeabi-v7a/ramdisk.img InstallKernelModules
+./rootAVD.sh system-images/android-25/google_apis/armeabi-v7a/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh system-images/android-25/google_apis/armeabi-v7a/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-25/google_apis/armeabi-v7a/ramdisk.img AddRCscripts
 
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img restore
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-29/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-25/google_apis/x86_64/ramdisk.img
+./rootAVD.sh system-images/android-25/google_apis/x86_64/ramdisk.img FAKEBOOTIMG
+./rootAVD.sh system-images/android-25/google_apis/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh system-images/android-25/google_apis/x86_64/ramdisk.img restore
+./rootAVD.sh system-images/android-25/google_apis/x86_64/ramdisk.img InstallKernelModules
+./rootAVD.sh system-images/android-25/google_apis/x86_64/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh system-images/android-25/google_apis/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-25/google_apis/x86_64/ramdisk.img AddRCscripts
 
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img restore
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-30/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-30/google_apis_playstore/x86/ramdisk.img
+./rootAVD.sh system-images/android-30/google_apis_playstore/x86/ramdisk.img FAKEBOOTIMG
+./rootAVD.sh system-images/android-30/google_apis_playstore/x86/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh system-images/android-30/google_apis_playstore/x86/ramdisk.img restore
+./rootAVD.sh system-images/android-30/google_apis_playstore/x86/ramdisk.img InstallKernelModules
+./rootAVD.sh system-images/android-30/google_apis_playstore/x86/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh system-images/android-30/google_apis_playstore/x86/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-30/google_apis_playstore/x86/ramdisk.img AddRCscripts
 
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img restore
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
-./rootAVD.sh ~/Library/Android/sdk/system-images/android-31/google_apis_playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk-qemu.img
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk-qemu.img FAKEBOOTIMG
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk-qemu.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk-qemu.img restore
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk-qemu.img InstallKernelModules
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk-qemu.img InstallPrebuiltKernelModules
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk-qemu.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk-qemu.img AddRCscripts
+
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk.img
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk.img FAKEBOOTIMG
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk.img restore
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk.img InstallKernelModules
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-30/android-automotive-playstore/x86_64/ramdisk.img AddRCscripts
+
+./rootAVD.sh system-images/android-29/android-automotive-playstore/x86/ramdisk.img
+./rootAVD.sh system-images/android-29/android-automotive-playstore/x86/ramdisk.img FAKEBOOTIMG
+./rootAVD.sh system-images/android-29/android-automotive-playstore/x86/ramdisk.img DEBUG PATCHFSTAB GetUSBHPmodZ
+./rootAVD.sh system-images/android-29/android-automotive-playstore/x86/ramdisk.img restore
+./rootAVD.sh system-images/android-29/android-automotive-playstore/x86/ramdisk.img InstallKernelModules
+./rootAVD.sh system-images/android-29/android-automotive-playstore/x86/ramdisk.img InstallPrebuiltKernelModules
+./rootAVD.sh system-images/android-29/android-automotive-playstore/x86/ramdisk.img InstallPrebuiltKernelModules GetUSBHPmodZ PATCHFSTAB DEBUG
+./rootAVD.sh system-images/android-29/android-automotive-playstore/x86/ramdisk.img AddRCscripts
 ```
 </details>
 
@@ -342,6 +368,7 @@ rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.i
 
 ### Change Logs
 #### [June 2023]
+* [rootAVD.sh] - rewritten the file and folder handling entirely, Darwin and Linux
 * [rootAVD.sh] - improved finding BusyBox routine, again
 * [General] - Added `.gitattributes` with `*.sh text eol=lf` to force UNIX line ending on Windows
 * [rootAVD.bat] - rewritten the file and folder handling entirely

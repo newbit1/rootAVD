@@ -164,7 +164,7 @@ api_level_arch_detect() {
 
 abort_script() {
 	echo "[!] aborting the script"
-	exit
+	exit 1
 }
 
 compression_method() {
@@ -333,7 +333,6 @@ process_fake_boot_img() {
 }
 
 # requires additional setup
-# EnvFixTask
 construct_environment() {
 	ROOT=`su -c "id -u"` 2>/dev/null
 
@@ -417,25 +416,6 @@ install_apps() {
 	done
 }
 
-create_backup() {
-	local FILE=""
-	local FILEPATH=""
-	local FILENAME=""
-	local BACKUPFILE=""
-	FILE="$1"
-	FILEPATH=${FILE%/*}
-	FILENAME=${FILE##*/}
-	BACKUPFILE="$FILENAME.backup"
-	# If no backup file exist, create one
-	if ( checkfile $FILEPATH/$BACKUPFILE -eq 0 ); then
-		echo "[*] create Backup File of $FILENAME"
-		cp $FILEPATH/$FILENAME $FILEPATH/$BACKUPFILE
-		#ls -l $($FILEPATH/$FILENAME)
-	else
-		echo "[-] $FILENAME Backup exists already"
-	fi
-}
-
 pushtoAVD() {
 	local SRC=""
 	local DST="$2"
@@ -444,10 +424,10 @@ pushtoAVD() {
 
 	if [[ "$DST" == "" ]]; then
 		echo "[*] Push $SRC into $ADBBASEDIR"
-		ADBPUSHECHO=$(adb push $1 $ADBBASEDIR 2>/dev/null)
+		ADBPUSHECHO=$(adb push "$1" $ADBBASEDIR 2>/dev/null)
 	else
 		echo "[*] Push $SRC into $ADBBASEDIR/$DST"
-		ADBPUSHECHO=$(adb push $1 $ADBBASEDIR/$DST 2>/dev/null)
+		ADBPUSHECHO=$(adb push "$1" $ADBBASEDIR/$DST 2>/dev/null)
 	fi
 
 	echo "[-] $ADBPUSHECHO"
@@ -459,23 +439,52 @@ pullfromAVD() {
 	local ADBPULLECHO=""
 	SRC=${1##*/}
 	DST=${2##*/}
-	ADBPULLECHO=$(adb pull $ADBBASEDIR/$SRC $2 2>/dev/null)
+	ADBPULLECHO=$(adb pull $ADBBASEDIR/$SRC "$2" 2>/dev/null)
 	if [[ ! "$ADBPULLECHO" == *"error"* ]]; then
 		echo "[*] Pull $SRC into $DST"
   		echo "[-] $ADBPULLECHO"
 	fi
 }
 
+create_backup() {
+	local FILE=""
+	local FILEPATH=""
+	local FILENAME=""
+	local BACKUPFILE=""
+	FILE="$1"
+	FILEPATH=${FILE%/*}
+	FILENAME=${FILE##*/}
+	BACKUPFILE="$FILENAME.backup"
+
+	cd "$FILEPATH" > /dev/null
+		# If no backup file exist, create one
+		if ( checkfile $BACKUPFILE -eq 0 ); then
+			echo "[*] create Backup File of $FILENAME"
+			cp $FILENAME $BACKUPFILE
+		else
+			echo "[-] $FILENAME Backup exists already"
+		fi
+	cd - > /dev/null
+}
+
 restore_backups() {
 	local BACKUPFILE=""
 	local RESTOREFILE=""
-	for f in $1/*.backup; do
-    	BACKUPFILE="$f"
-    	RESTOREFILE="${BACKUPFILE%.backup}"
-    	echo "[!] Restoring ${BACKUPFILE##*/} to ${RESTOREFILE##*/}"
-    	cp $BACKUPFILE $RESTOREFILE
-	done
-	echo "[*] Backups still remain in place"
+
+	cd "$1" > /dev/null
+		for f in $(find . -type f -name '*.backup'); do
+			BACKUPFILE="$f"
+			RESTOREFILE="${BACKUPFILE%.backup}"
+			echo "[!] Restoring ${BACKUPFILE##*/} to ${RESTOREFILE##*/}"
+			cp $BACKUPFILE $RESTOREFILE
+		done
+	cd - > /dev/null
+
+	if [ "$f" == "" ]; then
+		echo "[*] No Backup(s) to restore"
+	else
+		echo "[*] Backups still remain in place"
+	fi
 	exit 0
 }
 
@@ -493,77 +502,87 @@ toggle_Ramdisk() {
 	local hasBackup=false
 	local hasPatched=false
 
-	if ( checkfile $BackupFile -eq 0 ); then
+	if ( checkfile "$BackupFile" -eq 0 ); then
 		echo "[!] we need a valid backup file to proceed"
 		exit 0
 	fi
 
 	echo "[-] Toggle Ramdisk"
-	if ( checkfile $PatchedFile -eq 0 ); then
+	if ( checkfile "$PatchedFile" -eq 0 ); then
 		echo "[*] Pushing patched Ramdisk into Stack"
-		mv $RamdiskFile $PatchedFile
+		mv "$RamdiskFile" "$PatchedFile"
 		echo "[*] Popping original Ramdisk from Backup"
-		cp $BackupFile $RamdiskFile
+		cp "$BackupFile" "$RamdiskFile"
 	else
 		echo "[*] Popping patched Ramdisk back from Stack"
-		mv -f $PatchedFile $RamdiskFile
+		mv -f "$PatchedFile" "$RamdiskFile"
 	fi
 	exit 0
 }
 
 TestADB() {
-	local HOME=~/
-	local ADB_DIR_M=Library/Android/sdk/platform-tools
-	local ADB_DIR_L=Android/Sdk/platform-tools
-	local ADB_DIR=""
+
 	local ADB_EX=""
+	local exportedADB=false
 
-	echo "[-] Test if ADB SHELL is working"
+	while true; do
+		echo "[-] Test if ADB SHELL is working"
+		ADBWORKS=$(which adb)
+		if [ "$ADBWORKS" == *"not found"* ] || [ "$ADBWORKS" == "" ]; then
+			if [ ! -d "$ANDROIDHOME/$ADB_DIR" ]; then
+				echo "[!] ADB not found, please install and add it to your \$PATH"
+				exit
+			fi
 
-	ADBWORKS=$(which adb)
-	if [ "$ADBWORKS" == *"not found"* ] || [ "$ADBWORKS" == "" ]; then
-		if [ -d "$HOME$ADB_DIR_M" ]; then
-			ADB_DIR=$ADB_DIR_M
-		elif [ -d "$HOME$ADB_DIR_L" ]; then
-			ADB_DIR=$ADB_DIR_L
+			cd "$ANDROIDHOME" > /dev/null
+				for adb in $(find "$ADB_DIR" -type f -name adb); do
+					ADB_EX="$ANDROIDHOME/$adb"
+				done
+			cd - > /dev/null
+
+			if [[ "$ADB_EX" == "" ]]; then
+				echo "[!] ADB binary not found in $ENVVAR/$ADB_DIR"
+				exit
+			fi
+
+			echo "[!] ADB is not in your Path, try to:"
+			echo ""
+			echo "export PATH=$ENVVAR/$ADB_DIR:\$PATH"
+			echo ""
+
+			if $exportedADB; then
+				echo "[!] export didn't work'"
+				break
+			fi
+
+			if ( ! checkfile "$ADB_EX" -eq 0 ); then
+				echo "[*] setting it, just during this session, for you"
+				export "PATH=$ANDROIDHOME/$ADB_DIR:$PATH"
+				exportedADB=true
+			fi
 		else
-			echo "[!] ADB not found, please install and add it to your \$PATH"
-			exit
+			break
 		fi
-
-		cd $HOME > /dev/null
-			for adb in $(find $ADB_DIR -type f -name adb); do
-				ADB_EX="~/$adb"
-			done
-		cd - > /dev/null
-
-		if [[ $ADB_EX == "" ]]; then
-			echo "[!] ADB binary not found in ~/$ADB_DIR"
-			exit
-		fi
-
-  		echo "[!] ADB is not in your Path, try to"
-  		echo "export PATH=~/$ADB_DIR:\$PATH"
-  		echo ""
-  		exit
-	fi
+	done
 
 	ADBWORKS=$(adb shell 'echo true' 2>/dev/null)
 	if [ -z "$ADBWORKS" ]; then
-		echo "no ADB connection possible"
+		echo "[!] no ADB connection possible"
 		exit
+	elif [[ "$ADBWORKS" == "true" ]]; then
+		echo "[*] ADB connection possible"
 	fi
 }
 
 MakeBlueStacksRW() {
 
-	if ( checkfile $BLUESTACKSPATH/$AVBOXFILE -eq 0 ); then
+	if ( checkfile "$BLUESTACKSPATH/$AVBOXFILE" -eq 0 ); then
 		echo "[!] $AVBOXFILE not found"
 		echo "[!] check your BlueStacks installation"
 		exit 0
 	fi
 	echo "[!] $AVBOXFILE found"
-	create_backup $AVBOX
+	create_backup "$AVBOX"
 	echo "[*] Changing $ROOTVDIFILE type to \"Normal\""
 	sed 's,location="Root.vdi" format="VDI" type="Readonly",location="Root.vdi" format="VDI" type="Normal",' $AVBOX > $AVBOX".edit"
 	mv $AVBOX".edit" $AVBOX
@@ -613,28 +632,28 @@ CopyMagiskToAVD() {
 		ROOTVDIFILE=${BLUESTACKSROOTVDIFILE##*/}
 		RESTOREPATH=$BLUESTACKSPATH
 	else
-		AVDPATHWITHRDFFILE="$1"
+		AVDPATHWITHRDFFILE="$ANDROIDHOME/$1"
 		AVDPATH=${AVDPATHWITHRDFFILE%/*}
 		RDFFILE=${AVDPATHWITHRDFFILE##*/}
 		RESTOREPATH=$AVDPATH
 	fi
 
 	if ( "$restore" ); then
-		restore_backups $RESTOREPATH
+		restore_backups "$RESTOREPATH"
 	fi
 
 	if ( "$toggleRamdisk" ); then
-		toggle_Ramdisk $RESTOREPATH
+		toggle_Ramdisk "$RESTOREPATH"
 	fi
 
 	if ( "$BLUESTACKS" ); then
-		if ( checkfile $BLUESTACKSPATH/$ROOTVDIFILE -eq 0 ); then
+		if ( checkfile "$BLUESTACKSPATH/$ROOTVDIFILE" -eq 0 ); then
 			echo "[!] $ROOTVDIFILE not found"
 			echo "[!] check your BlueStacks installation"
 			exit
 		fi
 		echo "[!] $ROOTVDIFILE found"
-		create_backup $BLUESTACKSROOTVDIFILE
+		create_backup "$BLUESTACKSROOTVDIFILE"
 		MakeBlueStacksRW
 	fi
 	TestADB
@@ -644,7 +663,7 @@ CopyMagiskToAVD() {
 	MAGISKZIP=$ROOTAVD/Magisk.zip
 
 	# change to ROOTAVD directory
-	cd $ROOTAVD
+	cd "$ROOTAVD"
 
 	# Kernel Names
 	BZFILE=$ROOTAVD/bzImage
@@ -673,9 +692,9 @@ CopyMagiskToAVD() {
 	adb shell mkdir $ADBBASEDIR
 
 	# If Magisk.zip file doesn't exist, just ignore it
-	if ( ! checkfile $MAGISKZIP -eq 0 ); then
+	if ( ! checkfile "$MAGISKZIP" -eq 0 ); then
 		echo "[-] Magisk installer Zip exists already"
-		pushtoAVD $MAGISKZIP
+		pushtoAVD "$MAGISKZIP"
 	fi
 
 	# Proceed with ramdisk
@@ -686,21 +705,21 @@ CopyMagiskToAVD() {
 			exit
 		fi
 
-		create_backup $AVDPATHWITHRDFFILE
-		pushtoAVD $AVDPATHWITHRDFFILE "ramdisk.img"
+		create_backup "$AVDPATHWITHRDFFILE"
+		pushtoAVD "$AVDPATHWITHRDFFILE" "ramdisk.img"
 
 		if ( "$InstallKernelModules" ); then
 			INITRAMFS=$ROOTAVD/initramfs.img
-			if ( ! checkfile $INITRAMFS -eq 0 ); then
-				pushtoAVD $INITRAMFS
+			if ( ! checkfile "$INITRAMFS" -eq 0 ); then
+				pushtoAVD "$INITRAMFS"
 			fi
 		fi
 
 		if ( "$AddRCscripts" ); then
 			for f in $ROOTAVD/*.rc; do
-				pushtoAVD $f
+				pushtoAVD "$f"
 			done
-			pushtoAVD $ROOTAVD/sbin
+			pushtoAVD "$ROOTAVD/sbin"
 		fi
 	fi
 
@@ -724,7 +743,7 @@ CopyMagiskToAVD() {
 
 		if ( ! "$DEBUG" && "$BLUESTACKS" ); then
 			pullfromAVD "Magisk.apk" "Apps/"
-			pullfromAVD "Magisk.zip" $ROOTAVD
+			pullfromAVD "Magisk.zip" "$ROOTAVD"
 			echo "[-] Clean up the ADB working space"
 			adb shell rm -rf $ADBBASEDIR
 			install_apps
@@ -735,18 +754,18 @@ CopyMagiskToAVD() {
 		# In Debug-Mode we can skip parts of the script
 		if ( ! "$DEBUG" && "$RAMDISKIMG" ); then
 
-			pullfromAVD "ramdiskpatched4AVD.img" $AVDPATHWITHRDFFILE
+			pullfromAVD "ramdiskpatched4AVD.img" "$AVDPATHWITHRDFFILE"
 			pullfromAVD "Magisk.apk" "Apps/"
-			pullfromAVD "Magisk.zip" $ROOTAVD
+			pullfromAVD "Magisk.zip" "$ROOTAVD"
 
 			if ( "$InstallPrebuiltKernelModules" ); then
-				pullfromAVD $BZFILE $ROOTAVD
+				pullfromAVD "$BZFILE" "$ROOTAVD"
 				InstallKernelModules=true
 			fi
 
 			if ( "$InstallKernelModules" ); then
-				if ( ! checkfile $BZFILE -eq 0 ); then
-					create_backup $AVDPATH/$KRFILE
+				if ( ! checkfile "$BZFILE" -eq 0 ); then
+					create_backup "$AVDPATH/$KRFILE"
 					echo "[*] Copy $BZFILE (Kernel) into kernel-ranchu"
 					cp $BZFILE $AVDPATH/$KRFILE
 					if [ "$?" == "0" ]; then
@@ -2417,8 +2436,6 @@ InstallMagiskToAVD() {
 	get_flags
 	copyARCHfiles
 
-	#$ENVFIXTASK && construct_environment
-
 	if [ "$DERIVATE" == "BlueStacks" ]; then
 		GetBlueStacksRamdisk
 	fi
@@ -2457,63 +2474,100 @@ InstallMagiskToAVD() {
 	fi
 }
 
-FindSystemImages() {
-	local HOME=~/
-	local SYSIM_DIR_M=Library/Android/sdk/system-images
-	local SYSIM_DIR_L=Android/Sdk/system-images
-	local SYSIM_DIR=""
-	local SYSIM_EX=""
-	#export ANDROID_HOME ~/Library/Android/sdk
+GetANDROIDHOME() {
+
 	#unset ANDROID_HOME
 	#export ANDROID_HOME=~/Downloads/sdk
-	local ANDROIDHOME=""
-	local NoSystemImages=true
+	#export ANDROID_HOME=~"/Downloads/sd k"
+	#export ANDROID_HOME="~/Downloads/sd k"
+
+	local HOME=~
+	local ANDROIDHOME_M=$HOME/Library/Android/sdk
+	local ANDROIDHOME_L=$HOME/Android/Sdk
+	defaultHOME_M="~/Library/Android/sdk"
+	defaultHOME_L="~/Android/Sdk"
+	defaultHOME=""
+	local hostarch=""
+	SYSIM_DIR=system-images
+	ADB_DIR=platform-tools
+
+	NoSystemImages=true
+
+	if [ -d "$ANDROIDHOME_M" ]; then
+		ANDROIDHOME=$ANDROIDHOME_M
+		ENVVAR=$defaultHOME_M
+		defaultHOME=$defaultHOME_M
+	elif [ -d "$ANDROIDHOME_L" ]; then
+		ANDROIDHOME=$ANDROIDHOME_L
+		ENVVAR=$defaultHOME_L
+		defaultHOME=$defaultHOME_L
+	fi
 
 	if [ ! -z "$ANDROID_HOME" ]; then
-		ANDROIDHOME="$ANDROID_HOME/system-images"
-		if [ -d "$ANDROIDHOME" ]; then
-			SYSIM_DIR="$ANDROIDHOME"
-			if [[ "$SYSIM_DIR" == *"$HOME"* ]]; then
-				SYSIM_DIR=${SYSIM_DIR##*$HOME}
-			else
-				HOME="$ANDROID_HOME/"
-				SYSIM_DIR="system-images"
-			fi
-			NoSystemImages=false
+		if [[ "$ANDROID_HOME" == *"~"* ]]; then
+			ANDROID_HOME="${ANDROID_HOME/#~/~}"
 		fi
-	else
-		if [ -d "$HOME$SYSIM_DIR_M" ]; then
-			SYSIM_DIR="$SYSIM_DIR_M"
-			NoSystemImages=false
-		elif [ -d "$HOME$SYSIM_DIR_L" ]; then
-			SYSIM_DIR="$SYSIM_DIR_L"
-			NoSystemImages=false
+		ANDROIDHOME="$ANDROID_HOME"
+		ENVVAR="\$ANDROID_HOME"
+	fi
+
+	if [[ -d "$ANDROIDHOME/$SYSIM_DIR" ]]; then
+		NoSystemImages=false
+	fi
+
+	if [[ "$defaultHOME" == "" ]]; then
+		hostarch=$(uname -a)
+		defaultHOME=$defaultHOME_M
+		if [[ "$hostarch" == *"Linux"* ]]; then
+			defaultHOME=$defaultHOME_L
+		elif [[ "$hostarch" == *"linux"* ]]; then
+			defaultHOME=$defaultHOME_M
 		fi
 	fi
+
+	export NoSystemImages
+	export ANDROIDHOME
+	export ENVVAR
+	export SYSIM_DIR
+	export ADB_DIR
+	export defaultHOME
+	export ANDROIDHOME_M
+	export ANDROIDHOME_L
+}
+
+FindSystemImages() {
+	local SYSIM_EX=""
+
+	echo "- use ${bold}$ENVVAR${normal} to search for AVD system images"
+	echo "	"
 
 	if $NoSystemImages ; then
 		echo "[!] No system-images could be found"
 		return 1
 	fi
 
-	cd $HOME > /dev/null
+	cd "$ANDROIDHOME" > /dev/null
 			for SI in $(find $SYSIM_DIR -type f -iname ramdisk*.img); do
 				if ( "$ListAllAVDs" ); then
-					SYSIM_EX+=" ~/$SI"
+					if [[ "$SYSIM_EX" == "" ]]; then
+						SYSIM_EX+="$SI"
+					else
+						SYSIM_EX+=" $SI"
+					fi
 				else
-					SYSIM_EX="~/$SI"
+					SYSIM_EX="$SI"
 				fi
 			done
 	cd - > /dev/null
 
+	echo "${bold}Command Examples:${normal}"
 	echo "${bold}./rootAVD.sh${normal}"
 	echo "${bold}./rootAVD.sh ListAllAVDs${normal}"
-	#echo "${bold}./rootAVD.sh EnvFixTask${normal}"
 	echo "${bold}./rootAVD.sh InstallApps${normal}"
 	echo ""
 
 	for SYSIM in $SYSIM_EX;do
-		if [[ ! $SYSIM == "" ]]; then
+		if [[ ! "$SYSIM" == "" ]]; then
 			echo "${bold}./rootAVD.sh $SYSIM${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM FAKEBOOTIMG${normal}"
 			echo "${bold}./rootAVD.sh $SYSIM DEBUG PATCHFSTAB GetUSBHPmodZ${normal}"
@@ -2536,20 +2590,11 @@ bold=$(tput bold)
 normal=$(tput sgr0)
 echo "${bold}rootAVD A Script to root AVD by NewBit XDA${normal}"
 echo ""
-echo "Usage:	${bold}rootAVD [DIR/ramdisk.img] [OPTIONS] | [EXTRA_CMDS]${normal}"
+echo "Usage:	${bold}rootAVD [DIR/ramdisk.img] [OPTIONS] | [EXTRA ARGUMENTS]${normal}"
 echo "or:	${bold}rootAVD [ARGUMENTS]${normal}"
 echo ""
 echo "Arguments:"
 echo "	${bold}ListAllAVDs${normal}			Lists Command Examples for ALL installed AVDs"
-echo ""
-echo "	${bold}EnvFixTask${normal}			Requires Additional Setup fix"
-echo "					- construct Magisk Environment manual"
-echo "					- only works with an already Magisk patched ramdisk.img"
-echo "					- without [DIR/ramdisk.img] [OPTIONS] [PATCHFSTAB]"
-echo "					- needed since Android 12 (S) rev.1"
-echo "					- not needed anymore since Android 12 (S) API 31 and Magisk Alpha"
-echo "					- Grant Shell Su Permissions will pop up a few times"
-echo "					- the AVD will reboot automatically"
 echo ""
 echo "	${bold}InstallApps${normal}			Just install all APKs placed in the Apps folder"
 echo ""
@@ -2557,19 +2602,25 @@ echo "Main operation mode:"
 echo "	${bold}DIR${normal}				a path to an AVD system-image"
 echo "					- must always be the ${bold}1st${normal} Argument after rootAVD"
 echo "	"
-echo "ADB Path | Ramdisk DIR:"
-echo "	${bold}[M]ac/Darwin:${normal}			export PATH=~/Library/Android/sdk/platform-tools:\$PATH"
-echo "					~/Library/Android/sdk/system-images/android-\$API/google_apis_playstore/x86_64/"
+echo "ADB Path | Ramdisk DIR | ANDROID_HOME:"
+echo "	${bold}[M]ac/Darwin:${normal}			export PATH=$defaultHOME_M/platform-tools:\$PATH"
+echo "					export PATH=\$ANDROID_HOME/platform-tools:\$PATH"
+echo "					system-images/android-\$API/google_apis_playstore/x86_64/"
 echo "	"
-echo "	${bold}[L]inux:${normal}			export PATH=~/Android/Sdk/platform-tools:\$PATH"
-echo "					~/Android/Sdk/system-images/android-\$API/google_apis_playstore/x86_64/"
+echo "	${bold}[L]inux:${normal}			export PATH=$defaultHOME_L/platform-tools:\$PATH"
+echo "					export PATH=\$ANDROID_HOME/platform-tools:\$PATH"
+echo "					system-images/android-\$API/google_apis_playstore/x86_64/"
 echo "	"
 echo "	${bold}[W]indows:${normal}			set PATH=%LOCALAPPDATA%\Android\Sdk\platform-tools;%PATH%"
-echo "					%LOCALAPPDATA%\Android\Sdk\system-images\android-\$API\google_apis_playstore\x86_64\\"
+echo "					set PATH=%ANDROID_HOME%\platform-tools;%PATH%"
+echo "					system-images\android-\$API\google_apis_playstore\x86_64\\"
 echo "	"
-echo "	${bold}\$API:${normal}				25,29,30,S,etc."
+echo "	${bold}ANDROID_HOME:${normal}			By default, the script uses ${bold}$defaultHOME${normal}, to set its Android Home"
+echo "					directory, search for AVD system-images and ADB binarys. This behaviour"
+echo "					can be overwritten by setting the ANDROID_HOME variable."
+echo "					e.g. ${bold}export ANDROID_HOME=~/Downloads/sdk${normal}"
 echo "	"
-echo "Except for ${bold}EnvFixTask${normal}, ramdisk.img must be ${bold}untouched (stock).${normal}"
+echo "	${bold}\$API:${normal}				25,29,30,31,32,33,34,UpsideDownCake,etc."
 echo "	"
 echo "Options:"
 echo "	${bold}restore${normal}				restore all existing ${bold}.backup${normal} files, but doesn't delete them"
@@ -2587,7 +2638,7 @@ echo "	${bold}AddRCscripts${normal}			install all custom *.rc scripts, placed in
 echo "	"
 echo "Options are ${bold}exclusive${normal}, only one at the time will be processed."
 echo "	"
-echo "Extra Commands:"
+echo "Extra Arguments:"
 echo "	${bold}DEBUG${normal}				${bold}Debugging Mode${normal}, prevents rootAVD to pull back any patched file"
 echo "	"
 echo "	${bold}PATCHFSTAB${normal}			${bold}fstab.ranchu${normal} will get patched to automount Block Devices like ${bold}/dev/block/sda1${normal}"
@@ -2595,6 +2646,10 @@ echo "					- other entries can be added in the script as well"
 echo "					- a custom build Kernel might be necessary"
 echo "	"
 echo "	${bold}GetUSBHPmodZ${normal}			The ${bold}USB HOST Permissions Module Zip${normal} will be downloaded into ${bold}/sdcard/Download${normal}"
+echo "	"
+echo "	${bold}FAKEBOOTIMG${normal}			Creates a ${bold}fake Boot.img${normal} file that can directly be patched from the ${bold}Magisk APP${normal}"
+echo "					- Magisk will be launched to patch the fake Boot.img ${bold}within 60s${normal}"
+echo "					- the fake Boot.img will be placed under ${bold}/sdcard/Download/fakeboot.img${normal}"
 echo "	"
 echo "Extra Commands can be ${bold}combined${normal}, there is no particular order."
 echo "	"
@@ -2604,8 +2659,6 @@ echo "- ${bold}replace${normal} both when done patching"
 echo "- show a ${bold}Menu${normal}, to choose the Magisk Version ${bold}(Stable || Canary || Alpha)${normal}, if the AVD is ${bold}online${normal}"
 echo "- make the ${bold}choosen${normal} Magisk Version to its ${bold}local${normal}"
 echo "- install all APKs placed in the Apps folder"
-echo "	"
-echo "${bold}Command Examples:${normal}"
 FindSystemImages
 exit
 }
@@ -2614,7 +2667,6 @@ ProcessArguments() {
 	DEBUG=false
 	PATCHFSTAB=false
 	GetUSBHPmodZ=false
-	ENVFIXTASK=false
 	RAMDISKIMG=false
 	restore=false
 	InstallKernelModules=false
@@ -2673,15 +2725,8 @@ ProcessArguments() {
 		AddRCscripts=true
 	fi
 
-	case $1 in
-	  "EnvFixTask" )  # AVD requires additional setup
-			ENVFIXTASK=true
-		;;
 
-	  * )
-	  		RAMDISKIMG=true
-		;;
-	esac
+	RAMDISKIMG=true
 
 	case $2 in
 	  "restore" )
@@ -2716,7 +2761,6 @@ ProcessArguments() {
 	export DEBUG
 	export PATCHFSTAB
 	export GetUSBHPmodZ
-	export ENVFIXTASK
 	export RAMDISKIMG
 	export restore
 	export InstallKernelModules
@@ -2773,6 +2817,7 @@ if $INEMULATOR; then
 fi
 
 ProcessArguments $@
+GetANDROIDHOME
 
 if ( "$SOURCING" ); then
 	return
@@ -2780,13 +2825,34 @@ fi
 
 if ( "$DEBUG" ); then
 	echo "[!] We are in Debug Mode"
+	echo "DEBUG: $DEBUG"
+	echo "PATCHFSTAB: $PATCHFSTAB"
+	echo "GetUSBHPmodZ: $GetUSBHPmodZ"
+	echo "RAMDISKIMG: $RAMDISKIMG"
+	echo "restore: $restore"
+	echo "InstallKernelModules: $InstallKernelModules"
+	echo "InstallPrebuiltKernelModules: $InstallPrebuiltKernelModules"
+	echo "ListAllAVDs: $ListAllAVDs"
+	echo "InstallApps: $InstallApps"
+	echo "UpdateBusyBoxScript: $UpdateBusyBoxScript"
+	echo "AddRCscripts: $AddRCscripts"
+	echo "BLUESTACKS: $BLUESTACKS"
+	echo "toggleRamdisk: $toggleRamdisk"
+	echo "SOURCING: $SOURCING"
+	echo "FAKEBOOTIMG: $FAKEBOOTIMG"
 fi
 
-if ( ! "$ENVFIXTASK" && ! "$InstallApps" && ! "$BLUESTACKS"); then
+if ( ! "$InstallApps" && ! "$BLUESTACKS"); then
 	# If there is no file to work with, abort the script, except if it is a BlueStacks System
-	if (checkfile "$1" -eq 0); then
+	if [[ "$1" == "" ]]; then
 		ShowHelpText
 	fi
+	if ( ! "$restore"); then
+		if (checkfile "$ANDROIDHOME/$1" -eq 0); then
+			ShowHelpText
+		fi
+	fi
+
 fi
 
 echo "[!] and we are NOT in an emulator shell"

@@ -26,7 +26,6 @@ IF %DEBUG% (
 	echo DEBUG=%DEBUG%
 	echo PATCHFSTAB=%PATCHFSTAB%
 	echo GetUSBHPmodZ=%GetUSBHPmodZ%
-	echo ENVFIXTASK=%ENVFIXTASK%
 	echo RAMDISKIMG=%RAMDISKIMG%
 	echo restore=%restore%
 	echo InstallKernelModules=%InstallKernelModules%
@@ -351,7 +350,6 @@ exit /B 0
 	set DEBUG=%false%
 	set PATCHFSTAB=%false%
 	set GetUSBHPmodZ=%false%
-	set ENVFIXTASK=%false%
 	set RAMDISKIMG=%false%
 	set restore=%false%
 	set InstallKernelModules=%false%
@@ -434,7 +432,7 @@ exit /B 0
 :ShowHelpText
 	echo rootAVD A Script to root AVD by NewBit XDA
 	echo.
-	echo Usage:	rootAVD [DIR/ramdisk.img] [OPTIONS] ^| [EXTRA_CMDS]
+	echo Usage:	rootAVD [DIR/ramdisk.img] [OPTIONS] ^| [EXTRA ARGUMENTS]
 	echo or:	rootAVD [ARGUMENTS]
 	echo.
 	echo Arguments:
@@ -447,18 +445,21 @@ exit /B 0
 	echo 					- must always be the 1st Argument after rootAVD
 	echo.
 	echo ADB Path ^| Ramdisk DIR^| ANDROID_HOME:
-	echo 	[M]ac/Darwin:			export PATH=~/Library/Android/sdk/platform-tools:\$PATH
-	echo 					~/Library/Android/sdk/system-images/android-\$API/google_apis_playstore/x86_64/
+	echo 	[M]ac/Darwin:			export PATH=~/Library/Android/sdk/platform-tools:^$PATH
+	echo 					export PATH=^$ANDROID_HOME/platform-tools:^$PATH
+	echo 					system-images/android-^$API/google_apis_playstore/x86_64/
 	echo.
-	echo 	[L]inux:			export PATH=~/Android/Sdk/platform-tools:\$PATH
-	echo 					~/Android/Sdk/system-images/android-\$API/google_apis_playstore/x86_64/
+	echo 	[L]inux:			export PATH=~/Android/Sdk/platform-tools:^$PATH
+	echo 					export PATH=^$ANDROID_HOME/platform-tools:^$PATH
+	echo 					system-images/android-^$API/google_apis_playstore/x86_64/
 	echo.
 	echo 	[W]indows:			set PATH=%ENVVAR%\%ADB_DIR_W%;%%PATH%%
 	echo 					system-images\android-^$API\google_apis_playstore\x86_64\
 	echo.
-	echo 		ANDROID_HOME:		By default, the script uses %%LOCALAPPDATA%%, to set its Android Home directory and
-	echo 					search for AVD system-images and ADB binarys. This behaviour can be overwritten by setting
-	echo 					the ANDROID_HOME variable. e.g. set ANDROID_HOME=%%USERPROFILE%%\Downloads\sdk
+	echo 	ANDROID_HOME:			By default, the script uses %%LOCALAPPDATA%%, to set its Android Home
+	echo 					directory, search for AVD system-images and ADB binarys. This behaviour
+	echo 					can be overwritten by setting the ANDROID_HOME variable.
+	echo 					e.g. set ANDROID_HOME=%%USERPROFILE%%\Downloads\sdk
 	echo.
 	echo 	^$API:				25,29,30,31,32,33,34,UpsideDownCake,etc.
 	echo.
