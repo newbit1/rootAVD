@@ -43,7 +43,7 @@ A Script to...
 ```
 rootAVD A Script to root AVD by NewBit XDA
 
-Usage:  rootAVD [DIR/ramdisk.img] [OPTIONS] | [EXTRA_CMDS]
+Usage:  rootAVD [DIR/ramdisk.img] [OPTIONS] | [EXTRA ARGUMENTS]
 or:     rootAVD [ARGUMENTS]
 
 Arguments:
@@ -56,18 +56,21 @@ Main operation mode:
                                         - must always be the 1st Argument after rootAVD
 
 ADB Path | Ramdisk DIR| ANDROID_HOME:
-        [M]ac/Darwin:                   export PATH=~/Library/Android/sdk/platform-tools:\$PATH
-                                        ~/Library/Android/sdk/system-images/android-\$API/google_apis_playstore/x86_64/
+        [M]ac/Darwin:                   export PATH=~/Library/Android/sdk/platform-tools:$PATH
+                                        export PATH=$ANDROID_HOME/platform-tools:$PATH
+                                        system-images/android-$API/google_apis_playstore/x86_64/
 
-        [L]inux:                        export PATH=~/Android/Sdk/platform-tools:\$PATH
-                                        ~/Android/Sdk/system-images/android-\$API/google_apis_playstore/x86_64/
+        [L]inux:                        export PATH=~/Android/Sdk/platform-tools:$PATH
+                                        export PATH=$ANDROID_HOME/platform-tools:$PATH
+                                        system-images/android-$API/google_apis_playstore/x86_64/
 
         [W]indows:                      set PATH=%LOCALAPPDATA%\Android\Sdk\platform-tools;%PATH%
                                         system-images\android-$API\google_apis_playstore\x86_64\
 
-                ANDROID_HOME:           By default, the script uses %LOCALAPPDATA%, to set its Android Home directory and
-                                        search for AVD system-images and ADB binarys. This behaviour can be overwritten by setting
-                                        the ANDROID_HOME variable. e.g. set ANDROID_HOME=%USERPROFILE%\Downloads\sdk
+        ANDROID_HOME:                   By default, the script uses %LOCALAPPDATA%, to set its Android Home
+                                        directory, search for AVD system-images and ADB binarys. This behaviour
+                                        can be overwritten by setting the ANDROID_HOME variable.
+                                        e.g. set ANDROID_HOME=%USERPROFILE%\Downloads\sdk
 
         $API:                           25,29,30,31,32,33,34,UpsideDownCake,etc.
 
