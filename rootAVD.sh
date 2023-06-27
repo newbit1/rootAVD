@@ -19,7 +19,6 @@ getdir() {
 
 get_flags() {
 	echo "[-] Get Flags"
-
 	if [ -f /system/init -o -L /system/init ]; then
     	SYSTEM_ROOT=true
   	else
@@ -1112,18 +1111,22 @@ TestingBusyBoxVersion() {
 
 	local busyboxworks=false
 	local RESULT=""
-	echo "[*] Testing Busybox ..."
+	echo "[*] Testing Busybox $1"
 
 	rm -fR $TMP
 	mkdir -p $TMP
 
 	cd $TMP > /dev/null
-		$($1 unzip $MZ -oq > /dev/null 2>&1)
+		$(ASH_STANDALONE=1 $1 sh -c 'grep' > /dev/null 2>&1)
 		RESULT="$?"
-		if [[ "$RESULT" != "0" ]]; then
-			echo "[!] Busybox binary does not support extracting Magisk.zip"
-		else
-			busyboxworks=true
+		if [[ "$RESULT" != "255" ]]; then
+			$($1 unzip $MZ -oq > /dev/null 2>&1)
+			RESULT="$?"
+			if [[ "$RESULT" != "0" ]]; then
+				echo "[!] Busybox binary does not support extracting Magisk.zip"
+			else
+				busyboxworks=true
+			fi
 		fi
 	cd - > /dev/null
 

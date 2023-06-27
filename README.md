@@ -371,6 +371,7 @@ rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.i
 
 ### Change Logs
 #### [June 2023]
+* [rootAVD.sh] - improved finding BusyBox routine, and once again
 * [rootAVD.sh] - rewritten the file and folder handling entirely, Darwin and Linux
 * [rootAVD.sh] - improved finding BusyBox routine, again
 * [General] - Added `.gitattributes` with `*.sh text eol=lf` to force UNIX line ending on Windows
