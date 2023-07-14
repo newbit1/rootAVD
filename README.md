@@ -253,6 +253,7 @@ rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.i
 ### ANDROID_HOME
 * Default location can be overwritten by setting the `ANDROID_HOME` variable
 * In both cases, the script will search in it for AVD system-images and adb binarys
+* `ANDROID_HOME` Sets the path to the SDK installation directory -> [AOSP Variables reference](https://developer.android.com/tools/variables#envar)
 
 ### Notes for Apk Developers
 * [How-To SU](http://su.chainfire.eu) from [Chainfire's](https://github.com/Chainfire) [libsuperuser](https://github.com/Chainfire/libsuperuser) - Guidelines for problem-free su usage (for Android Developers)
@@ -370,6 +371,10 @@ rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.i
 </details>
 
 ### Change Logs
+#### [July 2023]
+* [rootAVD.bat] - Fixed some errors with double spaces
+* [rootAVD.bat] - Added TestADBWORKDIR routine
+
 #### [June 2023]
 * [rootAVD.sh] - improved finding BusyBox routine, and once again
 * [rootAVD.sh] - rewritten the file and folder handling entirely, Darwin and Linux

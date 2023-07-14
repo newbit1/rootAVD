@@ -42,7 +42,7 @@ IF NOT %InstallApps% (
 		call :ShowHelpText && exit /B 0
 	)
 	IF NOT exist "%ANDROIDHOME%%1" (
-		call :ShowHelpText && exit /B 0
+		echo file %1 not found && exit /B 0
 	)
 )
 
@@ -82,6 +82,8 @@ IF %InstallApps% (
 set ADBWORKDIR=/data/data/com.android.shell
 set ADBBASEDIR=%ADBWORKDIR%/Magisk
 echo [-] In any AVD via ADB, you can execute code without root in /data/data/com.android.shell
+
+call :TestADBWORKDIR
 
 REM change to ROOTAVD directory
 cd %ROOTAVD%
@@ -160,6 +162,22 @@ IF "%ERRORLEVEL%"=="0" (
 
 exit /B %ERRORLEVEL%
 
+:TestADBWORKDIR
+echo [*] Testing the ADB working space
+	SetLocal EnableDelayedExpansion
+	set ADBWORKS=
+	adb shell cd %ADBWORKDIR% > tmpFile 2>&1
+	set /P ADBWORKS=<tmpFile
+	del tmpFile
+
+	echo.%ADBWORKS%| FIND /I "No such file or directory">Nul && (
+		echo [^^!] %ADBWORKDIR% is not available
+		call :_Exit 2> nul
+	)
+	echo [^^!] %ADBWORKDIR% is available
+	EndLocal
+exit /B 0
+
 :ShutDownAVD
 	SetLocal EnableDelayedExpansion
 	set ADBPULLECHO=
@@ -196,12 +214,16 @@ exit /B 0
 	set DST=%2
 	set ADBPULLECHO=
 
-	for /F "delims=" %%i in ("%SRC%") do (
-		set SRC=%%~nxi
+	setlocal enableDelayedExpansion
+	for /f "delims=" %%i in ("!SRC!") do (
+		endlocal & REM
+		set "SRC=%%~nxi"
 	)
 
-	for /F "delims=" %%i in ("%DST%") do (
-		set DST=%%~nxi
+	setlocal enableDelayedExpansion
+	for /f "delims=" %%i in ("!DST!") do (
+		endlocal & REM
+		set "DST=%%~nxi"
 	)
 
 	adb pull %ADBBASEDIR%/%SRC% %2 > tmpFile 2>&1
@@ -221,12 +243,16 @@ exit /B 0
 	set DST=%2
 	set ADBPUSHECHO=
 
-	for /F "delims=" %%i in ("%SRC%") do (
-		set SRC=%%~nxi
+	setlocal enableDelayedExpansion
+	for /f "delims=" %%i in ("!SRC!") do (
+		endlocal & REM
+		set "SRC=%%~nxi"
 	)
 
-	for /F "delims=" %%i in ("%DST%") do (
-		set DST=%%~nxi
+	setlocal enableDelayedExpansion
+	for /f "delims=" %%i in ("!DST!") do (
+		endlocal & REM
+		set "DST=%%~nxi"
 	)
 
 	IF "%DST%"=="" (
@@ -506,7 +532,8 @@ exit /B 0
 	REM set ANDROID_HOME=%USERPROFILE%\Downloads\sdk
 	REM set ANDROID_HOME="%USERPROFILE%\Downloads\sd k"
 	REM set ANDROID_HOME=%USERPROFILE%\Downloads\sd k
-
+	REM set ANDROID_HOME=%USERPROFILE%\Downloads\Program Files (x86)\Android\android-sdk
+	REM set ANDROID_HOME="%USERPROFILE%\Downloads\Program Files (x86)\Android\android-sdk"
 	set NoSystemImages=%true%
 
 	REM Default: Looking for LOCALAPPDATA to seach AVD system-images
@@ -535,7 +562,6 @@ exit /B 0
 :FindSystemImages
 	echo - use %ENVVAR% to search for AVD system images
 	echo.
-
 	SetLocal EnableDelayedExpansion
 	set SYSIM_EX=
 
@@ -546,7 +572,12 @@ exit /B 0
 
 	for /f "delims=" %%i in ('dir "%ANDROIDHOME%%SYSIM_DIR%ramdisk*.img" /s /b /a-d') do (
 		set "j=%%~i"
-		set j=!j:%ANDROIDHOME%=!
+		setlocal enableDelayedExpansion
+		for /f "delims=" %%a in ("!ANDROIDHOME!") do (
+			endlocal & REM
+			set "j=!j:%%a=!"
+		)
+
 		IF %ListAllAVDs% (
 			IF "!SYSIM_EX!" == "" (
 				set SYSIM_EX=!j!
