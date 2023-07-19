@@ -372,6 +372,7 @@ rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.i
 
 ### Change Logs
 #### [July 2023]
+* [rootAVD.bat] - Fixed file ListAllAVDs not found bug
 * [rootAVD.bat] - Fixed some errors with double spaces
 * [rootAVD.bat] - Added TestADBWORKDIR routine
 

@@ -41,6 +41,9 @@ IF NOT %InstallApps% (
 	IF "%1" == "" (
 		call :ShowHelpText && exit /B 0
 	)
+	IF %ListAllAVDs% (
+		call :ShowHelpText && exit /B 0
+	)
 	IF NOT exist "%ANDROIDHOME%%1" (
 		echo file %1 not found && exit /B 0
 	)
