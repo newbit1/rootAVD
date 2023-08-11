@@ -820,6 +820,12 @@ CheckAVDIsOnline() {
 		$BB timeout 3 $BB wget -q --spider --no-check-certificate http://github.com > /dev/null 2>&1
 		if [ $? -eq 0 ]; then
     		AVDIsOnline=true
+    	else
+    		echo "[-] Checking AVDs Internet connection another way..."
+			echo -e "GET http://google.com HTTP/1.0\n\n" | $BB timeout 3 $BB nc -v google.com 80 > /dev/null 2>&1
+    		if [ $? -eq 0 ]; then
+				AVDIsOnline=true
+			fi
 		fi
 		$AVDIsOnline && echo "[!] AVD is online" || echo "[!] AVD is offline"
 	fi
