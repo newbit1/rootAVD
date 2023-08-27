@@ -276,10 +276,10 @@ create_fake_boot_img() {
 	echo "[-] removing old $FBI"
 	rm -f $FBI $RDF
 
-	printf "\x41\x4E\x44\x52\x4F\x49\x44\x21" > $FBHI # ANDROID!
-	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI
-	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI
-	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI
+	printf "\x41\x4E\x44\x52\x4F\x49\x44\x21" > $FBHI  # ANDROID!
+	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI # HEADER_VER KERNEL_SZ
+	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI # RAMDISK_SZ SECOND_SZ
+	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI # EXTRA_SZ
 	printf "\x00\x00\x00\x00\x00\x08\x00\x00" >> $FBHI # 00080000 (Pagesize 2048)
 	echo "[!] Only a minimal header is required for Magisk to repack the ramdisk"
 	#mv $RDF $CPIO
@@ -289,6 +289,33 @@ create_fake_boot_img() {
 
 	echo "[*] repacking ramdisk.img into $FBI"
 	$BASEDIR/magiskboot repack $FBHI $FBI > /dev/null 2>&1
+
+	test -f "$FBI"
+	RESULT="$?"
+	if [[ "$RESULT" != "0" ]]; then
+		echo "[*] $FBI could not be created"
+		echo "[-] Magisk expects a more complete boot.img header as source"
+		# size can be omitted in the header, only a warning will be generated
+		for i in $(seq 1 251);
+		do
+			printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI # fill 00000000 (to Pagesize 2048)
+		done
+
+		echo "[*] Adding $CPIO to fakeboot.img header"
+		cat $CPIO >> $FBHI
+
+		echo "[-] repacking ramdisk.img into $FBI with the more complete header"
+		$BASEDIR/magiskboot repack $FBHI $FBI > /dev/null 2>&1
+
+		test -f "$FBI"
+		RESULT="$?"
+		if [[ "$RESULT" != "0" ]]; then
+			echo "[!] $FBI could not be created"
+			abort_script
+		fi
+	fi
+	echo "[!] $FBI created"
+
 	InstallMagiskTemporarily
 	detecting_users
 	runMagisk_to_Patch_fake_boot_img
