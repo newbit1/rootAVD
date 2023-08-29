@@ -268,24 +268,37 @@ generate_build_prop() {
 	#BASEDIR=$(pwd)
 }
 
+writeLittleEndian() {
+	printf "\x${1:6:2}\x${1:4:2}\x${1:2:2}\x${1:0:2}"
+}
+
 create_fake_boot_img() {
+
+	if $DEBUG; then
+		generate_build_prop
+	fi
+
 	echo "[*] Creating a fake Boot.img"
 	FBHI=$BASEDIR/fakebootheader.img
 	FBI=$SDCARD/fakeboot.img
+	RAMDISK_SZ="$(printf '%08x' $(stat -c%s $CPIO))"
+	PAGESIZE=2048
+	PAGESIZE_HEX="$(printf '%08x' $PAGESIZE)"
 
 	echo "[-] removing old $FBI"
 	rm -f $FBI $RDF
 
 	printf "\x41\x4E\x44\x52\x4F\x49\x44\x21" > $FBHI  # ANDROID!
 	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI # HEADER_VER KERNEL_SZ
-	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI # RAMDISK_SZ SECOND_SZ
+	writeLittleEndian $RAMDISK_SZ >> $FBHI # RAMDISK_SZ
+
+	printf "\x00\x00\x00\x00" >> $FBHI # SECOND_SZ
 	printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI # EXTRA_SZ
-	printf "\x00\x00\x00\x00\x00\x08\x00\x00" >> $FBHI # 00080000 (Pagesize 2048)
+	printf "\x00\x00\x00\x00" >> $FBHI
+	writeLittleEndian $PAGESIZE_HEX >> $FBHI # PAGESIZE_HEX
+
 	echo "[!] Only a minimal header is required for Magisk to repack the ramdisk"
 	#mv $RDF $CPIO
-	if $DEBUG; then
-		generate_build_prop
-	fi
 
 	echo "[*] repacking ramdisk.img into $FBI"
 	$BASEDIR/magiskboot repack $FBHI $FBI > /dev/null 2>&1
@@ -295,14 +308,25 @@ create_fake_boot_img() {
 	if [[ "$RESULT" != "0" ]]; then
 		echo "[*] $FBI could not be created"
 		echo "[-] Magisk expects a more complete boot.img header as source"
-		# size can be omitted in the header, only a warning will be generated
-		for i in $(seq 1 251);
-		do
-			printf "\x00\x00\x00\x00\x00\x00\x00\x00" >> $FBHI # fill 00000000 (to Pagesize 2048)
-		done
+
+		# fill 00 (to Pagesize 2048)
+		truncate -s $PAGESIZE $FBHI
 
 		echo "[*] Adding $CPIO to fakeboot.img header"
 		cat $CPIO >> $FBHI
+
+		echo "[*] Checking filesize Padding for Pagesize 2048"
+
+		FBHI_SZ=$(stat -c%s $FBHI)
+		FBHI_PAD_SZ=$(( FBHI_SZ / $PAGESIZE ))
+		FBHI_PAD_SZ=$(( FBHI_PAD_SZ * $PAGESIZE ))
+
+		if [[ ! $FBHI_PAD_SZ -eq $FBHI_SZ ]]; then
+			echo "[*] Padding filesize to match Pagesize of 2048 Bytes"
+			FBHI_PAD_SZ=$(( FBHI_SZ / $PAGESIZE +1))
+			FBHI_PAD_SZ=$(( FBHI_PAD_SZ * $PAGESIZE ))
+			truncate -s $FBHI_PAD_SZ $FBHI
+		fi
 
 		echo "[-] repacking ramdisk.img into $FBI with the more complete header"
 		$BASEDIR/magiskboot repack $FBHI $FBI > /dev/null 2>&1
@@ -930,7 +954,6 @@ FetchMagiskDLData() {
 
 	rm -rf *.json > /dev/null 2>&1
 	$BB wget -q --no-check-certificate $SRCURL$JSON
-
 	VER=$(json_value "version" < $JSON)
 	VER_CODE=$(json_value "versionCode" 1 < $JSON)
 	DLL=$(json_value "link" 1 < $JSON)
@@ -1107,6 +1130,7 @@ CheckAvailableMagisks() {
 	fi
 	export MAGISK_VER
 	export MAGISKVERCHOOSEN
+	export UFSH
 }
 
 InstallMagiskTemporarily() {
@@ -1115,18 +1139,41 @@ InstallMagiskTemporarily() {
 	echo "[*] Searching for pre installed Magisk Apps"
 	PKG_NAMES=$(pm list packages magisk | cut -f 2 -d ":") > /dev/null 2>&1
 	PKG_NAME=""
+	local MAGISK_PKG_VER_CODE=""
+	local MAGISK_ZIP_VER_CODE=""
 
 	if [[ "$PKG_NAMES" == "" ]]; then
 		echo "[!] Temporarily installing Magisk"
 		pm install -r $MZ >/dev/null 2>&1
 		PKG_NAME=$(pm list packages magisk | cut -f 2 -d ":") > /dev/null 2>&1
 	else
-		#for PKG_NAME in $PKG_NAMES; do
-		#	pm clear $PKG_NAME >/dev/null 2>&1
-		#	pm uninstall $PKG_NAME >/dev/null 2>&1
-		#done
-		echo "[!] Found a pre installed Magisk App, use it"
 		PKG_NAME=$PKG_NAMES
+
+		$(pm dump --help > /dev/null 2>&1)
+		RESULT="$?"
+
+		if [[ "$RESULT" == "0" ]]; then
+			MAGISK_PKG_VER_CODE=$(pm dump $PKG_NAME | grep versionCode= | sed 's/.*versionCode=\([0-9]\{1,\}\).*/\1/')
+			#echo "MAGISK_PKG_VER_CODE=$MAGISK_PKG_VER_CODE"
+			MAGISK_ZIP_VER_CODE=$(grep $UFSH -e "MAGISK_VER_CODE" -w | sed 's/^.*=//')
+			#echo "MAGISK_ZIP_VER_CODE=$MAGISK_ZIP_VER_CODE"
+			#echo "PKG_NAME=$PKG_NAME"
+		fi
+
+		if [[ "$MAGISK_PKG_VER_CODE" != "$MAGISK_ZIP_VER_CODE" ]]; then
+			echo "[-] Magisk Versions differ"
+			echo "[*] Exchanging pre installed Magisk App Version $MAGISK_PKG_VER_CODE"
+			pm clear $PKG_NAME >/dev/null 2>&1
+			pm uninstall $PKG_NAME >/dev/null 2>&1
+			echo "[-] with the Magisk App Version $MAGISK_ZIP_VER_CODE"
+			pm install -r $MZ >/dev/null 2>&1
+			PKG_NAME=$(pm list packages magisk | cut -f 2 -d ":") > /dev/null 2>&1
+		fi
+		if [[ "$MAGISK_PKG_VER_CODE" == "" ]]; then
+			echo "[!] Found a pre installed Magisk App, use it"
+		else
+			echo "[!] Found a pre installed Magisk App Version $MAGISK_PKG_VER_CODE, use it"
+		fi
 		magiskispreinstalled=true
 	fi
 }

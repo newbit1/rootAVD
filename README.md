@@ -373,6 +373,8 @@ rootAVD.bat system-images\android-25\google_apis_playstore\armeabi-v7a\ramdisk.i
 ### Change Logs
 
 #### [August 2023]
+
+* [rootAVD.sh] - Added Pagesize Padding in the fakeboot.img
 * [rootAVD.sh] - Updated the creation of the fakeboot.img
 * [rootAVD.sh] - Added another way of checking the AVDs Internet connection
 
